@@ -1,7 +1,7 @@
 # Deploy static site to GitHub Pages automatically on every push to main
-# This is the static frontend — it will sync to your Supabase-backed server
-# if you set the Shared Data Server URL in Settings, or auto-detects if hosted
-# together with server.js.
+# This is the static frontend — it syncs directly to Supabase when
+# live-config.json contains the project URL and anon public key. The bundled
+# server remains available as a same-origin fallback for Docker/Render.
 
 name: Deploy to GitHub Pages + Live Sync
 
@@ -32,36 +32,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Inject Live Config
+      - name: Preserve Live Config
         run: |
-          echo "Injecting live URLs into index.html and config"
-          # Create a live-config.json that the frontend can fetch
-          cat > live-config.json << 'EOF'
-          {
-            "liveUrl": "https://hazard-mapping.onrender.com",
-            "githubRepo": "https://github.com/Musahid33/hazard-mapping",
-            "githubPages": "https://musahid33.github.io/hazard-mapping/",
-            "supabaseEnabled": true,
-            "apiEndpoints": {
-              "data": "/api/data",
-              "health": "/api/health",
-              "config": "/api/config"
-            },
-            "deployment": {
-              "render": "https://hazard-mapping.onrender.com",
-              "githubPages": "https://musahid33.github.io/hazard-mapping/",
-              "supabase": "https://supabase.com/dashboard"
-            },
-            "version": "2.0-supabase",
-            "updatedAt": "${{ github.event.head_commit.timestamp }}"
-          }
-          EOF
-          cat live-config.json
-          # Also ensure index.html references the live server if needed
-          # (Frontend auto-detects origin, but we add a meta tag for visibility)
-          if ! grep -q "live-config.json" index.html; then
-            echo "live-config.json created for frontend discovery"
-          fi
+          echo "Using the checked-in live-config.json (including Supabase public anon key)"
+          test -s live-config.json
+          node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('live-config.json','utf8')); if (!c.supabase || !c.supabase.url || !c.supabase.anonKey) { throw new Error('live-config.json must contain supabase.url and supabase.anonKey'); } console.log('Live config is valid; Supabase key is not printed.');"
 
       - name: Upload site files
         uses: actions/upload-pages-artifact@v3
