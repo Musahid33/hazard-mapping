@@ -249,6 +249,12 @@
     width: 100%;
   }
   .action-req-btn:hover { background: #0d47a1; }
+  .listen-row-btn {
+    background: #00838f; color: #fff; border: none;
+    padding: 6px 8px; border-radius: 4px; font-size: 11px;
+    font-weight: 700; cursor: pointer; white-space: nowrap; width: 100%;
+  }
+  .listen-row-btn:hover { background: #006064; }
 
   .req-overlay {
     display: none; position: fixed; inset: 0; z-index: 10000;
@@ -739,6 +745,15 @@ const TRANSLATIONS = {
     'toolbar.print': '🖨️ Print / PDF',
     'toolbar.excel': '📊 Download Excel',
     'toolbar.ppt': '📽️ Download PPT',
+    'toolbar.listen': '🔊 Listen',
+    'toolbar.stop': '⏹️ Stop',
+    'listen.listen': 'Listen',
+    'listen.introAll': 'Reading all hazard areas.',
+    'listen.areaNumber': 'Area {{n}}',
+    'listen.requiredPpe': 'Required PPE',
+    'listen.noAreas': 'No hazard areas to read aloud.',
+    'listen.stopped': '🔇 Stopped',
+    'listen.notSupported': '🔇 Voice reading is not supported in this browser.',
     'toolbar.sample': '📋 Sample 🔒',
     'toolbar.reset': '↺ Reset 🔒',
     'builder.title': '📝 Hazard Map Builder 🔒',
@@ -953,6 +968,15 @@ const TRANSLATIONS = {
     'toolbar.print': '🖨️ प्रिंट / PDF',
     'toolbar.excel': '📊 एक्सेल डाउनलोड करें',
     'toolbar.ppt': '📽️ PPT डाउनलोड करें',
+    'toolbar.listen': '🔊 सुनें',
+    'toolbar.stop': '⏹️ रोकें',
+    'listen.listen': 'सुनें',
+    'listen.introAll': 'सभी हैज़र्ड एरिया पढ़ी जा रही हैं।',
+    'listen.areaNumber': 'एरिया {{n}}',
+    'listen.requiredPpe': 'आवश्यक PPE',
+    'listen.noAreas': 'पढ़ने के लिए कोई हैज़र्ड एरिया नहीं है।',
+    'listen.stopped': '🔇 रोका गया',
+    'listen.notSupported': '🔇 इस ब्राउज़र में आवाज़ पढ़ने की सुविधा उपलब्ध नहीं है।',
     'toolbar.sample': '📋 सैंपल 🔒',
     'toolbar.reset': '↺ रीसेट 🔒',
     'builder.title': '📝 हैज़र्ड मैप बिल्डर 🔒',
@@ -2450,7 +2474,7 @@ function buildMap(d) {
       <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${t('risk.' + risk.value + '.label')}</div></td>
       <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
       <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(translateDataText(r.remarks)) || ''}</td>
-      <td class="action-cell col-action"><button type="button" class="action-req-btn" onclick="openHazardRequest(${origIdx})">${t('request.btn')}</button></td>
+      <td class="action-cell col-action"><div style="display:flex; flex-direction:column; gap:4px;"><button type="button" class="action-req-btn" onclick="openHazardRequest(${origIdx})">${t('request.btn')}</button><button type="button" class="listen-row-btn" onclick="listenRow(${origIdx})" title="${t('toolbar.listen')}">🔊 ${t('listen.listen')}</button></div></td>
     </tr>`;
   }).join('');
 
@@ -3485,6 +3509,95 @@ function openMailtoRequest(mail) {
   closeHazardRequest();
   toast(t('request.mailOpen'));
   window.location.href = href;
+}
+
+// ============== LISTEN (Text-to-Speech / Read Aloud) ==============
+let _speechActive = false;
+
+function speechSupported() {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+
+function pickSpeechVoice(lang) {
+  if (!speechSupported()) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || !voices.length) return null;
+  const target = lang === 'hi' ? 'hi' : 'en';
+  const exact = lang === 'hi' ? 'hi-in' : 'en-in';
+  let v = voices.find(x => (x.lang || '').toLowerCase() === exact);
+  if (!v) v = voices.find(x => (x.lang || '').toLowerCase().startsWith(target));
+  return v || null;
+}
+
+function speakChunk(text, lang) {
+  return new Promise(resolve => {
+    if (!speechSupported() || !_speechActive) { resolve(); return; }
+    const u = new SpeechSynthesisUtterance(text);
+    const voice = pickSpeechVoice(lang);
+    if (voice) u.voice = voice;
+    u.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
+    u.rate = 0.95;
+    u.pitch = 1;
+    u.onend = () => resolve();
+    u.onerror = () => resolve();
+    window.speechSynthesis.speak(u);
+  });
+}
+
+// Build the spoken text (translated to the current language) for either
+// one row (rowIdx is a number) or the whole map (rowIdx is null).
+// Only speaks: Activity, Hazard, Risk Describe, Required PPE, Remarks.
+function buildSpeechChunks(d, rowIdx) {
+  const chunks = [];
+  const listText = arr => (arr || []).map(x => translateDataText(x)).filter(Boolean).join(', ');
+  const ppeText = r => (r.ppe || []).map(p => t('ppe.' + p) || p).filter(Boolean).join(', ');
+
+  const single = (rowIdx !== null && rowIdx !== undefined);
+  const rows = single ? [d.rows[rowIdx]] : (d.rows || []);
+
+  rows.forEach(r => {
+    if (!r) return;
+    const parts = [];
+    const act = listText(r.activity);
+    if (act) parts.push(t('table.activity') + ': ' + act);
+    const hz = listText(r.hazard);
+    if (hz) parts.push(t('table.hazard') + ': ' + hz);
+    if (r.riskDescription) parts.push(t('table.riskDescribe') + ': ' + translateDataText(r.riskDescription));
+    const ppe = ppeText(r);
+    if (ppe) parts.push(t('listen.requiredPpe') + ': ' + ppe);
+    if (r.remarks) parts.push(t('table.remarks') + ': ' + translateDataText(r.remarks));
+    if (parts.length) chunks.push(parts.join('. '));
+  });
+
+  return chunks;
+}
+
+async function runSpeech(chunks) {
+  _speechActive = true;
+  window.speechSynthesis.cancel();
+  try {
+    for (const chunk of chunks) {
+      if (!_speechActive) break;
+      await speakChunk(chunk, currentLanguage);
+    }
+  } finally {
+    _speechActive = false;
+  }
+}
+
+async function listenRow(idx) {
+  if (_speechActive) { stopListening(); return; }
+  if (!speechSupported()) { toast(t('listen.notSupported')); return; }
+  const d = collectData();
+  const r = d.rows && d.rows[idx];
+  if (!r) return;
+  await runSpeech(buildSpeechChunks(d, idx));
+}
+
+function stopListening() {
+  _speechActive = false;
+  if (speechSupported()) window.speechSynthesis.cancel();
+  toast(t('listen.stopped'));
 }
 
 function toast(msg) {
