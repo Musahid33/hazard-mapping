@@ -1,14 +1,33 @@
 {
   "name": "hazard-map-dashboard",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Hazard Map Dashboard – Emvess Infraventures Pvt Ltd (shared-data server included)",
+  "description": "Hazard Map Dashboard – Emvess Infraventures Pvt Ltd (Supabase + shared-data server)",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "supabase:setup": "echo 'Run supabase/schema.sql in your Supabase SQL editor'",
+    "check": "node -c server.js && echo 'server.js syntax OK'"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "keywords": [
+    "hazard-map",
+    "supabase",
+    "safety",
+    "dashboard",
+    "emvess",
+    "live-sync"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Musahid33/hazard-mapping.git"
+  },
+  "homepage": "https://musahid33.github.io/hazard-mapping/",
   "license": "UNLICENSED"
 }

@@ -1,7 +1,7 @@
-# Render Blueprint — one-click deploy of the shared-data server.
+# Render Blueprint — one-click deploy of the hazard-map with Supabase live sync
 # Push this repo to GitHub, then in Render: "New +" → "Blueprint" → pick repo.
 # Render reads this file and creates the web service automatically.
-# The live URL becomes the global URL: every device that opens it shares data.
+# Live URL becomes global URL: every device that opens it shares data via Supabase.
 
 services:
   - type: web
@@ -12,5 +12,27 @@ services:
     envVars:
       - key: PORT
         value: 8080
-      # - key: SYNC_TOKEN          # optional write-protection
-      #   sync: false
+      - key: NODE_ENV
+        value: production
+      - key: GITHUB_REPO_URL
+        value: https://github.com/Musahid33/hazard-mapping
+      - key: LIVE_URL
+        fromService:
+          type: web
+          name: hazard-map-dashboard
+          property: host
+        # Will be like https://hazard-map-dashboard.onrender.com — you can also hardcode your custom domain
+      - key: SUPABASE_URL
+        sync: false
+        # Example: https://YOUR_PROJECT.supabase.co — set in Render dashboard
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+        # Your Supabase service_role key (secret) — set in Render dashboard
+      - key: SUPABASE_ANON_KEY
+        sync: false
+        # Optional anon key — set if you want client fallback
+      - key: SUPABASE_TABLE
+        value: hazard_data
+      - key: SYNC_TOKEN
+        sync: false
+        # Optional: set to protect writes, must match app Settings → Access Token
