@@ -80,40 +80,6 @@
   }
   .form-label-row label { margin-bottom: 0; }
 
-  .btn-field-translate {
-    background: #e8eaf6; color: #1a237e; border: 1px solid #c5cae9;
-    border-radius: 3px; padding: 2px 7px; font-size: 10.5px;
-    font-weight: 700; cursor: pointer; display: inline-flex;
-    align-items: center; gap: 3px; transition: all 0.15s ease;
-    line-height: 1.2;
-  }
-  .btn-field-translate:hover { background: #c5cae9; color: #0d1b54; }
-  .btn-field-translate:disabled { opacity: 0.6; cursor: wait; }
-
-  .btn-row-translate {
-    background: #e8eaf6; color: #1a237e; border: 1px solid #c5cae9;
-    border-radius: 3px; padding: 4px 8px; font-size: 11px;
-    font-weight: 700; cursor: pointer; transition: all 0.15s ease;
-  }
-  .btn-row-translate:hover { background: #c5cae9; color: #0d1b54; }
-  .btn-row-translate:disabled { opacity: 0.6; cursor: wait; }
-
-  .builder-translate-toolbar {
-    background: linear-gradient(135deg, #ede7f6, #d1c4e9);
-    border: 1.5px solid #b39ddb; border-left: 5px solid #7b1fa2;
-    border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;
-    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
-  }
-  .builder-translate-toolbar .btn-trans-all {
-    border: none; padding: 5px 11px; border-radius: 4px;
-    font-size: 11px; font-weight: 700; cursor: pointer;
-    transition: all 0.2s;
-  }
-  .builder-translate-toolbar .btn-trans-hi { background: #7b1fa2; color: #fff; }
-  .builder-translate-toolbar .btn-trans-hi:hover { background: #4a148c; }
-  .builder-translate-toolbar .btn-trans-en { background: #0277bd; color: #fff; }
-  .builder-translate-toolbar .btn-trans-en:hover { background: #01579b; }
-
   .form-row { margin-bottom: 8px; }
   .form-row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .form-row-half .form-row { margin-bottom: 0; }
@@ -495,14 +461,6 @@
       </div>
     </div>
 
-    <div class="builder-translate-toolbar">
-      <span style="font-size:12px; font-weight:700; color:#4a148c;" data-i18n="builder.autoTranslate">🌐 Translate Form Inputs:</span>
-      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button type="button" class="btn-trans-all btn-trans-hi" onclick="translateAllRows('hi')" data-i18n="translate.allHi">🇮🇳 Inputs to हिन्दी</button>
-        <button type="button" class="btn-trans-all btn-trans-en" onclick="translateAllRows('en')" data-i18n="translate.allEn">🇬🇧 Inputs to English</button>
-      </div>
-    </div>
-
     <div class="form-section">
       <h3 data-i18n="document.info">📌 Document Info</h3>
       <div class="meta-form">
@@ -791,7 +749,6 @@ const TRANSLATIONS = {
     'builder.titleAttr': 'Click to unlock (password protected)',
     'builder.unlockedTitle': 'Builder is unlocked',
     'builder.addArea': '➕ Add Hazard Area',
-    'builder.autoTranslate': '🌐 Translate Form Inputs:',
     'columns.title': '🔍 Filter Column (Show/Hide)',
     'columns.choose': 'Choose which columns to display in the preview table:',
     'columns.hint': "💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.",
@@ -860,6 +817,7 @@ const TRANSLATIONS = {
     'table.riskDescribe': 'RISK DESCRIBE',
     'table.riskLevel': 'RISK LEVEL',
     'table.reqPpe': 'REQ PPE ({{company}} APPROVED)',
+    'table.ppeCount': 'PPE COUNT',
     'table.remarks': 'REMARKS',
     'table.action': 'ACTION',
     'table.riskLegend': 'Risk Level Legend',
@@ -948,15 +906,25 @@ const TRANSLATIONS = {
     'error.excel': '✗ Excel error: {{message}}',
     'error.ppt': '✗ PPT error: {{message}}',
     'confirm.reset': 'Reset all data?',
-    'translate.btn': 'Translate',
-    'translate.row': 'Translate Row',
-    'translate.allHi': '🇮🇳 Inputs to हिन्दी',
-    'translate.allEn': '🇬🇧 Inputs to English',
-    'translate.translating': 'Translating…',
-    'toast.translatedHi': '✓ Translated to Hindi',
-    'toast.translatedEn': '✓ Translated to English',
-    'toast.translating': '⏳ Translating text…',
-    'toast.translateAllDone': '✓ All form inputs translated',
+    'ppt.plantLayout': 'Plant Layout & PPE Requirement',
+    'ppt.safetyFirst': '🛡️ SAFETY FIRST',
+    'ppt.riskLegendTitle': 'RISK LEVEL LEGEND',
+    'ppt.legendHint': 'Use this legend to interpret the risk level badge shown in the LOCATION column of every area.',
+    'ppt.area': 'AREA',
+    'ppt.requiredPpe': 'REQUIRED PPE  ({{count}} items)',
+    'ppt.remarksBand': 'REMARKS / RISK DESC:',
+    'ppt.summaryTitle': 'SUMMARY & SIGN-OFF',
+    'ppt.totalAreas': 'Total Areas Covered: {{count}}',
+    'ppt.preparedBy': 'PREPARED BY',
+    'ppt.reviewedBy': 'REVIEWED BY',
+    'ppt.signatureDate': 'Signature / Date',
+    'excel.level': 'Level',
+    'excel.description': 'Description',
+    'excel.colorCode': 'Color Code',
+    'color.green': 'Green',
+    'color.yellow': 'Yellow',
+    'color.orange': 'Orange',
+    'color.red': 'Red',
     'ppe.helmet': 'Safety Helmet',
     'ppe.shoes': 'Safety Shoe',
     'ppe.gumboots': 'Gum Boot',
@@ -995,7 +963,6 @@ const TRANSLATIONS = {
     'builder.titleAttr': 'अनलॉक करने के लिए क्लिक करें (पासवर्ड सुरक्षित)',
     'builder.unlockedTitle': 'बिल्डर अनलॉक है',
     'builder.addArea': '➕ हैज़र्ड एरिया जोड़ें',
-    'builder.autoTranslate': '🌐 फॉर्म इनपुट अनुवाद करें:',
     'columns.title': '🔍 कॉलम फ़िल्टर (दिखाएँ/छिपाएँ)',
     'columns.choose': 'प्रिव्यू टेबल में दिखाने के लिए कॉलम चुनें:',
     'columns.hint': '💡 जिन कॉलम को नहीं देखना चाहते, उन्हें अनचेक करें। छोटे रिपोर्ट प्रिंट करने या खास डेटा पर ध्यान देने के लिए उपयोगी।',
@@ -1064,6 +1031,7 @@ const TRANSLATIONS = {
     'table.riskDescribe': 'जोखिम विवरण',
     'table.riskLevel': 'जोखिम स्तर',
     'table.reqPpe': 'आवश्यक PPE ({{company}} APPROVED)',
+    'table.ppeCount': 'PPE संख्या',
     'table.remarks': 'टिप्पणियाँ',
     'table.action': 'कार्रवाई',
     'table.riskLegend': 'जोखिम स्तर संकेत',
@@ -1152,15 +1120,25 @@ const TRANSLATIONS = {
     'error.excel': '✗ एक्सेल त्रुटि: {{message}}',
     'error.ppt': '✗ PPT त्रुटि: {{message}}',
     'confirm.reset': 'सारा डेटा रीसेट करें?',
-    'translate.btn': 'अनुवाद',
-    'translate.row': 'पंक्ति का अनुवाद',
-    'translate.allHi': '🇮🇳 इनपुट हिन्दी में',
-    'translate.allEn': '🇬🇧 इनपुट अंग्रेजी में',
-    'translate.translating': 'अनुवाद हो रहा है…',
-    'toast.translatedHi': '✓ हिन्दी में अनुवाद किया गया',
-    'toast.translatedEn': '✓ अंग्रेजी में अनुवाद किया गया',
-    'toast.translating': '⏳ अनुवाद किया जा रहा है…',
-    'toast.translateAllDone': '✓ सभी इनपुट का अनुवाद पूरा हुआ',
+    'ppt.plantLayout': 'प्लांट लेआउट और PPE आवश्यकता',
+    'ppt.safetyFirst': '🛡️ सुरक्षा पहले',
+    'ppt.riskLegendTitle': 'जोखिम स्तर संकेत',
+    'ppt.legendHint': 'हर क्षेत्र के LOCATION कॉलम में दिखाए गए जोखिम स्तर बैज को समझने के लिए इस संकेत का उपयोग करें।',
+    'ppt.area': 'क्षेत्र',
+    'ppt.requiredPpe': 'आवश्यक PPE  ({{count}} आइटम)',
+    'ppt.remarksBand': 'टिप्पणी / जोखिम विवरण:',
+    'ppt.summaryTitle': 'सारांश और हस्ताक्षर',
+    'ppt.totalAreas': 'कुल क्षेत्र: {{count}}',
+    'ppt.preparedBy': 'तैयारकर्ता',
+    'ppt.reviewedBy': 'समीक्षक',
+    'ppt.signatureDate': 'हस्ताक्षर / तारीख',
+    'excel.level': 'स्तर',
+    'excel.description': 'विवरण',
+    'excel.colorCode': 'रंग कोड',
+    'color.green': 'हरा',
+    'color.yellow': 'पीला',
+    'color.orange': 'नारंगी',
+    'color.red': 'लाल',
     'ppe.helmet': 'सुरक्षा हेलमेट',
     'ppe.shoes': 'सुरक्षा जूते',
     'ppe.gumboots': 'गम बूट',
@@ -1901,11 +1879,25 @@ function displayLocation(r) {
   return translateDataText(r.location || '') + (r.subLocation ? ' › ' + translateDataText(r.subLocation) : '');
 }
 
+// Always-English location label for the data entry (form) panel dropdowns.
+function displayLocationEn(r) {
+  return (r.location || '') + (r.subLocation ? ' › ' + (r.subLocation || '') : '');
+}
+
 let currentLanguage = 'en';
 
 function t(key, vars = {}) {
   const language = TRANSLATIONS[currentLanguage] || TRANSLATIONS.en;
   let value = language[key] || TRANSLATIONS.en[key] || key;
+  Object.keys(vars).forEach(name => {
+    value = value.replace(new RegExp('\\{\\{' + name + '\\}\\}', 'g'), String(vars[name]));
+  });
+  return value;
+}
+
+// Always-English variant — the data entry (feed) section never shows Hindi.
+function tEn(key, vars = {}) {
+  let value = TRANSLATIONS.en[key] || key;
   Object.keys(vars).forEach(name => {
     value = value.replace(new RegExp('\\{\\{' + name + '\\}\\}', 'g'), String(vars[name]));
   });
@@ -1931,15 +1923,19 @@ function applyTranslations() {
   document.documentElement.lang = currentLanguage === 'hi' ? 'hi' : 'en';
   document.title = t('document.title');
   document.querySelectorAll('[data-i18n]').forEach(el => {
+    if (el.closest('#builderContent')) return; // data entry section stays English
     el.innerHTML = t(el.dataset.i18n);
   });
   document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    if (el.closest('#builderContent')) return; // data entry section stays English
     el.innerHTML = t(el.dataset.i18nHtml);
   });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    if (el.closest('#builderContent')) return; // data entry section stays English
     el.placeholder = t(el.dataset.i18nPlaceholder);
   });
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    if (el.closest('#builderContent')) return; // data entry section stays English
     el.title = t(el.dataset.i18nTitle);
   });
   const languageButton = document.getElementById('languageToggle');
@@ -1951,131 +1947,11 @@ function ppeLabelFor(ppe) {
   return t('ppe.' + ppe.id) || ppe.label;
 }
 
-// ============== IN-PLACE FORM TRANSLATE ACTIONS ==============
-async function translateField(btn, fieldSelector) {
-  const section = btn.closest('.form-section') || btn.closest('.meta-form') || btn.closest('.form-row');
-  if (!section) return;
-  const input = section.querySelector(fieldSelector);
-  if (!input) return;
-  const val = (input.value || '').trim();
-  if (!val) return;
-
-  const origBtnText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '⏳ ' + t('translate.translating');
-
-  try {
-    const isHi = isHindiText(val);
-    const src = isHi ? 'hi' : 'en';
-    const tgt = isHi ? 'en' : 'hi';
-
-    let translated = '';
-    if (val.includes('\n')) {
-      const lines = val.split('\n');
-      const transLines = [];
-      for (const line of lines) {
-        if (!line.trim()) { transLines.push(''); continue; }
-        const tLine = await fetchAsyncTranslation(line, src, tgt);
-        transLines.push(tLine || line);
-      }
-      translated = transLines.join('\n');
-    } else {
-      translated = await fetchAsyncTranslation(val, src, tgt);
-    }
-
-    if (translated) {
-      input.value = translated;
-      updatePreview();
-      saveState();
-      toast(tgt === 'hi' ? t('toast.translatedHi') : t('toast.translatedEn'));
-    }
-  } catch (err) {
-    console.error('Translation error:', err);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = origBtnText;
-  }
+// Always-English PPE label for the data entry form.
+function ppeLabelEn(ppe) {
+  return TRANSLATIONS.en['ppe.' + ppe.id] || ppe.label;
 }
 
-async function translateRow(idx) {
-  const section = document.querySelector(`[data-row="${idx}"]`);
-  if (!section) return;
-  const fields = ['.f-loc', '.f-subloc', '.f-sop', '.f-act', '.f-hzt', '.f-hz', '.f-risk-desc', '.f-rem'];
-  
-  let textSample = '';
-  fields.forEach(sel => {
-    const el = section.querySelector(sel);
-    if (el && el.value) textSample += el.value + ' ';
-  });
-  if (!textSample.trim()) return;
-
-  const isHi = isHindiText(textSample);
-  const src = isHi ? 'hi' : 'en';
-  const tgt = isHi ? 'en' : 'hi';
-
-  const btn = section.querySelector('.btn-row-translate');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + t('translate.translating'); }
-  toast(t('toast.translating'));
-
-  for (const sel of fields) {
-    const el = section.querySelector(sel);
-    if (!el || !el.value.trim()) continue;
-    const val = el.value.trim();
-    if (val.includes('\n')) {
-      const lines = val.split('\n');
-      const transLines = [];
-      for (const line of lines) {
-        if (!line.trim()) { transLines.push(''); continue; }
-        const tLine = await fetchAsyncTranslation(line, src, tgt);
-        transLines.push(tLine || line);
-      }
-      el.value = transLines.join('\n');
-    } else {
-      el.value = await fetchAsyncTranslation(val, src, tgt);
-    }
-  }
-
-  updatePreview();
-  saveState();
-  if (btn) { btn.disabled = false; btn.innerHTML = `🌐 ${t('translate.row')}`; }
-  toast(tgt === 'hi' ? t('toast.translatedHi') : t('toast.translatedEn'));
-}
-
-async function translateAllRows(targetLang) {
-  const tgt = targetLang || (currentLanguage === 'hi' ? 'hi' : 'en');
-  const src = tgt === 'hi' ? 'en' : 'hi';
-
-  const sections = document.querySelectorAll('#rowsContainer .form-section');
-  if (sections.length === 0) return;
-
-  toast(t('toast.translating'));
-  const fields = ['.f-loc', '.f-subloc', '.f-sop', '.f-act', '.f-hzt', '.f-hz', '.f-risk-desc', '.f-rem'];
-
-  for (const sec of sections) {
-    for (const sel of fields) {
-      const el = sec.querySelector(sel);
-      if (!el || !el.value.trim()) continue;
-      const val = el.value.trim();
-      if ((tgt === 'hi' && isHindiText(val)) || (tgt === 'en' && !isHindiText(val))) continue;
-      if (val.includes('\n')) {
-        const lines = val.split('\n');
-        const transLines = [];
-        for (const line of lines) {
-          if (!line.trim()) { transLines.push(''); continue; }
-          const tLine = await fetchAsyncTranslation(line, src, tgt);
-          transLines.push(tLine || line);
-        }
-        el.value = transLines.join('\n');
-      } else {
-        el.value = await fetchAsyncTranslation(val, src, tgt);
-      }
-    }
-  }
-
-  updatePreview();
-  saveState();
-  toast(t('toast.translateAllDone'));
-}
 
 // ============== PPE OPTIONS (Tata Steel Plant) ==============
 const PPE_OPTIONS = [
@@ -2143,91 +2019,66 @@ const RISK_LEVELS = [
 let rowCount = 0;
 let currentZoom = 100;
 
-// ============== ROW TEMPLATE ==============
+// ============== ROW TEMPLATE (always English — data entry is English-only) ==============
 function rowTemplate(idx) {
   return `
   <div class="form-section" data-row="${idx}">
     <h3>
-      <span>${t('row.area')} #<span class="row-num">${idx + 1}</span></span>
+      <span>${tEn('row.area')} #<span class="row-num">${idx + 1}</span></span>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button type="button" class="btn-row-translate" onclick="translateRow(${idx})" title="Translate all fields in this area">🌐 ${t('translate.row')}</button>
-        <button type="button" class="del-row" onclick="deleteRow(${idx})">${t('row.delete')}</button>
+        <button type="button" class="del-row" onclick="deleteRow(${idx})">${tEn('row.delete')}</button>
       </div>
     </h3>
     <div class="form-row-half">
       <div class="form-row">
-        <div class="form-label-row">
-          <label>${t('form.location')}</label>
-          <button type="button" class="btn-field-translate" title="Translate Location" onclick="translateField(this, '.f-loc')">🌐 ${t('translate.btn')}</button>
-        </div>
-        <input type="text" class="f-loc" list="loc-suggestions" placeholder="${t('form.locationPlaceholder')}" oninput="updatePreview()">
+        <label>${tEn('form.location')}</label>
+        <input type="text" class="f-loc" list="loc-suggestions" placeholder="${tEn('form.locationPlaceholder')}" oninput="updatePreview()">
       </div>
       <div class="form-row">
-        <div class="form-label-row">
-          <label>${t('form.subLocation')}</label>
-          <button type="button" class="btn-field-translate" title="Translate Sub-Location" onclick="translateField(this, '.f-subloc')">🌐 ${t('translate.btn')}</button>
-        </div>
-        <input type="text" class="f-subloc" placeholder="${t('form.subLocationPlaceholder')}" oninput="updatePreview()">
+        <label>${tEn('form.subLocation')}</label>
+        <input type="text" class="f-subloc" placeholder="${tEn('form.subLocationPlaceholder')}" oninput="updatePreview()">
       </div>
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.sop')}</label>
-        <button type="button" class="btn-field-translate" title="Translate SOP" onclick="translateField(this, '.f-sop')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <input type="text" class="f-sop" list="sop-suggestions" placeholder="${t('form.sopPlaceholder')}" oninput="updatePreview()">
+      <label>${tEn('form.sop')}</label>
+      <input type="text" class="f-sop" list="sop-suggestions" placeholder="${tEn('form.sopPlaceholder')}" oninput="updatePreview()">
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.activity')}</label>
-        <button type="button" class="btn-field-translate" title="Translate Activity" onclick="translateField(this, '.f-act')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <textarea class="f-act" placeholder="${t('form.activityPlaceholder')}" oninput="updatePreview()"></textarea>
+      <label>${tEn('form.activity')}</label>
+      <textarea class="f-act" placeholder="${tEn('form.activityPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.hazardTypes')}</label>
-        <button type="button" class="btn-field-translate" title="Translate Hazard Types" onclick="translateField(this, '.f-hzt')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <textarea class="f-hzt" placeholder="${t('form.hazardTypesPlaceholder')}" oninput="updatePreview()"></textarea>
+      <label>${tEn('form.hazardTypes')}</label>
+      <textarea class="f-hzt" placeholder="${tEn('form.hazardTypesPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.hazards')}</label>
-        <button type="button" class="btn-field-translate" title="Translate Hazards" onclick="translateField(this, '.f-hz')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <textarea class="f-hz" placeholder="${t('form.hazardsPlaceholder')}" oninput="updatePreview()"></textarea>
+      <label>${tEn('form.hazards')}</label>
+      <textarea class="f-hz" placeholder="${tEn('form.hazardsPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.riskDescribe')}</label>
-        <button type="button" class="btn-field-translate" title="Translate Risk Description" onclick="translateField(this, '.f-risk-desc')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <textarea class="f-risk-desc" placeholder="${t('form.riskDescribePlaceholder')}" oninput="updatePreview()"></textarea>
+      <label>${tEn('form.riskDescribe')}</label>
+      <textarea class="f-risk-desc" placeholder="${tEn('form.riskDescribePlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>${t('form.riskLevel')}</label>
+      <label>${tEn('form.riskLevel')}</label>
       <select class="f-risk" onchange="updatePreview()">
-        <option value="safe">${t('risk.safe.label')} ${t('risk.safe.desc')}</option>
-        <option value="moderate">${t('risk.moderate.label')} ${t('risk.moderate.desc')}</option>
-        <option value="critical" selected>${t('risk.critical.label')} ${t('risk.critical.desc')}</option>
-        <option value="vhigh">${t('risk.vhigh.label')} ${t('risk.vhigh.desc')}</option>
+        <option value="safe">${tEn('risk.safe.label')} ${tEn('risk.safe.desc')}</option>
+        <option value="moderate">${tEn('risk.moderate.label')} ${tEn('risk.moderate.desc')}</option>
+        <option value="critical" selected>${tEn('risk.critical.label')} ${tEn('risk.critical.desc')}</option>
+        <option value="vhigh">${tEn('risk.vhigh.label')} ${tEn('risk.vhigh.desc')}</option>
       </select>
     </div>
     <div class="form-row">
-      <div class="form-label-row">
-        <label>${t('form.remarks')}</label>
-        <button type="button" class="btn-field-translate" title="Translate Remarks" onclick="translateField(this, '.f-rem')">🌐 ${t('translate.btn')}</button>
-      </div>
-      <textarea class="f-rem" placeholder="${t('form.remarksPlaceholder')}" oninput="updatePreview()"></textarea>
+      <label>${tEn('form.remarks')}</label>
+      <textarea class="f-rem" placeholder="${tEn('form.remarksPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>${t('form.requiredPpe')}</label>
+      <label>${tEn('form.requiredPpe')}</label>
       <div class="ppe-checks">
         ${PPE_OPTIONS.map(p => `
           <label>
             <input type="checkbox" class="f-ppe" value="${p.id}" onchange="updatePreview()">
-            ${p.icon} ${ppeLabelFor(p)}
+            ${p.icon} ${ppeLabelEn(p)}
           </label>
         `).join('')}
       </div>
@@ -2268,14 +2119,14 @@ function refreshPickFilled() {
   if (!sel) return;
   const current = sel.value;
   const rows = collectData().rows;
-  let opts = `<option value="">${t('filter.chooseDuplicate')}</option>`;
+  let opts = `<option value="">${tEn('filter.chooseDuplicate')}</option>`;
   rows.forEach((r, i) => {
     if (!r.location && !r.subLocation) return;
-    const label = displayLocation(r) || t('filter.noAreas');
+    const label = displayLocationEn(r) || tEn('filter.noAreas');
     opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
   });
   if (rows.length === 0) {
-    opts = `<option value="">${t('filter.noAreas')}</option>`;
+    opts = `<option value="">${tEn('filter.noAreas')}</option>`;
   }
   sel.innerHTML = opts;
   sel.value = current;
@@ -2369,20 +2220,36 @@ function refreshSopFilters() {
   const rows = collectData().rows;
   const sops = uniqueSops(rows);
   const current = sopFilter || '';
-  let opts = `<option value="">${t('filter.sopShowAll')}</option>`;
-  if (sops.length === 0) {
-    opts = `<option value="">${t('filter.sopNone')}</option>`;
-  } else {
-    sops.forEach(sop => {
-      opts += `<option value="${escapeHtml(sop)}">${escapeHtml(translateDataText(sop))}</option>`;
-    });
+
+  // Data entry panel dropdown: always English (raw SOP values).
+  const selForm = document.getElementById('pickSop');
+  if (selForm) {
+    let optsForm = `<option value="">${tEn('filter.sopShowAll')}</option>`;
+    if (sops.length === 0) {
+      optsForm = `<option value="">${tEn('filter.sopNone')}</option>`;
+    } else {
+      sops.forEach(sop => {
+        optsForm += `<option value="${escapeHtml(sop)}">${escapeHtml(sop)}</option>`;
+      });
+    }
+    selForm.innerHTML = optsForm;
+    selForm.value = current;
   }
-  ['pickSop', 'quickSopFilter'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = opts;
-    sel.value = current;
-  });
+
+  // Preview panel dropdown: follows the selected language.
+  const selPreview = document.getElementById('quickSopFilter');
+  if (selPreview) {
+    let optsPreview = `<option value="">${t('filter.sopShowAll')}</option>`;
+    if (sops.length === 0) {
+      optsPreview = `<option value="">${t('filter.sopNone')}</option>`;
+    } else {
+      sops.forEach(sop => {
+        optsPreview += `<option value="${escapeHtml(sop)}">${escapeHtml(translateDataText(sop))}</option>`;
+      });
+    }
+    selPreview.innerHTML = optsPreview;
+    selPreview.value = current;
+  }
 }
 
 function applySopFilter(sopValue, showToast) {
@@ -2424,19 +2291,27 @@ function quickSopFilterChange(sopValue) {
 
 function refreshRiskFilters() {
   const current = riskFilter || '';
-  const opts = `
-    <option value="">${t('filter.riskShowAll')}</option>
-    <option value="safe" ${current==='safe'?'selected':''}>🟢 ${t('risk.safe.label')} ${t('risk.safe.desc')}</option>
-    <option value="moderate" ${current==='moderate'?'selected':''}>🟡 ${t('risk.moderate.label')} ${t('risk.moderate.desc')}</option>
-    <option value="critical" ${current==='critical'?'selected':''}>🟠 ${t('risk.critical.label')} ${t('risk.critical.desc')}</option>
-    <option value="vhigh" ${current==='vhigh'?'selected':''}>🔴 ${t('risk.vhigh.label')} ${t('risk.vhigh.desc')}</option>
+  const buildOpts = (tr) => `
+    <option value="">${tr('filter.riskShowAll')}</option>
+    <option value="safe" ${current==='safe'?'selected':''}>🟢 ${tr('risk.safe.label')} ${tr('risk.safe.desc')}</option>
+    <option value="moderate" ${current==='moderate'?'selected':''}>🟡 ${tr('risk.moderate.label')} ${tr('risk.moderate.desc')}</option>
+    <option value="critical" ${current==='critical'?'selected':''}>🟠 ${tr('risk.critical.label')} ${tr('risk.critical.desc')}</option>
+    <option value="vhigh" ${current==='vhigh'?'selected':''}>🔴 ${tr('risk.vhigh.label')} ${tr('risk.vhigh.desc')}</option>
   `;
-  ['pickRisk', 'quickRiskFilter'].forEach(id => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
-    sel.innerHTML = opts;
-    sel.value = current;
-  });
+
+  // Data entry panel dropdown: always English.
+  const selForm = document.getElementById('pickRisk');
+  if (selForm) {
+    selForm.innerHTML = buildOpts(tEn);
+    selForm.value = current;
+  }
+
+  // Preview panel dropdown: follows the selected language.
+  const selPreview = document.getElementById('quickRiskFilter');
+  if (selPreview) {
+    selPreview.innerHTML = buildOpts(t);
+    selPreview.value = current;
+  }
 }
 
 function applyRiskFilter(riskValue, showToast) {
@@ -2614,8 +2489,8 @@ function buildMap(d) {
 
   return `
     <div class="hm-header">
-      <h1>${escape(d.title) || 'HAZARD MAP'}</h1>
-      <div class="logo">${escape(d.company) || 'Emvess Infraventures Pvt Ltd'}</div>
+      <h1>${escape(translateDataText(d.title)) || 'HAZARD MAP'}</h1>
+      <div class="logo">${escape(translateDataText(d.company)) || 'Emvess Infraventures Pvt Ltd'}</div>
     </div>
     ${filterBanner}
     <table class="hm-table">
@@ -2630,7 +2505,7 @@ function buildMap(d) {
           <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >${t('table.hazard')}</th>
           <th class="col-rdesc" ${isColumnVisible('col-rdesc')?'':'style="display:none"'} >${t('table.riskDescribe')}</th>
           <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >${t('table.riskLevel')}</th>
-          <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >${t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' })}</th>
+          <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >${t('table.reqPpe', { company: escape(translateDataText(d.company)) || 'Emvess Infraventures Pvt Ltd' })}</th>
           <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >${t('table.remarks')}</th>
           <th class="col-action">${t('table.action')}</th>
         </tr>
@@ -2644,10 +2519,10 @@ function buildMap(d) {
       </div>
     </div>`}
     <div class="hm-footer">
-      <div>${escape(d.footer) || ''}</div>
+      <div>${escape(translateDataText(d.footer)) || ''}</div>
       <div>${t('table.date')} <span>${escape(d.date) || ''}</span></div>
-      <div>${t('table.preparedBy')} <span>${escape(d.prepared) || ''}</span></div>
-      <div>${t('table.reviewedBy')} <span>${escape(d.reviewed) || ''}</span></div>
+      <div>${t('table.preparedBy')} <span>${escape(translateDataText(d.prepared)) || ''}</span></div>
+      <div>${t('table.reviewedBy')} <span>${escape(translateDataText(d.reviewed)) || ''}</span></div>
     </div>
   `;
 }
@@ -2904,7 +2779,7 @@ function buildColumnToggles() {
     const checked = isColumnVisible(c.id) ? 'checked' : '';
     return `<label style="display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 6px; background:#f5f7fb; border:1px solid #cfd4dc; border-radius:3px; cursor:pointer;">
       <input type="checkbox" data-col="${c.id}" ${checked} onchange="toggleColumn('${c.id}', this.checked); updatePreview();" style="width:auto;">
-      <span>${c.key === 'table.reqPpe' ? t(c.key).replace(/ \(\{\{company\}\} APPROVED\)/, '') : t(c.key)}</span>
+      <span>${c.key === 'table.reqPpe' ? tEn(c.key).replace(/ \(\{\{company\}\} APPROVED\)/, '') : tEn(c.key)}</span>
     </label>`;
   }).join('');
 }
@@ -3055,11 +2930,65 @@ function downloadHTML() {
   toast(t('toast.htmlDownloaded'));
 }
 
-function downloadExcel() {
+// Warm the translation cache for every data text so exports get full
+// translations immediately (smart fallback + Google-quality where available).
+async function warmTranslationsForExport(d) {
+  const lang = currentLanguage;
+  const uniq = new Set();
+  const push = v => {
+    const s = String(v || '').trim();
+    if (!s || s.length > 800) return;
+    if (s.includes('\n')) s.split('\n').forEach(l => l.trim() && uniq.add(l.trim()));
+    else uniq.add(s);
+  };
+  [d.title, d.company, d.footer, d.prepared, d.reviewed].forEach(push);
+  (d.rows || []).forEach(r => {
+    [r.location, r.subLocation, r.sop, r.riskDescription, r.remarks].forEach(push);
+    (r.activity || []).forEach(push);
+    (r.hazardType || []).forEach(push);
+    (r.hazard || []).forEach(push);
+  });
+
+  const jobs = [];
+  for (const text of uniq) {
+    const isHi = isHindiText(text);
+    if (lang === 'hi' && isHi) continue;
+    if (lang === 'en' && !isHi) continue;
+    const src = isHi ? 'hi' : 'en';
+    const cacheKey = `${src}:${lang}:${text}`;
+    if (TRANSLATION_CACHE[cacheKey]) continue;
+    jobs.push(text);
+  }
+
+  if (!jobs.length) return;
+
+  // Run with a small concurrency pool so the free translation API is not hammered.
+  const CONCURRENCY = 10;
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < jobs.length) {
+      const text = jobs[cursor++];
+      const isHi = isHindiText(text);
+      const src = isHi ? 'hi' : 'en';
+      try { await fetchAsyncTranslation(text, src, lang); } catch (e) {}
+    }
+  };
+  const workers = [];
+  for (let i = 0; i < Math.min(CONCURRENCY, jobs.length); i++) workers.push(worker());
+
+  // Never block the export for long — race the pool against a short timeout.
+  await Promise.race([
+    Promise.all(workers),
+    new Promise(resolve => setTimeout(resolve, 3000))
+  ]);
+}
+
+async function downloadExcel() {
   try {
     if (typeof XLSX === 'undefined') { throw new Error('XLSX library not loaded'); }
     const d = collectData();
     toast(t('toast.excelGenerating'));
+    await warmTranslationsForExport(d);
 
     const ppeLabel = {
       helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
@@ -3075,14 +3004,14 @@ function downloadExcel() {
 
     // --- Sheet 1: Hazard Map ---
     const aoa = [];
-    aoa.push([d.title || 'HAZARD MAP']);
-    aoa.push([`${d.company || 'Emvess Infraventures Pvt Ltd'}  |  Date: ${d.date || '-'}  |  Prepared By: ${d.prepared || '-'}  |  Reviewed By: ${d.reviewed || '-'}`]);
+    aoa.push([translateDataText(d.title) || 'HAZARD MAP']);
+    aoa.push([`${translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd'}  |  ${t('table.date')} ${d.date || '-'}  |  ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}  |  ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`]);
     aoa.push([]);
     aoa.push([
       t('table.sr').replace('<br>', ' '), t('table.location'), t('table.subLocation'), t('table.sop'),
       t('table.activity'), t('table.hazardTypes'), t('table.hazard'), t('table.riskDescribe'),
-      t('table.riskLevel'), t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' }),
-      'PPE COUNT', t('table.remarks')
+      t('table.riskLevel'), t('table.reqPpe', { company: escape(translateDataText(d.company)) || 'Emvess Infraventures Pvt Ltd' }),
+      t('table.ppeCount'), t('table.remarks')
     ]);
     (d.rows || []).forEach((r, i) => {
       const ppeList = (r.ppe || []).map(p => t('ppe.' + p) || ppeLabel[p] || p);
@@ -3102,7 +3031,7 @@ function downloadExcel() {
       ]);
     });
     aoa.push([]);
-    aoa.push([d.footer || 'All PPE must be Tata Steel Approved Make Only.']);
+    aoa.push([translateDataText(d.footer || 'All PPE must be Tata Steel Approved Make Only.')]);
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
@@ -3204,12 +3133,12 @@ function downloadExcel() {
     XLSX.utils.book_append_sheet(wb, ws, 'Hazard Map');
 
     // --- Sheet 2: Risk Levels ---
-    const riskAoa = [['RISK LEVEL LEGEND'], [],
-      ['Level', 'Description', 'Color Code'],
-      ['SAFE', 'Low Risk', 'Green #4CAF50'],
-      ['MODERATE', 'Medium Risk', 'Yellow #FFC107'],
-      ['CRITICAL', 'High Risk', 'Orange #FF5722'],
-      ['VERY CRITICAL', 'Very High Risk', 'Red #F44336']
+    const riskAoa = [[t('ppt.riskLegendTitle')], [],
+      [t('excel.level'), t('excel.description'), t('excel.colorCode')],
+      [t('risk.safe.label'), t('risk.safe.desc').replace(/[()]/g, ''), `${t('color.green')} #4CAF50`],
+      [t('risk.moderate.label'), t('risk.moderate.desc').replace(/[()]/g, ''), `${t('color.yellow')} #FFC107`],
+      [t('risk.critical.label'), t('risk.critical.desc').replace(/[()]/g, ''), `${t('color.orange')} #FF5722`],
+      [t('risk.vhigh.label'), t('risk.vhigh.desc').replace(/[()]/g, ''), `${t('color.red')} #F44336`]
     ];
     const wsRisk = XLSX.utils.aoa_to_sheet(riskAoa);
     wsRisk['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 22 }];
@@ -3235,11 +3164,12 @@ function downloadExcel() {
   }
 }
 
-function downloadPPT() {
+async function downloadPPT() {
   try {
     if (typeof PptxGenJS === 'undefined') { throw new Error('PptxGenJS library not loaded'); }
     const d = collectData();
     toast(t('toast.pptGenerating'));
+    await warmTranslationsForExport(d);
 
     const ppeLabel = {
       helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
@@ -3261,34 +3191,34 @@ function downloadPPT() {
 
     const pres = new PptxGenJS();
     pres.layout = 'LAYOUT_WIDE';   // 13.33 x 7.5 inches
-    pres.title = d.title || 'Hazard Map';
-    pres.company = d.company || 'Emvess Infraventures Pvt Ltd';
-    pres.subject = 'Plant Layout & PPE Requirement';
+    pres.title = translateDataText(d.title) || 'Hazard Map';
+    pres.company = translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd';
+    pres.subject = t('ppt.plantLayout');
 
     // ---------- Slide 1: Title ----------
     let s = pres.addSlide();
     s.background = { color: '1A3A6C' };
     s.addShape(pres.ShapeType.rect, { x:1, y:2.5, w:11.3, h:2.5, fill:{color:'FFFFFF'}, line:{color:'FFFFFF'} });
-    s.addText(d.title || 'HAZARD MAP – WORK AREA & PPE REQUIREMENT',
+    s.addText(translateDataText(d.title) || 'HAZARD MAP – WORK AREA & PPE REQUIREMENT',
       { x:1, y:2.7, w:11.3, h:0.8, fontSize:32, bold:true, color:'1A3A6C', align:'center' });
-    s.addText('Plant Layout & PPE Requirement',
+    s.addText(t('ppt.plantLayout'),
       { x:1, y:3.5, w:11.3, h:0.5, fontSize:18, color:'C0392B', align:'center' });
-    s.addText(`Date: ${d.date || '-'}   |   Prepared By: ${d.prepared || '-'}   |   Reviewed By: ${d.reviewed || '-'}`,
+    s.addText(`${t('table.date')} ${d.date || '-'}   |   ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}   |   ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`,
       { x:1, y:4.1, w:11.3, h:0.4, fontSize:12, italic:true, color:'555555', align:'center' });
-    s.addText(d.company || 'Emvess Infraventures Pvt Ltd',
+    s.addText(translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd',
       { x:1, y:6.7, w:11.3, h:0.4, fontSize:16, bold:true, color:'FFFFFF', align:'center' });
-    s.addText('🛡️ SAFETY FIRST',
+    s.addText(t('ppt.safetyFirst'),
       { x:1, y:0.3, w:11.3, h:0.4, fontSize:14, bold:true, color:'FFD54A', align:'center' });
 
     // ---------- Slide 2: Risk Legend ----------
     s = pres.addSlide();
     s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
-    s.addText('RISK LEVEL LEGEND', { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
+    s.addText(t('ppt.riskLegendTitle'), { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
 
-    [{l:'SAFE',s:'Low Risk',c:'4CAF50',t:'FFFFFF'},
-     {l:'MODERATE',s:'Medium Risk',c:'FFC107',t:'000000'},
-     {l:'CRITICAL',s:'High Risk',c:'FF5722',t:'FFFFFF'},
-     {l:'VERY CRITICAL',s:'Very High Risk',c:'F44336',t:'FFFFFF'}
+    [{l:t('risk.safe.label'),s:t('risk.safe.desc').replace(/[()]/g,''),c:'4CAF50',t:'FFFFFF'},
+     {l:t('risk.moderate.label'),s:t('risk.moderate.desc').replace(/[()]/g,''),c:'FFC107',t:'000000'},
+     {l:t('risk.critical.label'),s:t('risk.critical.desc').replace(/[()]/g,''),c:'FF5722',t:'FFFFFF'},
+     {l:t('risk.vhigh.label'),s:t('risk.vhigh.desc').replace(/[()]/g,''),c:'F44336',t:'FFFFFF'}
     ].forEach((r,i) => {
       const x = 1.5 + i*2.6;
       s.addShape(pres.ShapeType.rect, { x, y:2.0, w:2.3, h:2.0, fill:{color:r.c} });
@@ -3296,7 +3226,7 @@ function downloadPPT() {
       s.addText(r.s, { x, y:3.0, w:2.3, h:0.5, fontSize:12, italic:true, color:r.t, align:'center' });
     });
 
-    s.addText('Use this legend to interpret the risk level badge shown in the LOCATION column of every area.',
+    s.addText(t('ppt.legendHint'),
       { x:1, y:5.0, w:11.3, h:0.6, fontSize:12, italic:true, color:'555555', align:'center' });
 
     // ---------- Slides for each area ----------
@@ -3304,7 +3234,7 @@ function downloadPPT() {
       s = pres.addSlide();
       // header
       s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
-      s.addText(`AREA #${idx+1}  –  ${translateDataText(r.location || '')}${r.subLocation ? '  ›  ' + translateDataText(r.subLocation) : ''}${r.sop ? '  |  ' + translateDataText(r.sop) : ''}`,
+      s.addText(`${t('ppt.area')} #${idx+1}  –  ${translateDataText(r.location || '')}${r.subLocation ? '  ›  ' + translateDataText(r.subLocation) : ''}${r.sop ? '  |  ' + translateDataText(r.sop) : ''}`,
         { x:0.3, y:0.15, w:10, h:0.5, fontSize:16, bold:true, color:'FFFFFF' });
       // risk badge
       const rk = r.risk || 'critical';
@@ -3313,22 +3243,22 @@ function downloadPPT() {
 
       // left column
       const lx = 0.4, lw = 6.2;
-      s.addText('ACTIVITY', { x:lx, y:1.1, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
+      s.addText(t('table.activity'), { x:lx, y:1.1, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
       s.addShape(pres.ShapeType.rect, { x:lx, y:1.5, w:lw, h:1.2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
       s.addText(translateDataList(r.activity).map(a=>'• '+a).join('\n') || '—',
         { x:lx+0.1, y:1.55, w:lw-0.2, h:1.1, fontSize:12, color:'333333' });
-      s.addText('HAZARD TYPES', { x:lx, y:2.85, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
+      s.addText(t('table.hazardTypes'), { x:lx, y:2.85, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
       s.addShape(pres.ShapeType.rect, { x:lx, y:3.25, w:lw, h:1.0, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
       s.addText(translateDataList(r.hazardType).map(a=>'• '+a).join('\n') || '—',
         { x:lx+0.1, y:3.30, w:lw-0.2, h:0.9, fontSize:12, color:'333333' });
-      s.addText('HAZARDS', { x:lx, y:4.4, w:lw, h:0.4, fontSize:12, bold:true, color:'C0392B' });
+      s.addText(t('table.hazard'), { x:lx, y:4.4, w:lw, h:0.4, fontSize:12, bold:true, color:'C0392B' });
       s.addShape(pres.ShapeType.rect, { x:lx, y:4.8, w:lw, h:1.4, fill:{color:'FFF3E0'}, line:{color:'E0B080', width:0.5} });
       s.addText(translateDataList(r.hazard).map(a=>'• '+a).join('\n') || '—',
         { x:lx+0.1, y:4.85, w:lw-0.2, h:1.3, fontSize:12, color:'333333' });
 
       // right column: PPEs
       const rx = 7.0, rw = 6.0;
-      s.addText(`REQUIRED PPE  (${(r.ppe||[]).length} items)`,
+      s.addText(t('ppt.requiredPpe', { count: (r.ppe||[]).length }),
         { x:rx, y:1.1, w:rw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
       const cellWP = 1.4, cellHP = 1.1;
       (r.ppe || []).forEach((pid, j) => {
@@ -3342,31 +3272,31 @@ function downloadPPT() {
 
       // remarks band
       s.addShape(pres.ShapeType.rect, { x:0, y:6.6, w:13.33, h:0.9, fill:{color:'FFFBEA'}, line:{color:'FBC02D', width:0.5} });
-      s.addText('REMARKS / RISK DESC:', { x:0.3, y:6.65, w:2.2, h:0.8, fontSize:10, bold:true, color:'C0392B', valign:'middle' });
+      s.addText(t('ppt.remarksBand'), { x:0.3, y:6.65, w:2.2, h:0.8, fontSize:10, bold:true, color:'C0392B', valign:'middle' });
       s.addText((translateDataText(r.riskDescription) ? translateDataText(r.riskDescription) + '  |  ' : '') + (translateDataText(r.remarks) || '—'), { x:2.5, y:6.65, w:10.5, h:0.8, fontSize:10.5, color:'333333', valign:'middle' });
     });
 
     // ---------- Summary slide ----------
     s = pres.addSlide();
     s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
-    s.addText('SUMMARY & SIGN-OFF', { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
+    s.addText(t('ppt.summaryTitle'), { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
     const safeN = (d.rows||[]).filter(r=>r.risk==='safe').length;
     const modN  = (d.rows||[]).filter(r=>r.risk==='moderate').length;
     const crN   = (d.rows||[]).filter(r=>r.risk==='critical').length;
     const vhN   = (d.rows||[]).filter(r=>r.risk==='vhigh').length;
-    s.addText(`Total Areas Covered: ${(d.rows||[]).length}`, { x:0.5, y:1.2, w:12.3, h:0.5, fontSize:18, bold:true, color:'1A3A6C' });
-    s.addText(`🟢 SAFE: ${safeN}    🟡 MODERATE: ${modN}    🟠 CRITICAL: ${crN}    🔴 VERY CRITICAL: ${vhN}`,
+    s.addText(t('ppt.totalAreas', { count: (d.rows||[]).length }), { x:0.5, y:1.2, w:12.3, h:0.5, fontSize:18, bold:true, color:'1A3A6C' });
+    s.addText(`🟢 ${t('risk.safe.label')}: ${safeN}    🟡 ${t('risk.moderate.label')}: ${modN}    🟠 ${t('risk.critical.label')}: ${crN}    🔴 ${t('risk.vhigh.label')}: ${vhN}`,
       { x:0.5, y:1.8, w:12.3, h:0.5, fontSize:16, color:'333333' });
-    s.addText(d.footer || 'All PPE must be Tata Steel Approved Make Only.',
+    s.addText(translateDataText(d.footer) || 'All PPE must be Tata Steel Approved Make Only.',
       { x:0.5, y:2.6, w:12.3, h:0.4, fontSize:12, italic:true, color:'C0392B' });
     s.addShape(pres.ShapeType.rect, { x:0.5, y:4.5, w:6, h:2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
-    s.addText('PREPARED BY', { x:0.5, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
-    s.addText(d.prepared || '__________________', { x:0.5, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
-    s.addText('Signature / Date', { x:0.5, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
+    s.addText(t('ppt.preparedBy'), { x:0.5, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
+    s.addText(translateDataText(d.prepared) || '__________________', { x:0.5, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
+    s.addText(t('ppt.signatureDate'), { x:0.5, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
     s.addShape(pres.ShapeType.rect, { x:6.8, y:4.5, w:6, h:2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
-    s.addText('REVIEWED BY', { x:6.8, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
-    s.addText(d.reviewed || '__________________', { x:6.8, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
-    s.addText('Signature / Date', { x:6.8, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
+    s.addText(t('ppt.reviewedBy'), { x:6.8, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
+    s.addText(translateDataText(d.reviewed) || '__________________', { x:6.8, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
+    s.addText(t('ppt.signatureDate'), { x:6.8, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
 
     const fname = `hazard_map_${(d.date || 'today')}.pptx`;
     pres.writeFile({ fileName: fname });
