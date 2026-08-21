@@ -10,3 +10,7 @@ desktop.ini
 # Surge.sh local config (not needed for GitHub)
 CNAME
 .surgeignore
+
+# Shared-data store (created by server.js at runtime — do not commit live data)
+data/
+*.log

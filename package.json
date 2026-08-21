@@ -1,0 +1,14 @@
+{
+  "name": "hazard-map-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hazard Map Dashboard – Emvess Infraventures Pvt Ltd (shared-data server included)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "license": "UNLICENSED"
+}

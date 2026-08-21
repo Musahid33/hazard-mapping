@@ -1,0 +1,16 @@
+# Render Blueprint — one-click deploy of the shared-data server.
+# Push this repo to GitHub, then in Render: "New +" → "Blueprint" → pick repo.
+# Render reads this file and creates the web service automatically.
+# The live URL becomes the global URL: every device that opens it shares data.
+
+services:
+  - type: web
+    name: hazard-map-dashboard
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8080
+      # - key: SYNC_TOKEN          # optional write-protection
+      #   sync: false

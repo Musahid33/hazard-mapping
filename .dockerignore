@@ -1,0 +1,7 @@
+# Ignore non-app files when building the Docker image
+node_modules
+data
+.git
+.gitignore
+*.log
+.DS_Store
