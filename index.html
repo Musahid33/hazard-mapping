@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Hazard Map Dashboard – Emvess Infraventures Pvt Ltd</title>
+<title data-i18n="document.title">Hazard Map Dashboard – Emvess Infraventures Pvt Ltd</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
@@ -28,6 +28,7 @@
   .topbar button.xlsx  { background: #1d6f42; color: #fff; }
   .topbar button.pptx  { background: #d24726; color: #fff; }
   .topbar button.reset { background: #9e9e9e; color: #fff; }
+  .topbar button.lang-toggle { background: #7b1fa2; color: #fff; }
   .topbar button.locked {
     border: 2px solid #ff9800 !important;
     box-shadow: 0 0 0 2px rgba(255,152,0,0.2);
@@ -286,60 +287,61 @@
 <script src="pptxgen.bundle.js"></script>
 
 <div class="topbar">
-  <h1>🛡️ Hazard Map Dashboard <span style="font-size:14px;font-weight:400;opacity:0.9;">| Emvess Infraventures Pvt Ltd</span></h1>
+  <h1><span data-i18n="app.title">🛡️ Hazard Map Dashboard</span> <span style="font-size:14px;font-weight:400;opacity:0.9;">| Emvess Infraventures Pvt Ltd</span></h1>
   <div class="actions">
-    <button class="print" onclick="window.print()">🖨️ Print / PDF</button>
-    <button class="xlsx"  onclick="downloadExcel()">📊 Download Excel</button>
-    <button class="pptx"  onclick="downloadPPT()">📽️ Download PPT</button>
-    <button class="locked" onclick="askPassword('sample')">📋 Sample 🔒</button>
-    <button class="reset locked" onclick="askPassword('reset')">↺ Reset 🔒</button>
+    <button class="print" data-i18n="toolbar.print" onclick="window.print()">🖨️ Print / PDF</button>
+    <button class="xlsx" data-i18n="toolbar.excel"  onclick="downloadExcel()">📊 Download Excel</button>
+    <button class="pptx" data-i18n="toolbar.ppt"  onclick="downloadPPT()">📽️ Download PPT</button>
+    <button class="locked" data-i18n="toolbar.sample" onclick="askPassword('sample')">📋 Sample 🔒</button>
+    <button class="reset locked" data-i18n="toolbar.reset" onclick="askPassword('reset')">↺ Reset 🔒</button>
+    <button class="lang-toggle" id="languageToggle" onclick="toggleLanguage()">हिन्दी</button>
   </div>
 </div>
 
 <div class="layout">
   <div class="form-panel">
-    <h2 id="builderHeader" onclick="askPassword('builder')" style="cursor:pointer; user-select:none;" title="Click to unlock (password protected)">
-      📝 Hazard Map Builder 🔒
+    <h2 id="builderHeader" onclick="askPassword('builder')" style="cursor:pointer; user-select:none;" title="Click to unlock (password protected)" data-i18n-title="builder.titleAttr">
+      <span id="builderHeaderText" data-i18n="builder.title">📝 Hazard Map Builder 🔒</span>
     </h2>
     <div id="builderLockedBanner" style="background:#fff3e0; border:2px solid #ff9800; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px;">
       <span style="font-size:24px;">🔒</span>
       <div style="flex:1;">
-        <div style="font-weight:700; color:#e65100; font-size:13px;">Builder is Locked</div>
-        <div style="font-size:11px; color:#555;">Click the header or this banner to unlock with password.</div>
+        <div data-i18n="builder.locked" style="font-weight:700; color:#e65100; font-size:13px;">Builder is Locked</div>
+        <div data-i18n="builder.unlockHint" style="font-size:11px; color:#555;">Click the header or this banner to unlock with password.</div>
       </div>
-      <button onclick="askPassword('builder')" style="background:#ff9800; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">Unlock</button>
+      <button data-i18n="builder.unlock" onclick="askPassword('builder')" style="background:#ff9800; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">Unlock</button>
     </div>
     <div id="builderContent" style="display:none;">
 
     <div class="form-section" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 2px solid #1976d2; border-left: 6px solid #0d47a1;">
-      <h3 style="color: #0d47a1;">🔍 Filter Column (Show/Hide)</h3>
+      <h3 data-i18n="columns.title" style="color: #0d47a1;">🔍 Filter Column (Show/Hide)</h3>
       <div class="form-row">
-        <label style="color:#0d47a1; font-weight:700;">Choose which columns to display in the preview table:</label>
+        <label data-i18n="columns.choose" style="color:#0d47a1; font-weight:700;">Choose which columns to display in the preview table:</label>
         <div id="columnToggles" style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:6px; background:#fff; padding:8px; border-radius:4px; border:1px solid #bbdefb;"></div>
       </div>
       <div style="font-size:11px; color:#0d47a1; margin-top:6px; background:#e1f5fe; padding:6px 8px; border-radius:3px; border-left:3px solid #0277bd;">
-        💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.
+        <span data-i18n="columns.hint">💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.</span>
       </div>
       <div style="display:flex; gap:6px; margin-top:8px;">
-        <button onclick="setAllColumns(true)" style="flex:1; background:#4caf50; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✓ Show All</button>
-        <button onclick="setAllColumns(false)" style="flex:1; background:#f44336; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✗ Hide All</button>
+        <button data-i18n="columns.showAll" onclick="setAllColumns(true)" style="flex:1; background:#4caf50; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✓ Show All</button>
+        <button data-i18n="columns.hideAll" onclick="setAllColumns(false)" style="flex:1; background:#f44336; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✗ Hide All</button>
       </div>
     </div>
 
     <div class="form-section">
-      <h3>📌 Document Info</h3>
+      <h3 data-i18n="document.info">📌 Document Info</h3>
       <div class="meta-form">
         <div class="form-row">
-          <label>Date</label>
+          <label data-i18n="form.date">Date</label>
           <input type="date" id="metaDate">
         </div>
         <div class="form-row">
-          <label>Prepared By</label>
-          <input type="text" id="metaPrepared" placeholder="Name">
+          <label data-i18n="form.preparedBy">Prepared By</label>
+          <input type="text" id="metaPrepared" data-i18n-placeholder="form.name" placeholder="Name">
         </div>
         <div class="form-row">
-          <label>Reviewed By</label>
-          <input type="text" id="metaReviewed" placeholder="Name">
+          <label data-i18n="form.reviewedBy">Reviewed By</label>
+          <input type="text" id="metaReviewed" data-i18n-placeholder="form.name" placeholder="Name">
         </div>
       </div>
     </div>
@@ -379,33 +381,33 @@
       <option value="Control Room">
     </datalist>
 
-    <button class="add-row" onclick="addRow()">➕ Add Hazard Area</button>
+    <button class="add-row" data-i18n="builder.addArea" onclick="addRow()">➕ Add Hazard Area</button>
 
     <div class="form-section filter-section" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-left-color: #f57f17;">
-      <h3>🔍 Filter View by Location</h3>
+      <h3 data-i18n="filter.title">🔍 Filter View by Location</h3>
       <div class="form-row">
-        <label style="color:#e65100;">Select a location to filter the table to show only that location's details</label>
+        <label data-i18n="filter.selectHint" style="color:#e65100;">Select a location to filter the table to show only that location's details</label>
         <select id="pickFilled" onchange="pickFilledArea(this.value)" style="border:2px solid #fbc02d; background:#fffef7; font-weight:600; padding:9px;">
-          <option value="">-- Show All Locations --</option>
+          <option value="" data-i18n="filter.showAll">-- Show All Locations --</option>
         </select>
       </div>
       <div style="font-size:11px;color:#bf360c;margin-top:6px; background:#fff3e0; padding:6px 8px; border-radius:3px; border-left:3px solid #f57f17;">
-        💡 Select any location from the dropdown to <b>filter</b> the preview table to just that one area. Use "Show All Locations" to clear the filter.
+        <span data-i18n-html="filter.help">💡 Select any location from the dropdown to <b>filter</b> the preview table to just that one area. Use "Show All Locations" to clear the filter.</span>
       </div>
     </div>
 
     <div class="form-section">
-      <h3>⚙️ Settings</h3>
+      <h3 data-i18n="settings.title">⚙️ Settings</h3>
       <div class="form-row">
-        <label>Map Title</label>
+        <label data-i18n="settings.mapTitle">Map Title</label>
         <input type="text" id="mapTitle" value="HAZARD MAP – WORK AREA & PPE REQUIREMENT">
       </div>
       <div class="form-row">
-        <label>Company / Logo Text</label>
+        <label data-i18n="settings.company">Company / Logo Text</label>
         <input type="text" id="companyName" value="Emvess Infraventures Pvt Ltd">
       </div>
       <div class="form-row">
-        <label>Footer Note</label>
+        <label data-i18n="settings.footer">Footer Note</label>
         <input type="text" id="footerNote" value="Note: All PPE must be Tata Steel Approved Make Only.">
       </div>
     </div>
@@ -414,7 +416,7 @@
 
   <div class="preview-panel">
     <div class="preview-header">
-      <h2>👁️ Live Preview</h2>
+      <h2 data-i18n="preview.title">👁️ Live Preview</h2>
       <div class="zoom">
         <button onclick="adjustZoom(-10)">−</button>
         <button onclick="adjustZoom(10)">+</button>
@@ -425,15 +427,15 @@
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <span style="font-size:18px;">💡</span>
         <span style="flex:1; min-width: 200px;">
-          <b>Tip:</b> Select any location from the dropdown below to <b>filter</b> the preview table to just that one area. Use <b>"Show All Locations"</b> to clear the filter.
+          <span data-i18n-html="preview.tip"><b>Tip:</b> Select any location from the dropdown below to <b>filter</b> the preview table to just that one area. Use <b>"Show All Locations"</b> to clear the filter.</span>
         </span>
       </div>
       <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-        <span style="font-size:11px; font-weight:700; color:#e65100; min-width: 80px;">🔍 Quick Filter:</span>
+        <span data-i18n="preview.quickFilter" style="font-size:11px; font-weight:700; color:#e65100; min-width: 80px;">🔍 Quick Filter:</span>
         <select id="quickFilter" onchange="quickFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #ff9800; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
           <option value="">-- Show All Locations --</option>
         </select>
-        <button id="quickFilterClear" onclick="quickFilterClear()" style="background:#f44336; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">✕ Clear Filter</button>
+        <button id="quickFilterClear" data-i18n="preview.clearFilter" onclick="quickFilterClear()" style="background:#f44336; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">✕ Clear Filter</button>
       </div>
     </div>
     <div class="preview-wrap" id="previewWrap">
@@ -445,6 +447,323 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ============== LANGUAGE SUPPORT ==============
+const TRANSLATIONS = {
+  en: {
+    'document.title': 'Hazard Map Dashboard – Emvess Infraventures Pvt Ltd',
+    'app.title': '🛡️ Hazard Map Dashboard',
+    'toolbar.print': '🖨️ Print / PDF',
+    'toolbar.excel': '📊 Download Excel',
+    'toolbar.ppt': '📽️ Download PPT',
+    'toolbar.sample': '📋 Sample 🔒',
+    'toolbar.reset': '↺ Reset 🔒',
+    'builder.title': '📝 Hazard Map Builder 🔒',
+    'builder.unlocked': '📝 Hazard Map Builder ✅ (Unlocked)',
+    'builder.locked': 'Builder is Locked',
+    'builder.unlockHint': 'Click the header or this banner to unlock with password.',
+    'builder.unlock': 'Unlock',
+    'builder.titleAttr': 'Click to unlock (password protected)',
+    'builder.unlockedTitle': 'Builder is unlocked',
+    'builder.addArea': '➕ Add Hazard Area',
+    'columns.title': '🔍 Filter Column (Show/Hide)',
+    'columns.choose': 'Choose which columns to display in the preview table:',
+    'columns.hint': "💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.",
+    'columns.showAll': '✓ Show All',
+    'columns.hideAll': '✗ Hide All',
+    'document.info': '📌 Document Info',
+    'form.date': 'Date',
+    'form.preparedBy': 'Prepared By',
+    'form.reviewedBy': 'Reviewed By',
+    'form.name': 'Name',
+    'filter.title': '🔍 Filter View by Location',
+    'filter.selectHint': "Select a location to filter the table to show only that location's details",
+    'filter.showAll': '-- Show All Locations --',
+    'filter.chooseDuplicate': '-- Choose a location to duplicate --',
+    'filter.noAreas': '— No filled areas yet —',
+    'filter.help': '💡 Select any location from the dropdown to <b>filter</b> the preview table to just that one area. Use "Show All Locations" to clear the filter.',
+    'settings.title': '⚙️ Settings',
+    'settings.mapTitle': 'Map Title',
+    'settings.company': 'Company / Logo Text',
+    'settings.footer': 'Footer Note',
+    'preview.title': '👁️ Live Preview',
+    'preview.tip': '<b>Tip:</b> Select any location from the dropdown below to <b>filter</b> the preview table to just that one area. Use <b>"Show All Locations"</b> to clear the filter.',
+    'preview.quickFilter': '🔍 Quick Filter:',
+    'preview.clearFilter': '✕ Clear Filter',
+    'row.area': 'Area',
+    'row.delete': '🗑 Delete',
+    'form.location': 'Location',
+    'form.subLocation': 'Sub Location',
+    'form.activity': 'Activity (one per line)',
+    'form.hazardTypes': 'Hazard Types (one per line)',
+    'form.hazards': 'Hazards (one per line)',
+    'form.riskDescribe': 'Risk Describe',
+    'form.riskDescribePlaceholder': 'Describe the risk and possible consequence.',
+    'form.riskLevel': 'Risk Level',
+    'form.remarks': 'Remarks',
+    'form.requiredPpe': 'Required PPE (check all that apply)',
+    'form.locationPlaceholder': 'e.g. Workshop',
+    'form.subLocationPlaceholder': 'e.g. Welding Bay',
+    'form.activityPlaceholder': 'Loading\nUnloading',
+    'form.hazardTypesPlaceholder': 'Mechanical\nPhysical',
+    'form.hazardsPlaceholder': 'Hit by vehicle\nFalling material',
+    'form.remarksPlaceholder': 'Follow safety procedure.',
+    'table.sr': 'Sr.<br>No.',
+    'table.location': 'LOCATION',
+    'table.subLocation': 'SUB LOCATION',
+    'table.activity': 'ACTIVITY',
+    'table.hazardTypes': 'HAZARD TYPES',
+    'table.hazard': 'HAZARD',
+    'table.riskDescribe': 'RISK DESCRIBE',
+    'table.riskLevel': 'RISK LEVEL',
+    'table.reqPpe': 'REQ PPE ({{company}} APPROVED)',
+    'table.remarks': 'REMARKS',
+    'table.riskLegend': 'Risk Level Legend',
+    'table.filteredView': '🔍 FILTERED VIEW: Showing only <span>{{name}}</span>',
+    'table.clearShowAll': '✕ Clear Filter — Show All {{count}} Areas',
+    'table.noFilteredData': 'No data for filtered area. Click "Clear Filter" above to show all areas.',
+    'table.noAreas': 'Add at least one hazard area to see preview',
+    'table.date': 'Date:',
+    'table.preparedBy': 'Prepared By:',
+    'table.reviewedBy': 'Reviewed By:',
+    'risk.safe.label': 'SAFE',
+    'risk.safe.desc': '(Low Risk)',
+    'risk.moderate.label': 'MODERATE',
+    'risk.moderate.desc': '(Medium Risk)',
+    'risk.critical.label': 'CRITICAL',
+    'risk.critical.desc': '(High Risk)',
+    'risk.vhigh.label': 'VERY CRITICAL',
+    'risk.vhigh.desc': '(Very High Risk)',
+    'empty': '—',
+    'password.sample': 'Load Sample Data',
+    'password.reset': 'Reset All Data',
+    'password.builder': 'Unlock Hazard Map Builder',
+    'password.title': '🔒 PASSWORD REQUIRED',
+    'password.action': 'Action:',
+    'password.protected': 'This action is password protected.',
+    'password.enter': 'Enter password to continue:',
+    'toast.filtered': '🔍 Filtered to "{{name}}"',
+    'toast.filteredClearHint': '🔍 Filtered to "{{name}}" — clear filter to see all',
+    'toast.filterCleared': '✓ Filter cleared — showing all areas',
+    'toast.builderUnlocked': '🔓 Builder unlocked — you can now edit',
+    'toast.allShown': '✓ All columns shown',
+    'toast.allHidden': '✗ All columns hidden',
+    'toast.sampleLoaded': '✓ Loaded all 28 areas with sub-locations & 21 PPEs',
+    'toast.reset': '↺ Reset complete',
+    'toast.htmlDownloaded': '⬇ HTML downloaded',
+    'toast.excelGenerating': '⏳ Generating Excel…',
+    'toast.excelDownloaded': '✓ Excel downloaded',
+    'toast.pptGenerating': '⏳ Generating PowerPoint…',
+    'toast.pptDownloaded': '✓ PowerPoint downloaded',
+    'error.xlsxNotLoaded': 'XLSX library not loaded',
+    'error.pptNotLoaded': 'PptxGenJS library not loaded',
+    'error.excel': '✗ Excel error: {{message}}',
+    'error.ppt': '✗ PPT error: {{message}}',
+    'confirm.reset': 'Reset all data?',
+    'ppe.helmet': 'Safety Helmet',
+    'ppe.shoes': 'Safety Shoe',
+    'ppe.gumboots': 'Gum Boot',
+    'ppe.goggles': 'Safety Goggles',
+    'ppe.gasgoggle': 'Gas Cutting Goggle',
+    'ppe.face': 'Face Shield',
+    'ppe.gloves': 'Hand Gloves',
+    'ppe.rubgloves': 'Rubber Gloves',
+    'ppe.leather': 'Leather Hand Gloves',
+    'ppe.elecgloves': 'Electrical Gloves',
+    'ppe.reflective': 'Reflective Jacket',
+    'ppe.frjacket': 'FR Jacket',
+    'ppe.frpant': 'FR Pant',
+    'ppe.harness': 'Full Body Harness',
+    'ppe.hkdress': 'Housekeeping Dress',
+    'ppe.apron': 'Grass Cutting Apron',
+    'ppe.earplug': 'Ear Plug',
+    'ppe.dustmask': 'Dust Mask',
+    'ppe.respirator': 'Respirator',
+    'ppe.gasdetect': 'Gas Detector',
+    'ppe.extinguisher': 'Fire Extinguisher'
+  },
+  hi: {
+    'document.title': 'हैज़र्ड मैप डैशबोर्ड – Emvess Infraventures Pvt Ltd',
+    'app.title': '🛡️ हैज़र्ड मैप डैशबोर्ड',
+    'toolbar.print': '🖨️ प्रिंट / PDF',
+    'toolbar.excel': '📊 एक्सेल डाउनलोड करें',
+    'toolbar.ppt': '📽️ PPT डाउनलोड करें',
+    'toolbar.sample': '📋 सैंपल 🔒',
+    'toolbar.reset': '↺ रीसेट 🔒',
+    'builder.title': '📝 हैज़र्ड मैप बिल्डर 🔒',
+    'builder.unlocked': '📝 हैज़र्ड मैप बिल्डर ✅ (अनलॉक)',
+    'builder.locked': 'बिल्डर लॉक है',
+    'builder.unlockHint': 'पासवर्ड से अनलॉक करने के लिए हेडर या इस बैनर पर क्लिक करें।',
+    'builder.unlock': 'अनलॉक करें',
+    'builder.titleAttr': 'अनलॉक करने के लिए क्लिक करें (पासवर्ड सुरक्षित)',
+    'builder.unlockedTitle': 'बिल्डर अनलॉक है',
+    'builder.addArea': '➕ हैज़र्ड एरिया जोड़ें',
+    'columns.title': '🔍 कॉलम फ़िल्टर (दिखाएँ/छिपाएँ)',
+    'columns.choose': 'प्रिव्यू टेबल में दिखाने के लिए कॉलम चुनें:',
+    'columns.hint': '💡 जिन कॉलम को नहीं देखना चाहते, उन्हें अनचेक करें। छोटे रिपोर्ट प्रिंट करने या खास डेटा पर ध्यान देने के लिए उपयोगी।',
+    'columns.showAll': '✓ सभी दिखाएँ',
+    'columns.hideAll': '✗ सभी छिपाएँ',
+    'document.info': '📌 दस्तावेज़ जानकारी',
+    'form.date': 'तारीख',
+    'form.preparedBy': 'तैयार किया',
+    'form.reviewedBy': 'समीक्षा की',
+    'form.name': 'नाम',
+    'filter.title': '🔍 स्थान के अनुसार फ़िल्टर',
+    'filter.selectHint': 'टेबल में केवल उस स्थान का विवरण दिखाने के लिए स्थान चुनें',
+    'filter.showAll': '-- सभी स्थान दिखाएँ --',
+    'filter.chooseDuplicate': '-- कॉपी करने के लिए स्थान चुनें --',
+    'filter.noAreas': '— अभी कोई भरा हुआ एरिया नहीं है —',
+    'filter.help': '💡 किसी स्थान को चुनकर प्रिव्यू टेबल में केवल उस क्षेत्र को <b>फ़िल्टर</b> करें। फ़िल्टर हटाने के लिए "सभी स्थान दिखाएँ" चुनें।',
+    'settings.title': '⚙️ सेटिंग्स',
+    'settings.mapTitle': 'मैप शीर्षक',
+    'settings.company': 'कंपनी / लोगो टेक्स्ट',
+    'settings.footer': 'फुटर नोट',
+    'preview.title': '👁️ लाइव प्रिव्यू',
+    'preview.tip': '<b>टिप:</b> किसी स्थान को चुनकर प्रिव्यू टेबल में केवल उस क्षेत्र को <b>फ़िल्टर</b> करें। फ़िल्टर हटाने के लिए <b>"सभी स्थान दिखाएँ"</b> चुनें।',
+    'preview.quickFilter': '🔍 त्वरित फ़िल्टर:',
+    'preview.clearFilter': '✕ फ़िल्टर हटाएँ',
+    'row.area': 'एरिया',
+    'row.delete': '🗑 हटाएँ',
+    'form.location': 'स्थान',
+    'form.subLocation': 'उप-स्थान',
+    'form.activity': 'गतिविधि (प्रति पंक्ति एक)',
+    'form.hazardTypes': 'हैज़र्ड प्रकार (प्रति पंक्ति एक)',
+    'form.hazards': 'हैज़र्ड (प्रति पंक्ति एक)',
+    'form.riskDescribe': 'जोखिम विवरण',
+    'form.riskDescribePlaceholder': 'जोखिम और संभावित परिणाम का विवरण दें।',
+    'form.riskLevel': 'जोखिम स्तर',
+    'form.remarks': 'टिप्पणियाँ',
+    'form.requiredPpe': 'आवश्यक PPE (लागू सभी चुनें)',
+    'form.locationPlaceholder': 'जैसे: वर्कशॉप',
+    'form.subLocationPlaceholder': 'जैसे: वेल्डिंग बे',
+    'form.activityPlaceholder': 'लोडिंग\nअनलोडिंग',
+    'form.hazardTypesPlaceholder': 'मैकेनिकल\nफिजिकल',
+    'form.hazardsPlaceholder': 'वाहन से टकराना\nसामग्री गिरना',
+    'form.remarksPlaceholder': 'सुरक्षा प्रक्रिया का पालन करें।',
+    'table.sr': 'क्रम.<br>संख्या',
+    'table.location': 'स्थान',
+    'table.subLocation': 'उप-स्थान',
+    'table.activity': 'गतिविधि',
+    'table.hazardTypes': 'हैज़र्ड प्रकार',
+    'table.hazard': 'हैज़र्ड',
+    'table.riskDescribe': 'जोखिम विवरण',
+    'table.riskLevel': 'जोखिम स्तर',
+    'table.reqPpe': 'आवश्यक PPE ({{company}} APPROVED)',
+    'table.remarks': 'टिप्पणियाँ',
+    'table.riskLegend': 'जोखिम स्तर संकेत',
+    'table.filteredView': '🔍 फ़िल्टर दृश्य: केवल <span>{{name}}</span> दिखाया जा रहा है',
+    'table.clearShowAll': '✕ फ़िल्टर हटाएँ — सभी {{count}} एरिया दिखाएँ',
+    'table.noFilteredData': 'फ़िल्टर किए गए एरिया के लिए कोई डेटा नहीं है। सभी एरिया देखने के लिए ऊपर "फ़िल्टर हटाएँ" पर क्लिक करें।',
+    'table.noAreas': 'प्रिव्यू देखने के लिए कम से कम एक हैज़र्ड एरिया जोड़ें',
+    'table.date': 'तारीख:',
+    'table.preparedBy': 'तैयार किया:',
+    'table.reviewedBy': 'समीक्षा की:',
+    'risk.safe.label': 'सुरक्षित',
+    'risk.safe.desc': '(कम जोखिम)',
+    'risk.moderate.label': 'मध्यम',
+    'risk.moderate.desc': '(मध्यम जोखिम)',
+    'risk.critical.label': 'गंभीर',
+    'risk.critical.desc': '(उच्च जोखिम)',
+    'risk.vhigh.label': 'अति गंभीर',
+    'risk.vhigh.desc': '(बहुत उच्च जोखिम)',
+    'empty': '—',
+    'password.sample': 'सैंपल डेटा लोड करें',
+    'password.reset': 'सारा डेटा रीसेट करें',
+    'password.builder': 'हैज़र्ड मैप बिल्डर अनलॉक करें',
+    'password.title': '🔒 पासवर्ड आवश्यक है',
+    'password.action': 'कार्य:',
+    'password.protected': 'यह कार्य पासवर्ड से सुरक्षित है।',
+    'password.enter': 'जारी रखने के लिए पासवर्ड दर्ज करें:',
+    'toast.filtered': '🔍 "{{name}}" पर फ़िल्टर किया गया',
+    'toast.filteredClearHint': '🔍 "{{name}}" पर फ़िल्टर किया गया — सभी देखने के लिए फ़िल्टर हटाएँ',
+    'toast.filterCleared': '✓ फ़िल्टर हटाया गया — सभी एरिया दिखाए जा रहे हैं',
+    'toast.builderUnlocked': '🔓 बिल्डर अनलॉक है — अब आप संपादन कर सकते हैं',
+    'toast.allShown': '✓ सभी कॉलम दिखाए गए',
+    'toast.allHidden': '✗ सभी कॉलम छिपाए गए',
+    'toast.sampleLoaded': '✓ सभी 28 एरिया, उप-स्थान और 21 PPE लोड किए गए',
+    'toast.reset': '↺ रीसेट पूरा हुआ',
+    'toast.htmlDownloaded': '⬇ HTML डाउनलोड हो गया',
+    'toast.excelGenerating': '⏳ एक्सेल बनाया जा रहा है…',
+    'toast.excelDownloaded': '✓ एक्सेल डाउनलोड हो गया',
+    'toast.pptGenerating': '⏳ PowerPoint बनाया जा रहा है…',
+    'toast.pptDownloaded': '✓ PowerPoint डाउनलोड हो गया',
+    'error.xlsxNotLoaded': 'XLSX लाइब्रेरी लोड नहीं हुई',
+    'error.pptNotLoaded': 'PptxGenJS लाइब्रेरी लोड नहीं हुई',
+    'error.excel': '✗ एक्सेल त्रुटि: {{message}}',
+    'error.ppt': '✗ PPT त्रुटि: {{message}}',
+    'confirm.reset': 'सारा डेटा रीसेट करें?',
+    'ppe.helmet': 'सुरक्षा हेलमेट',
+    'ppe.shoes': 'सुरक्षा जूते',
+    'ppe.gumboots': 'गम बूट',
+    'ppe.goggles': 'सुरक्षा गॉगल्स',
+    'ppe.gasgoggle': 'गैस कटिंग गॉगल',
+    'ppe.face': 'फेस शील्ड',
+    'ppe.gloves': 'हैंड ग्लव्स',
+    'ppe.rubgloves': 'रबर ग्लव्स',
+    'ppe.leather': 'लेदर हैंड ग्लव्स',
+    'ppe.elecgloves': 'इलेक्ट्रिकल ग्लव्स',
+    'ppe.reflective': 'रिफ्लेक्टिव जैकेट',
+    'ppe.frjacket': 'FR जैकेट',
+    'ppe.frpant': 'FR पैंट',
+    'ppe.harness': 'फुल बॉडी हार्नेस',
+    'ppe.hkdress': 'हाउसकीपिंग ड्रेस',
+    'ppe.apron': 'ग्रास कटिंग एप्रन',
+    'ppe.earplug': 'ईयर प्लग',
+    'ppe.dustmask': 'डस्ट मास्क',
+    'ppe.respirator': 'रेस्पिरेटर',
+    'ppe.gasdetect': 'गैस डिटेक्टर',
+    'ppe.extinguisher': 'फायर एक्सटिंग्विशर'
+  }
+};
+
+let currentLanguage = 'en';
+
+function t(key, vars = {}) {
+  const language = TRANSLATIONS[currentLanguage] || TRANSLATIONS.en;
+  let value = language[key] || TRANSLATIONS.en[key] || key;
+  Object.keys(vars).forEach(name => {
+    value = value.replace(new RegExp('\\{\\{' + name + '\\}\\}', 'g'), String(vars[name]));
+  });
+  return value;
+}
+
+function toggleLanguage() {
+  setLanguage(currentLanguage === 'en' ? 'hi' : 'en');
+}
+
+function setLanguage(language) {
+  currentLanguage = language === 'hi' ? 'hi' : 'en';
+  try { localStorage.setItem('hazardMapLanguage', currentLanguage); } catch (e) {}
+  applyTranslations();
+  if (document.getElementById('rowsContainer') && typeof collectData === 'function') {
+    rerenderRowsForLanguage();
+    if (typeof builderUnlocked !== 'undefined' && builderUnlocked) buildColumnToggles();
+    updatePreview();
+  }
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLanguage === 'hi' ? 'hi' : 'en';
+  document.title = t('document.title');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+  const languageButton = document.getElementById('languageToggle');
+  if (languageButton) languageButton.textContent = currentLanguage === 'en' ? 'हिन्दी' : 'English';
+}
+
+function ppeLabelFor(ppe) {
+  return t('ppe.' + ppe.id) || ppe.label;
+}
+
 // ============== PPE OPTIONS (Tata Steel Plant) ==============
 const PPE_OPTIONS = [
   { id: 'helmet',     label: 'Safety Helmet',       icon: '⛑️' },
@@ -498,60 +817,74 @@ let currentZoom = 100;
 function rowTemplate(idx) {
   return `
   <div class="form-section" data-row="${idx}">
-    <h3>Area #<span class="row-num">${idx + 1}</span>
-      <button class="del-row" onclick="deleteRow(${idx})">🗑 Delete</button>
+    <h3>${t('row.area')} #<span class="row-num">${idx + 1}</span>
+      <button class="del-row" onclick="deleteRow(${idx})">${t('row.delete')}</button>
     </h3>
     <div class="form-row-half">
       <div class="form-row">
-        <label>Location</label>
-        <input type="text" class="f-loc" list="loc-suggestions" placeholder="e.g. Workshop" oninput="updatePreview()">
+        <label>${t('form.location')}</label>
+        <input type="text" class="f-loc" list="loc-suggestions" placeholder="${t('form.locationPlaceholder')}" oninput="updatePreview()">
       </div>
       <div class="form-row">
-        <label>Sub Location</label>
-        <input type="text" class="f-subloc" placeholder="e.g. Welding Bay" oninput="updatePreview()">
+        <label>${t('form.subLocation')}</label>
+        <input type="text" class="f-subloc" placeholder="${t('form.subLocationPlaceholder')}" oninput="updatePreview()">
       </div>
     </div>
     <div class="form-row">
-      <label>Activity (one per line)</label>
-      <textarea class="f-act" placeholder="Loading&#10;Unloading" oninput="updatePreview()"></textarea>
+      <label>${t('form.activity')}</label>
+      <textarea class="f-act" placeholder="${t('form.activityPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>Hazard Types (one per line)</label>
-      <textarea class="f-hzt" placeholder="Mechanical&#10;Physical" oninput="updatePreview()"></textarea>
+      <label>${t('form.hazardTypes')}</label>
+      <textarea class="f-hzt" placeholder="${t('form.hazardTypesPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>Hazards (one per line)</label>
-      <textarea class="f-hz" placeholder="Hit by vehicle&#10;Falling material" oninput="updatePreview()"></textarea>
+      <label>${t('form.hazards')}</label>
+      <textarea class="f-hz" placeholder="${t('form.hazardsPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>Risk Describe</label>
-      <textarea class="f-risk-desc" placeholder="Describe the risk and possible consequence." oninput="updatePreview()"></textarea>
+      <label>${t('form.riskDescribe')}</label>
+      <textarea class="f-risk-desc" placeholder="${t('form.riskDescribePlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>Risk Level</label>
+      <label>${t('form.riskLevel')}</label>
       <select class="f-risk" onchange="updatePreview()">
-        <option value="safe">SAFE (Low Risk)</option>
-        <option value="moderate">MODERATE (Medium Risk)</option>
-        <option value="critical" selected>CRITICAL (High Risk)</option>
-        <option value="vhigh">VERY CRITICAL (Very High Risk)</option>
+        <option value="safe">${t('risk.safe.label')} ${t('risk.safe.desc')}</option>
+        <option value="moderate">${t('risk.moderate.label')} ${t('risk.moderate.desc')}</option>
+        <option value="critical" selected>${t('risk.critical.label')} ${t('risk.critical.desc')}</option>
+        <option value="vhigh">${t('risk.vhigh.label')} ${t('risk.vhigh.desc')}</option>
       </select>
     </div>
     <div class="form-row">
-      <label>Remarks</label>
-      <textarea class="f-rem" placeholder="Follow safety procedure." oninput="updatePreview()"></textarea>
+      <label>${t('form.remarks')}</label>
+      <textarea class="f-rem" placeholder="${t('form.remarksPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>Required PPE (check all that apply)</label>
+      <label>${t('form.requiredPpe')}</label>
       <div class="ppe-checks">
         ${PPE_OPTIONS.map(p => `
           <label>
             <input type="checkbox" class="f-ppe" value="${p.id}" onchange="updatePreview()">
-            ${p.icon} ${p.label}
+            ${p.icon} ${ppeLabelFor(p)}
           </label>
         `).join('')}
       </div>
     </div>
   </div>`;
+}
+function rerenderRowsForLanguage() {
+  const container = document.getElementById('rowsContainer');
+  if (!container) return;
+  const rows = collectData().rows;
+  container.innerHTML = '';
+  rowCount = 0;
+  rows.forEach(data => {
+    const idx = rowCount++;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = rowTemplate(idx);
+    container.appendChild(wrap.firstElementChild);
+    populateRow(idx, data);
+  });
 }
 
 function addRow(data) {
@@ -572,14 +905,14 @@ function refreshPickFilled() {
   if (!sel) return;
   const current = sel.value;
   const rows = collectData().rows;
-  let opts = '<option value="">-- Choose a location to duplicate --</option>';
+  let opts = `<option value="">${t('filter.chooseDuplicate')}</option>`;
   rows.forEach((r, i) => {
     if (!r.location && !r.subLocation) return;
     const label = (r.location || '(no location)') + (r.subLocation ? '  ›  ' + r.subLocation : '');
     opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
   });
   if (rows.length === 0) {
-    opts = '<option value="">— No filled areas yet —</option>';
+    opts = `<option value="">${t('filter.noAreas')}</option>`;
   }
   sel.innerHTML = opts;
   sel.value = current;
@@ -615,7 +948,7 @@ function pickFilledArea(rowIdxStr) {
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = rowIdxStr;
   updatePreview();
-  toast('🔍 Filtered to "' + filterInfo + '" — clear filter to see all');
+  toast(t('toast.filteredClearHint', { name: filterInfo }));
   // Scroll the preview to top so user sees the filtered result
   setTimeout(() => {
     const wrap = document.getElementById('previewWrap');
@@ -635,7 +968,7 @@ function clearFilter() {
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = '';
   updatePreview();
-  toast('✓ Filter cleared — showing all areas');
+  toast(t('toast.filterCleared'));
 }
 
 function deleteRow(idx) {
@@ -709,7 +1042,7 @@ function buildMap(d) {
     const risk = riskMap[r.risk] || riskMap.critical;
     const ppeHTML = r.ppe.map(id => {
       const p = ppeMap[id];
-      return p ? `<div class="ppe-item"><div class="icon">${p.icon}</div><div class="lbl">${p.label}</div></div>` : '';
+      return p ? `<div class="ppe-item"><div class="icon">${p.icon}</div><div class="lbl">${ppeLabelFor(p)}</div></div>` : '';
     }).join('');
     return `
     <tr>
@@ -720,7 +1053,7 @@ function buildMap(d) {
       <td ${isColumnVisible('col-hzt')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazardType.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hz')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazard.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}>${escape(r.riskDescription) || '—'}</td>
-      <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${risk.label}</div></td>
+      <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${t('risk.' + risk.value + '.label')}</div></td>
       <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
       <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(r.remarks) || ''}</td>
     </tr>`;
@@ -730,7 +1063,7 @@ function buildMap(d) {
     <div class="risk-legend">
       ${RISK_LEVELS.map(r => `
         <div class="risk-box ${r.cls}">
-          ${r.label}<span class="sub">${r.desc}</span>
+          ${t('risk.' + r.value + '.label')}<span class="sub">${t('risk.' + r.value + '.desc')}</span>
         </div>
       `).join('')}
     </div>
@@ -738,8 +1071,8 @@ function buildMap(d) {
 
   const filterBanner = (filterMode !== null && filterInfo)
     ? `<div class="filter-banner">
-         <div class="fb-info">🔍 FILTERED VIEW: Showing only <span>${escape(filterInfo)}</span></div>
-         <button class="fb-clear" onclick="clearFilter()">✕ Clear Filter — Show All ${allRows.length} Areas</button>
+         <div class="fb-info">${t('table.filteredView', { name: escape(filterInfo) })}</div>
+         <button class="fb-clear" onclick="clearFilter()">${t('table.clearShowAll', { count: allRows.length })}</button>
        </div>`
     : '';
 
@@ -752,31 +1085,31 @@ function buildMap(d) {
     <table class="hm-table">
       <thead>
         <tr>
-          <th class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}      >Sr.<br>No.</th>
-          <th class="col-loc" ${isColumnVisible('col-loc')?'':'style="display:none"'}    >LOCATION</th>
-          <th class="col-subloc" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>SUB LOCATION</th>
-          <th class="col-act" ${isColumnVisible('col-act')?'':'style="display:none"'}    >ACTIVITY</th>
-          <th class="col-hzt" ${isColumnVisible('col-hzt')?'':'style="display:none"'}    >HAZARD TYPES</th>
-          <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >HAZARD</th>
-          <th class="col-rdesc" ${isColumnVisible('col-rdesc')?'':'style="display:none"'} >RISK DESCRIBE</th>
-          <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >RISK LEVEL</th>
-          <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >REQ PPE (${escape(d.company) || 'Emvess Infraventures Pvt Ltd'} APPROVED)</th>
-          <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >REMARKS</th>
+          <th class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}      >${t('table.sr')}</th>
+          <th class="col-loc" ${isColumnVisible('col-loc')?'':'style="display:none"'}    >${t('table.location')}</th>
+          <th class="col-subloc" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>${t('table.subLocation')}</th>
+          <th class="col-act" ${isColumnVisible('col-act')?'':'style="display:none"'}    >${t('table.activity')}</th>
+          <th class="col-hzt" ${isColumnVisible('col-hzt')?'':'style="display:none"'}    >${t('table.hazardTypes')}</th>
+          <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >${t('table.hazard')}</th>
+          <th class="col-rdesc" ${isColumnVisible('col-rdesc')?'':'style="display:none"'} >${t('table.riskDescribe')}</th>
+          <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >${t('table.riskLevel')}</th>
+          <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >${t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' })}</th>
+          <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >${t('table.remarks')}</th>
         </tr>
       </thead>
-      <tbody>${rowsHTML || (filterMode !== null ? '<tr><td colspan="10" style="padding:30px;color:#999">No data for filtered area. Click "Clear Filter" above to show all areas.</td></tr>' : '<tr><td colspan="10" style="padding:30px;color:#999">Add at least one hazard area to see preview</td></tr>')}</tbody>
+      <tbody>${rowsHTML || (filterMode !== null ? `<tr><td colspan="10" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="10" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`)}</tbody>
     </table>
     <div class="hm-legend">
       <div>
-        <h3>Risk Level Legend</h3>
+        <h3>${t('table.riskLegend')}</h3>
         ${legend}
       </div>
     </div>
     <div class="hm-footer">
       <div>${escape(d.footer) || ''}</div>
-      <div>Date: <span>${escape(d.date) || ''}</span></div>
-      <div>Prepared By: <span>${escape(d.prepared) || ''}</span></div>
-      <div>Reviewed By: <span>${escape(d.reviewed) || ''}</span></div>
+      <div>${t('table.date')} <span>${escape(d.date) || ''}</span></div>
+      <div>${t('table.preparedBy')} <span>${escape(d.prepared) || ''}</span></div>
+      <div>${t('table.reviewedBy')} <span>${escape(d.reviewed) || ''}</span></div>
     </div>
   `;
 }
@@ -794,10 +1127,10 @@ let _pendingAction = null;
 
 function askPassword(action) {
   _pendingAction = action;
-  const labels = { sample: 'Load Sample Data', reset: 'Reset All Data', builder: 'Unlock Hazard Map Builder' };
-  const actionLabel = labels[action] || 'this action';
+  const labels = { sample: t('password.sample'), reset: t('password.reset'), builder: t('password.builder') };
+  const actionLabel = labels[action] || action;
   const pwd = window.prompt(
-    `🔒 PASSWORD REQUIRED\n\nAction: ${actionLabel}\n\nThis action is password protected.\nEnter password to continue:`,
+    `${t('password.title')}\n\n${t('password.action')} ${actionLabel}\n\n${t('password.protected')}\n${t('password.enter')}`,
     ''
   );
   if (pwd === null) {
@@ -810,7 +1143,7 @@ function askPassword(action) {
     else if (action === 'builder') unlockBuilder();
     _pendingAction = null;
   } else {
-    toast('✗ Wrong password — access denied');
+    toast(currentLanguage === 'hi' ? '✗ गलत पासवर्ड — अनुमति अस्वीकृत' : '✗ Wrong password — access denied');
     _pendingAction = null;
   }
 }
@@ -821,14 +1154,14 @@ function refreshQuickFilter() {
   if (!sel) return;
   const data = collectData();
   const current = sel.value;
-  let opts = '<option value="">-- Show All Locations --</option>';
+  let opts = `<option value="">${t('filter.showAll')}</option>`;
   data.rows.forEach((r, i) => {
     if (!r.location && !r.subLocation) return;
     const label = (r.location || '(no location)') + (r.subLocation ? ' › ' + r.subLocation : '');
     opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
   });
   if (data.rows.length === 0) {
-    opts = '<option value="">— No filled areas yet —</option>';
+    opts = `<option value="">${t('filter.noAreas')}</option>`;
   }
   sel.innerHTML = opts;
   sel.value = current;
@@ -852,7 +1185,7 @@ function quickFilterChange(idxStr) {
   const formSel = document.getElementById('pickFilled');
   if (formSel) formSel.value = idxStr;
   updatePreview();
-  toast('🔍 Filtered to "' + filterInfo + '"');
+  toast(t('toast.filtered', { name: filterInfo }));
   // Scroll preview to top
   setTimeout(() => {
     const wrap = document.getElementById('previewWrap');
@@ -873,28 +1206,30 @@ let builderUnlocked = false;
 
 function unlockBuilder() {
   builderUnlocked = true;
-  document.getElementById('builderHeader').innerHTML = '📝 Hazard Map Builder ✅ (Unlocked)';
+  const headerText = document.getElementById('builderHeaderText');
+  if (headerText) headerText.dataset.i18n = 'builder.unlocked';
   document.getElementById('builderHeader').style.color = '#2e7d32';
-  document.getElementById('builderHeader').title = 'Builder is unlocked';
+  document.getElementById('builderHeader').dataset.i18nTitle = 'builder.unlockedTitle';
+  applyTranslations();
   document.getElementById('builderLockedBanner').style.display = 'none';
   document.getElementById('builderContent').style.display = 'block';
   // Build column toggles
   buildColumnToggles();
-  toast('🔓 Builder unlocked — you can now edit');
+  toast(t('toast.builderUnlocked'));
 }
 
 function buildColumnToggles() {
   const cols = [
-    { id: 'col-sr',      label: 'Sr. No.' },
-    { id: 'col-loc',     label: 'Location' },
-    { id: 'col-subloc',  label: 'Sub Location' },
-    { id: 'col-act',     label: 'Activity' },
-    { id: 'col-hzt',     label: 'Hazard Types' },
-    { id: 'col-hz',      label: 'Hazard' },
-    { id: 'col-rdesc',   label: 'Risk Describe' },
-    { id: 'col-rsk',     label: 'Risk Level' },
-    { id: 'col-ppe',     label: 'Req PPE' },
-    { id: 'col-rem',     label: 'Remarks' }
+    { id: 'col-sr',      label: 'Sr. No.', key: 'table.sr' },
+    { id: 'col-loc',     label: 'Location', key: 'table.location' },
+    { id: 'col-subloc',  label: 'Sub Location', key: 'table.subLocation' },
+    { id: 'col-act',     label: 'Activity', key: 'table.activity' },
+    { id: 'col-hzt',     label: 'Hazard Types', key: 'table.hazardTypes' },
+    { id: 'col-hz',      label: 'Hazard', key: 'table.hazard' },
+    { id: 'col-rdesc',   label: 'Risk Describe', key: 'table.riskDescribe' },
+    { id: 'col-rsk',     label: 'Risk Level', key: 'table.riskLevel' },
+    { id: 'col-ppe',     label: 'Req PPE', key: 'table.reqPpe' },
+    { id: 'col-rem',     label: 'Remarks', key: 'table.remarks' }
   ];
   const container = document.getElementById('columnToggles');
   if (!container) return;
@@ -902,7 +1237,7 @@ function buildColumnToggles() {
     const checked = isColumnVisible(c.id) ? 'checked' : '';
     return `<label style="display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 6px; background:#f5f7fb; border:1px solid #cfd4dc; border-radius:3px; cursor:pointer;">
       <input type="checkbox" data-col="${c.id}" ${checked} onchange="toggleColumn('${c.id}', this.checked); updatePreview();" style="width:auto;">
-      <span>${c.label}</span>
+      <span>${c.key === 'table.reqPpe' ? t(c.key).replace(/ \(\{\{company\}\} APPROVED\)/, '') : t(c.key)}</span>
     </label>`;
   }).join('');
 }
@@ -931,7 +1266,7 @@ function setAllColumns(visible) {
   localStorage.setItem('hazardMapColumnVisibility', JSON.stringify(map));
   buildColumnToggles();
   updatePreview();
-  toast(visible ? '✓ All columns shown' : '✗ All columns hidden');
+  toast(visible ? t('toast.allShown') : t('toast.allHidden'));
 }
 
 // ============== SAMPLE DATA (All 19 locations) ==============
@@ -986,7 +1321,7 @@ function loadSample() {
       ppe: d.ppe
     });
   });
-  toast('✓ Loaded all 28 areas with sub-locations & 21 PPEs');
+  toast(t('toast.sampleLoaded'));
 }
 
 function saveState() {
@@ -1012,7 +1347,7 @@ function loadState() {
 }
 
 function resetAll() {
-  if (confirm('Reset all data?')) {
+  if (confirm(t('confirm.reset'))) {
     localStorage.removeItem('hazardDashboard');
     document.getElementById('rowsContainer').innerHTML = '';
     rowCount = 0;
@@ -1023,7 +1358,7 @@ function resetAll() {
     document.getElementById('metaPrepared').value = '';
     document.getElementById('metaReviewed').value = '';
     addRow();
-    toast('↺ Reset complete');
+    toast(t('toast.reset'));
   }
 }
 
@@ -1044,14 +1379,14 @@ function downloadHTML() {
   a.href = URL.createObjectURL(blob);
   a.download = `hazard_map_${(d.date||'today')}.html`;
   a.click();
-  toast('⬇ HTML downloaded');
+  toast(t('toast.htmlDownloaded'));
 }
 
 function downloadExcel() {
   try {
     if (typeof XLSX === 'undefined') { throw new Error('XLSX library not loaded'); }
     const d = collectData();
-    toast('⏳ Generating Excel…');
+    toast(t('toast.excelGenerating'));
 
     const ppeLabel = {
       helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
@@ -1061,7 +1396,7 @@ function downloadExcel() {
       apron:'Grass Cutting Apron',earplug:'Ear Plug',dustmask:'Dust Mask',respirator:'Respirator',
       gasdetect:'Gas Detector',extinguisher:'Fire Extinguisher'
     };
-    const riskText = {safe:'SAFE',moderate:'MODERATE',critical:'CRITICAL',vhigh:'VERY CRITICAL'};
+    const riskText = { safe: t('risk.safe.label'), moderate: t('risk.moderate.label'), critical: t('risk.critical.label'), vhigh: t('risk.vhigh.label') };
 
     const wb = XLSX.utils.book_new();
 
@@ -1070,9 +1405,14 @@ function downloadExcel() {
     aoa.push([d.title || 'HAZARD MAP']);
     aoa.push([`${d.company || 'Emvess Infraventures Pvt Ltd'}  |  Date: ${d.date || '-'}  |  Prepared By: ${d.prepared || '-'}  |  Reviewed By: ${d.reviewed || '-'}`]);
     aoa.push([]);
-    aoa.push(['Sr.', 'LOCATION', 'SUB LOCATION', 'ACTIVITY', 'HAZARD TYPES', 'HAZARD', 'RISK DESCRIBE', 'RISK LEVEL', 'PPE REQUIRED', 'PPE COUNT', 'REMARKS']);
+    aoa.push([
+      t('table.sr').replace('<br>', ' '), t('table.location'), t('table.subLocation'),
+      t('table.activity'), t('table.hazardTypes'), t('table.hazard'), t('table.riskDescribe'),
+      t('table.riskLevel'), t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' }),
+      'PPE COUNT', t('table.remarks')
+    ]);
     (d.rows || []).forEach((r, i) => {
-      const ppeList = (r.ppe || []).map(p => ppeLabel[p] || p);
+      const ppeList = (r.ppe || []).map(p => t('ppe.' + p) || ppeLabel[p] || p);
       aoa.push([
         i + 1,
         r.location || '',
@@ -1213,10 +1553,10 @@ function downloadExcel() {
 
     const fname = `hazard_map_${(d.date || 'today')}.xlsx`;
     XLSX.writeFile(wb, fname);
-    toast('✓ Excel downloaded');
+    toast(t('toast.excelDownloaded'));
   } catch (e) {
     console.error(e);
-    toast('✗ Excel error: ' + e.message);
+    toast(t('error.excel', { message: e.message }));
   }
 }
 
@@ -1224,7 +1564,7 @@ function downloadPPT() {
   try {
     if (typeof PptxGenJS === 'undefined') { throw new Error('PptxGenJS library not loaded'); }
     const d = collectData();
-    toast('⏳ Generating PowerPoint…');
+    toast(t('toast.pptGenerating'));
 
     const ppeLabel = {
       helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
@@ -1241,7 +1581,7 @@ function downloadPPT() {
       earplug:'🎧',dustmask:'😷',respirator:'😷',gasdetect:'📟',extinguisher:'🧯'
     };
     const riskColor = { safe:'4CAF50', moderate:'FFC107', critical:'FF5722', vhigh:'F44336' };
-    const riskText = { safe:'SAFE', moderate:'MODERATE', critical:'CRITICAL', vhigh:'VERY CRITICAL' };
+    const riskText = { safe: t('risk.safe.label'), moderate: t('risk.moderate.label'), critical: t('risk.critical.label'), vhigh: t('risk.vhigh.label') };
     const riskTxtColor = { safe:'FFFFFF', moderate:'000000', critical:'FFFFFF', vhigh:'FFFFFF' };
 
     const pres = new PptxGenJS();
@@ -1321,7 +1661,7 @@ function downloadPPT() {
         const x = rx + cc*cellWP;
         const y = 1.6 + rr*cellHP;
         s.addShape(pres.ShapeType.rect, { x, y, w:cellWP-0.1, h:cellHP-0.1, fill:{color:'E3F2FD'}, line:{color:'1A3A6C', width:1} });
-        s.addText(`${ppeIcon[pid]||'•'}\n${ppeLabel[pid]||pid}`,
+        s.addText(`${ppeIcon[pid]||'•'}\n${t('ppe.' + pid) || ppeLabel[pid] || pid}`,
           { x, y, w:cellWP-0.1, h:cellHP-0.1, fontSize:10, bold:true, color:'1A3A6C', align:'center', valign:'middle' });
       });
 
@@ -1355,10 +1695,10 @@ function downloadPPT() {
 
     const fname = `hazard_map_${(d.date || 'today')}.pptx`;
     pres.writeFile({ fileName: fname });
-    toast('✓ PowerPoint downloaded');
+    toast(t('toast.pptDownloaded'));
   } catch (e) {
     console.error(e);
-    toast('✗ PPT error: ' + e.message);
+    toast(t('error.ppt', { message: e.message }));
   }
 }
 
@@ -1370,11 +1710,17 @@ function toast(msg) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  try {
+    currentLanguage = localStorage.getItem('hazardMapLanguage') === 'hi' ? 'hi' : 'en';
+  } catch (e) {
+    currentLanguage = 'en';
+  }
   if (!loadState()) {
     loadSample();
   } else {
     updatePreview();
   }
+  applyTranslations();
 });
 </script>
 <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2e7784cdb73d97b',t:'MTc4NzI5MjU3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
