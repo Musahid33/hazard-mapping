@@ -193,6 +193,7 @@
   .hm-table .col-sr { width: 32px; }
   .hm-table .col-loc { width: 80px; }
   .hm-table .col-subloc { width: 80px; }
+  .hm-table .col-sop { width: 120px; }
   .hm-table .col-act { width: 100px; }
   .hm-table .col-hzt { width: 85px; }
   .hm-table .col-hz  { width: 110px; }
@@ -200,9 +201,11 @@
   .hm-table .col-rsk { width: 70px; }
   .hm-table .col-ppe { width: auto; }
   .hm-table .col-rem { width: 110px; }
+  .hm-table .col-action { width: 88px; }
 
   .loc-cell { font-weight: 800; font-size: 11px; color: #1a3a6c; }
   .subloc-cell { font-weight: 600; font-size: 10px; color: #555; font-style: italic; }
+  .sop-cell { font-weight: 700; font-size: 10px; color: #1b5e20; text-align: left; padding-left: 8px; }
   .loc-icon { font-size: 24px; display: block; margin: 2px 0; }
   .list-cell { text-align: left; padding-left: 12px; }
   .list-cell ul { list-style: none; }
@@ -232,6 +235,70 @@
     white-space: pre-wrap; line-height: 1.35;
   }
   .remarks-cell { text-align: left; padding-left: 8px; font-size: 10.5px; }
+  .action-cell { padding: 6px 4px; }
+  .action-req-btn {
+    background: #1565c0; color: #fff; border: none;
+    padding: 7px 8px; border-radius: 4px; font-size: 11px;
+    font-weight: 700; cursor: pointer; white-space: nowrap;
+    width: 100%;
+  }
+  .action-req-btn:hover { background: #0d47a1; }
+
+  .req-overlay {
+    display: none; position: fixed; inset: 0; z-index: 10000;
+    background: rgba(13,38,73,0.55);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .req-overlay.show { display: flex; }
+  .req-modal {
+    background: #fff; width: 100%; max-width: 480px; max-height: 92vh;
+    overflow-y: auto; border-radius: 10px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.28);
+  }
+  .req-modal h2 {
+    background: #1a3a6c; color: #fff; margin: 0; padding: 14px 18px;
+    font-size: 16px; border-radius: 10px 10px 0 0;
+  }
+  .req-modal .req-body { padding: 16px 18px 18px; }
+  .req-modal .req-to {
+    background: #e8f5e9; color: #1b5e20; font-size: 12px;
+    padding: 8px 10px; border-radius: 4px; margin-bottom: 12px;
+    border-left: 4px solid #2e7d32;
+  }
+  .req-modal label {
+    display: block; font-size: 11px; font-weight: 700; color: #555;
+    margin: 10px 0 4px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .req-modal input, .req-modal select, .req-modal textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid #cfd4dc;
+    border-radius: 4px; font-size: 13px; font-family: inherit;
+  }
+  .req-modal textarea { min-height: 70px; resize: vertical; }
+  .req-type-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .req-type-row label {
+    text-transform: none; letter-spacing: 0; font-weight: 600;
+    display: flex; align-items: center; gap: 6px; margin: 0;
+    padding: 8px 6px; border: 1px solid #cfd4dc; border-radius: 4px;
+    background: #f5f7fb; cursor: pointer; font-size: 12px; color: #333;
+  }
+  .req-type-row label input { width: auto; }
+  .req-type-row label:has(input:checked) { background: #e3f2fd; border-color: #1565c0; color: #0d47a1; }
+  .req-anon {
+    display: flex; align-items: flex-start; gap: 8px;
+    margin-top: 8px; padding: 8px 10px;
+    background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px;
+    cursor: pointer; font-size: 12.5px; color: #5d4037;
+    text-transform: none; letter-spacing: 0; font-weight: 600;
+  }
+  .req-anon input { width: auto; margin-top: 2px; }
+  .req-anon span { line-height: 1.35; }
+  .req-anon small { display: block; font-weight: 500; color: #795548; margin-top: 2px; }
+  .req-actions { display: flex; gap: 8px; margin-top: 14px; }
+  .req-actions button { flex: 1; padding: 10px; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  .req-submit { background: #2e7d32; color: #fff; }
+  .req-submit:hover { background: #1b5e20; }
+  .req-submit:disabled { opacity: 0.6; cursor: wait; }
+  .req-cancel { background: #eceff1; color: #333; }
 
   .hm-legend {
     display: grid; grid-template-columns: 1fr 2fr; gap: 0;
@@ -262,12 +329,12 @@
   @media print {
     @page { size: A3 landscape; margin: 8mm; }
     body { background: #fff; padding: 0; }
-    .topbar, .form-panel, .preview-header, .preview-tip { display: none !important; }
+    .topbar, .form-panel, .preview-header, .preview-tip, .col-action, .action-req-btn, .req-overlay { display: none !important; }
     .layout { display: block; }
     .preview-panel { box-shadow: none; border-radius: 0; }
     .preview-wrap { padding: 0; max-height: none; overflow: visible; }
     .hazard-map { min-width: 0; border: 1px solid #000; }
-    .hm-table th, .risk-badge, .risk-box, .ppe-cell, .ppe-item, .loc-cell, .list-cell,
+    .hm-table th, .risk-badge, .risk-box, .ppe-cell, .ppe-item, .loc-cell, .sop-cell, .list-cell,
     .remarks-cell, .hm-header, .hm-legend h3, .hm-footer {
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
@@ -348,6 +415,36 @@
 
     <div id="rowsContainer"></div>
 
+    <datalist id="sop-suggestions">
+      <option value="SOP-VEH-ENT Vehicle Entry">
+      <option value="SOP-SEC-001 Security Monitoring">
+      <option value="SOP-TRF-001 Traffic Control">
+      <option value="SOP-VEH-EXT Vehicle Exit">
+      <option value="SOP-WGH-001 Weighment Procedure">
+      <option value="SOP-PRK-001 Loaded Vehicle Parking">
+      <option value="SOP-PRK-002 Empty Vehicle Parking">
+      <option value="SOP-PPE-001 PPE Verification">
+      <option value="SOP-LUL-001 Loading Unloading">
+      <option value="SOP-TRN-001 Material Transport">
+      <option value="SOP-STR-001 Store Receiving & Issuing">
+      <option value="SOP-OFF-001 Office Work">
+      <option value="SOP-MNT-001 Equipment Maintenance (LOTO)">
+      <option value="SOP-PRK-003 Transport Park">
+      <option value="SOP-SCR-001 Scrap Handling">
+      <option value="SOP-WGH-002 Weigh Bridge Operation">
+      <option value="SOP-PTH-001 Pedestrian Pathway">
+      <option value="SOP-FOB-001 Foot Over Bridge">
+      <option value="SOP-ELC-001 High Mast Work">
+      <option value="SOP-DG-001 DG Operation & Fuel Handling">
+      <option value="SOP-PMP-001 Pump House Operation">
+      <option value="SOP-WTR-001 Drinking Water">
+      <option value="SOP-ELC-002 Electrical Panel (LOTO)">
+      <option value="SOP-CHM-001 Chemical Spray">
+      <option value="SOP-HOT-001 Hot Work / Welding">
+      <option value="SOP-HK-001 Housekeeping & Hygiene">
+      <option value="SOP-HK-002 Housekeeping">
+    </datalist>
+
     <datalist id="loc-suggestions">
       <option value="Weighment Area">
       <option value="Weigh Bridge Area">
@@ -396,6 +493,19 @@
       </div>
     </div>
 
+    <div class="form-section filter-section" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 2px solid #66bb6a; border-left: 6px solid #2e7d32; box-shadow: 0 2px 8px rgba(46,125,50,0.15);">
+      <h3 data-i18n="filter.sopTitle" style="color:#1b5e20;">📋 Filter View by SOP</h3>
+      <div class="form-row">
+        <label data-i18n="filter.sopSelectHint" style="color:#1b5e20;">Select an SOP to print only that SOP's Activity, Hazard Type, Hazard, Risk Description and Required PPE</label>
+        <select id="pickSop" onchange="pickSopFilter(this.value)" style="border:2px solid #66bb6a; background:#f1f8e9; font-weight:600; padding:9px;">
+          <option value="" data-i18n="filter.sopShowAll">-- Show All SOPs --</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:#1b5e20;margin-top:6px; background:#e8f5e9; padding:6px 8px; border-radius:3px; border-left:3px solid #2e7d32;">
+        <span data-i18n-html="filter.sopHelp">💡 Select any SOP from the dropdown to <b>filter</b> the preview/print to just that SOP: Activity, Hazard Type, Hazard, Risk Description and Required PPE.</span>
+      </div>
+    </div>
+
     <div class="form-section">
       <h3 data-i18n="settings.title">⚙️ Settings</h3>
       <div class="form-row">
@@ -435,6 +545,10 @@
         <select id="quickFilter" onchange="quickFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #ff9800; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
           <option value="">-- Show All Locations --</option>
         </select>
+        <span data-i18n="preview.quickSopFilter" style="font-size:11px; font-weight:700; color:#1b5e20; min-width: 80px;">📋 SOP Filter:</span>
+        <select id="quickSopFilter" onchange="quickSopFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #2e7d32; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
+          <option value="">-- Show All SOPs --</option>
+        </select>
         <button id="quickFilterClear" data-i18n="preview.clearFilter" onclick="quickFilterClear()" style="background:#f44336; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">✕ Clear Filter</button>
       </div>
     </div>
@@ -445,6 +559,49 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="req-overlay" id="reqOverlay" onclick="if(event.target===this) closeHazardRequest()">
+  <div class="req-modal" role="dialog" aria-modal="true">
+    <h2 id="reqTitle">Hazard Change Request</h2>
+    <div class="req-body">
+      <div class="req-to" id="reqToNote">Request will be sent to emvssafetyteam@gmail.com</div>
+      <label id="reqEmpLabel">Your name (Employee)</label>
+      <input type="text" id="reqEmployee" autocomplete="name" placeholder="Enter your full name">
+      <label class="req-anon" for="reqAnonymous">
+        <input type="checkbox" id="reqAnonymous">
+        <span>
+          <span id="reqAnonLbl">Send anonymous</span>
+          <small id="reqAnonHint">Name filled ho to bhi anonymous bhej sakte ho — naam email mein nahi jayega.</small>
+        </span>
+      </label>
+
+      <label id="reqTypeLabel">What do you want to do?</label>
+      <div class="req-type-row">
+        <label><input type="radio" name="reqType" value="add"> <span id="reqAddLbl">Add hazard</span></label>
+        <label><input type="radio" name="reqType" value="change"> <span id="reqChangeLbl">Change hazard</span></label>
+        <label><input type="radio" name="reqType" value="remove"> <span id="reqRemoveLbl">Remove hazard</span></label>
+      </div>
+
+      <label id="reqSopLabel">SOP</label>
+      <select id="reqSop"></select>
+
+      <label id="reqAreaLabel">Area / Location</label>
+      <select id="reqArea"></select>
+
+      <label id="reqHzLabel">Hazard name</label>
+      <input type="text" id="reqHazardName" placeholder="Name of the hazard to add / change / remove">
+
+      <label id="reqDetLabel">Details / Reason</label>
+      <textarea id="reqDetails" placeholder="Describe what should be added, changed or removed."></textarea>
+
+      <div class="req-actions">
+        <button type="button" class="req-cancel" id="reqCancelBtn" onclick="closeHazardRequest()">Cancel</button>
+        <button type="button" class="req-submit" id="reqSubmitBtn" onclick="submitHazardRequest()">Submit Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
 // ============== LANGUAGE SUPPORT ==============
@@ -481,18 +638,26 @@ const TRANSLATIONS = {
     'filter.chooseDuplicate': '-- Choose a location to duplicate --',
     'filter.noAreas': '— No filled areas yet —',
     'filter.help': '💡 Select any location from the dropdown to <b>filter</b> the preview table to just that one area. Use "Show All Locations" to clear the filter.',
+    'filter.sopTitle': '📋 Filter View by SOP',
+    'filter.sopSelectHint': "Select an SOP to print only that SOP's Activity, Hazard Type, Hazard, Risk Description and Required PPE",
+    'filter.sopShowAll': '-- Show All SOPs --',
+    'filter.sopNone': '— No SOP filled yet —',
+    'filter.sopHelp': '💡 Select any SOP from the dropdown to <b>filter</b> the preview/print to just that SOP: Activity, Hazard Type, Hazard, Risk Description and Required PPE.',
+    'preview.quickSopFilter': '📋 SOP Filter:',
     'settings.title': '⚙️ Settings',
     'settings.mapTitle': 'Map Title',
     'settings.company': 'Company / Logo Text',
     'settings.footer': 'Footer Note',
     'preview.title': '👁️ Live Preview',
-    'preview.tip': '<b>Tip:</b> Select any location from the dropdown below to <b>filter</b> the preview table to just that one area. Use <b>"Show All Locations"</b> to clear the filter.',
+    'preview.tip': '<b>Tip:</b> Filter by <b>location</b> or by <b>SOP</b>. SOP filter prints Activity, Hazard Type, Hazard, Risk Description and Required PPE. Use <b>Clear Filter</b> to show all.',
     'preview.quickFilter': '🔍 Quick Filter:',
     'preview.clearFilter': '✕ Clear Filter',
     'row.area': 'Area',
     'row.delete': '🗑 Delete',
     'form.location': 'Location',
     'form.subLocation': 'Sub Location',
+    'form.sop': 'SOP',
+    'form.sopPlaceholder': 'e.g. SOP-LUL-001 Loading Unloading',
     'form.activity': 'Activity (one per line)',
     'form.hazardTypes': 'Hazard Types (one per line)',
     'form.hazards': 'Hazards (one per line)',
@@ -510,6 +675,7 @@ const TRANSLATIONS = {
     'table.sr': 'Sr.<br>No.',
     'table.location': 'LOCATION',
     'table.subLocation': 'SUB LOCATION',
+    'table.sop': 'SOP',
     'table.activity': 'ACTIVITY',
     'table.hazardTypes': 'HAZARD TYPES',
     'table.hazard': 'HAZARD',
@@ -517,10 +683,13 @@ const TRANSLATIONS = {
     'table.riskLevel': 'RISK LEVEL',
     'table.reqPpe': 'REQ PPE ({{company}} APPROVED)',
     'table.remarks': 'REMARKS',
+    'table.action': 'ACTION',
     'table.riskLegend': 'Risk Level Legend',
     'table.filteredView': '🔍 FILTERED VIEW: Showing only <span>{{name}}</span>',
     'table.clearShowAll': '✕ Clear Filter — Show All {{count}} Areas',
     'table.noFilteredData': 'No data for filtered area. Click "Clear Filter" above to show all areas.',
+    'table.filteredSopView': '📋 SOP FILTER: Showing only <span>{{name}}</span>',
+    'table.noSopData': 'No data for this SOP. Click "Clear Filter" above to show all areas.',
     'table.noAreas': 'Add at least one hazard area to see preview',
     'table.date': 'Date:',
     'table.preparedBy': 'Prepared By:',
@@ -543,7 +712,39 @@ const TRANSLATIONS = {
     'password.enter': 'Enter password to continue:',
     'toast.filtered': '🔍 Filtered to "{{name}}"',
     'toast.filteredClearHint': '🔍 Filtered to "{{name}}" — clear filter to see all',
+    'toast.sopFiltered': '📋 SOP filtered to "{{name}}"',
     'toast.filterCleared': '✓ Filter cleared — showing all areas',
+    'request.title': 'Hazard Change Request',
+    'request.to': 'Request will be sent to emvssafetyteam@gmail.com',
+    'request.employee': 'Your name (Employee)',
+    'request.employeePh': 'Enter your full name',
+    'request.anonymous': 'Send anonymous',
+    'request.anonymousHint': 'Even if you typed your name, tick this to send without your name.',
+    'request.anonymousName': 'Anonymous',
+    'request.type': 'What do you want to do?',
+    'request.add': 'Add hazard',
+    'request.change': 'Change hazard',
+    'request.remove': 'Remove hazard',
+    'request.sop': 'SOP',
+    'request.area': 'Area / Location',
+    'request.chooseSop': '-- Select SOP (optional) --',
+    'request.chooseArea': '-- Select Area (optional) --',
+    'request.hazardName': 'Hazard name',
+    'request.hazardNamePh': 'Name of the hazard to add / change / remove',
+    'request.details': 'Details / Reason',
+    'request.detailsPh': 'Describe what should be added, changed or removed.',
+    'request.submit': 'Submit Request',
+    'request.cancel': 'Cancel',
+    'request.btn': '📝 Request',
+    'request.needName': 'Please enter your name',
+    'request.needHazard': 'Please enter the hazard name',
+    'request.needType': 'Please choose Add, Change or Remove',
+    'request.sending': 'Sending request…',
+    'request.sent': '✓ Request sent to emvssafetyteam@gmail.com',
+    'request.mailOpen': '✉ Opening email to send request to emvssafetyteam@gmail.com',
+    'request.subjectAdd': 'Hazard Map Request: ADD hazard',
+    'request.subjectChange': 'Hazard Map Request: CHANGE hazard',
+    'request.subjectRemove': 'Hazard Map Request: REMOVE hazard',
     'toast.builderUnlocked': '🔓 Builder unlocked — you can now edit',
     'toast.allShown': '✓ All columns shown',
     'toast.allHidden': '✗ All columns hidden',
@@ -613,18 +814,26 @@ const TRANSLATIONS = {
     'filter.chooseDuplicate': '-- कॉपी करने के लिए स्थान चुनें --',
     'filter.noAreas': '— अभी कोई भरा हुआ एरिया नहीं है —',
     'filter.help': '💡 किसी स्थान को चुनकर प्रिव्यू टेबल में केवल उस क्षेत्र को <b>फ़िल्टर</b> करें। फ़िल्टर हटाने के लिए "सभी स्थान दिखाएँ" चुनें।',
+    'filter.sopTitle': '📋 SOP के अनुसार फ़िल्टर',
+    'filter.sopSelectHint': 'SOP चुनें — केवल उस SOP की गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE प्रिंट होगी',
+    'filter.sopShowAll': '-- सभी SOP दिखाएँ --',
+    'filter.sopNone': '— अभी कोई SOP भरा नहीं है —',
+    'filter.sopHelp': '💡 SOP चुनकर प्रिव्यू/प्रिंट में केवल उस SOP की <b>गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE</b> दिखेगी।',
+    'preview.quickSopFilter': '📋 SOP फ़िल्टर:',
     'settings.title': '⚙️ सेटिंग्स',
     'settings.mapTitle': 'मैप शीर्षक',
     'settings.company': 'कंपनी / लोगो टेक्स्ट',
     'settings.footer': 'फुटर नोट',
     'preview.title': '👁️ लाइव प्रिव्यू',
-    'preview.tip': '<b>टिप:</b> किसी स्थान को चुनकर प्रिव्यू टेबल में केवल उस क्षेत्र को <b>फ़िल्टर</b> करें। फ़िल्टर हटाने के लिए <b>"सभी स्थान दिखाएँ"</b> चुनें।',
+    'preview.tip': '<b>टिप:</b> <b>स्थान</b> या <b>SOP</b> से फ़िल्टर करें। SOP फ़िल्टर में गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE प्रिंट होगी।',
     'preview.quickFilter': '🔍 त्वरित फ़िल्टर:',
     'preview.clearFilter': '✕ फ़िल्टर हटाएँ',
     'row.area': 'एरिया',
     'row.delete': '🗑 हटाएँ',
     'form.location': 'स्थान',
     'form.subLocation': 'उप-स्थान',
+    'form.sop': 'SOP',
+    'form.sopPlaceholder': 'जैसे: SOP-LUL-001 लोडिंग अनलोडिंग',
     'form.activity': 'गतिविधि (प्रति पंक्ति एक)',
     'form.hazardTypes': 'हैज़र्ड प्रकार (प्रति पंक्ति एक)',
     'form.hazards': 'हैज़र्ड (प्रति पंक्ति एक)',
@@ -642,6 +851,7 @@ const TRANSLATIONS = {
     'table.sr': 'क्रम.<br>संख्या',
     'table.location': 'स्थान',
     'table.subLocation': 'उप-स्थान',
+    'table.sop': 'SOP',
     'table.activity': 'गतिविधि',
     'table.hazardTypes': 'हैज़र्ड प्रकार',
     'table.hazard': 'हैज़र्ड',
@@ -649,10 +859,13 @@ const TRANSLATIONS = {
     'table.riskLevel': 'जोखिम स्तर',
     'table.reqPpe': 'आवश्यक PPE ({{company}} APPROVED)',
     'table.remarks': 'टिप्पणियाँ',
+    'table.action': 'कार्रवाई',
     'table.riskLegend': 'जोखिम स्तर संकेत',
     'table.filteredView': '🔍 फ़िल्टर दृश्य: केवल <span>{{name}}</span> दिखाया जा रहा है',
+    'table.filteredSopView': '📋 SOP फ़िल्टर: केवल <span>{{name}}</span> दिखाया जा रहा है',
     'table.clearShowAll': '✕ फ़िल्टर हटाएँ — सभी {{count}} एरिया दिखाएँ',
     'table.noFilteredData': 'फ़िल्टर किए गए एरिया के लिए कोई डेटा नहीं है। सभी एरिया देखने के लिए ऊपर "फ़िल्टर हटाएँ" पर क्लिक करें।',
+    'table.noSopData': 'इस SOP के लिए कोई डेटा नहीं है। सभी एरिया देखने के लिए ऊपर "फ़िल्टर हटाएँ" पर क्लिक करें।',
     'table.noAreas': 'प्रिव्यू देखने के लिए कम से कम एक हैज़र्ड एरिया जोड़ें',
     'table.date': 'तारीख:',
     'table.preparedBy': 'तैयार किया:',
@@ -675,7 +888,39 @@ const TRANSLATIONS = {
     'password.enter': 'जारी रखने के लिए पासवर्ड दर्ज करें:',
     'toast.filtered': '🔍 "{{name}}" पर फ़िल्टर किया गया',
     'toast.filteredClearHint': '🔍 "{{name}}" पर फ़िल्टर किया गया — सभी देखने के लिए फ़िल्टर हटाएँ',
+    'toast.sopFiltered': '📋 SOP "{{name}}" पर फ़िल्टर किया गया',
     'toast.filterCleared': '✓ फ़िल्टर हटाया गया — सभी एरिया दिखाए जा रहे हैं',
+    'request.title': 'हैज़र्ड परिवर्तन अनुरोध',
+    'request.to': 'अनुरोध emvssafetyteam@gmail.com पर भेजा जाएगा',
+    'request.employee': 'आपका नाम (कर्मचारी)',
+    'request.employeePh': 'अपना पूरा नाम लिखें',
+    'request.anonymous': 'Anonymous भेजें',
+    'request.anonymousHint': 'अपना नाम लिखने के बाद भी यह चुनकर बिना नाम के अनुरोध भेज सकते हैं।',
+    'request.anonymousName': 'Anonymous',
+    'request.type': 'आप क्या करना चाहते हैं?',
+    'request.add': 'हैज़र्ड जोड़ें',
+    'request.change': 'हैज़र्ड बदलें',
+    'request.remove': 'हैज़र्ड हटाएँ',
+    'request.sop': 'SOP',
+    'request.area': 'एरिया / स्थान',
+    'request.chooseSop': '-- SOP चुनें (वैकल्पिक) --',
+    'request.chooseArea': '-- एरिया चुनें (वैकल्पिक) --',
+    'request.hazardName': 'हैज़र्ड का नाम',
+    'request.hazardNamePh': 'जोड़ने / बदलने / हटाने वाले हैज़र्ड का नाम',
+    'request.details': 'विवरण / कारण',
+    'request.detailsPh': 'बताएँ क्या जोड़ना, बदलना या हटाना है।',
+    'request.submit': 'अनुरोध भेजें',
+    'request.cancel': 'रद्द करें',
+    'request.btn': '📝 अनुरोध',
+    'request.needName': 'कृपया अपना नाम लिखें',
+    'request.needHazard': 'कृपया हैज़र्ड का नाम लिखें',
+    'request.needType': 'कृपया जोड़ें, बदलें या हटाएँ चुनें',
+    'request.sending': 'अनुरोध भेजा जा रहा है…',
+    'request.sent': '✓ अनुरोध emvssafetyteam@gmail.com पर भेज दिया गया',
+    'request.mailOpen': '✉ ईमेल खुल रहा है — अनुरोध emvssafetyteam@gmail.com पर भेजें',
+    'request.subjectAdd': 'हैज़र्ड मैप अनुरोध: हैज़र्ड जोड़ें',
+    'request.subjectChange': 'हैज़र्ड मैप अनुरोध: हैज़र्ड बदलें',
+    'request.subjectRemove': 'हैज़र्ड मैप अनुरोध: हैज़र्ड हटाएँ',
     'toast.builderUnlocked': '🔓 बिल्डर अनलॉक है — अब आप संपादन कर सकते हैं',
     'toast.allShown': '✓ सभी कॉलम दिखाए गए',
     'toast.allHidden': '✗ सभी कॉलम छिपाए गए',
@@ -898,7 +1143,34 @@ const HINDI_DATA_TRANSLATIONS = {
   "Sharp objects": "नुकीली वस्तुओं का खतरा",
   "Grass flying": "उड़ती घास का खतरा",
   "Chemical spray": "रासायनिक स्प्रे का खतरा",
-  "Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.": "गीले फर्श का साइन अनिवार्य है। हाउसकीपिंग ड्रेस और ग्रास कटिंग एप्रन पहनें।"
+  "Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.": "गीले फर्श का साइन अनिवार्य है। हाउसकीपिंग ड्रेस और ग्रास कटिंग एप्रन पहनें।",
+  "SOP-VEH-ENT Vehicle Entry": "SOP-VEH-ENT वाहन प्रवेश",
+  "SOP-SEC-001 Security Monitoring": "SOP-SEC-001 सुरक्षा निगरानी",
+  "SOP-TRF-001 Traffic Control": "SOP-TRF-001 यातायात नियंत्रण",
+  "SOP-VEH-EXT Vehicle Exit": "SOP-VEH-EXT वाहन निकास",
+  "SOP-WGH-001 Weighment Procedure": "SOP-WGH-001 वेटमेंट प्रक्रिया",
+  "SOP-PRK-001 Loaded Vehicle Parking": "SOP-PRK-001 लोडेड वाहन पार्किंग",
+  "SOP-PRK-002 Empty Vehicle Parking": "SOP-PRK-002 खाली वाहन पार्किंग",
+  "SOP-PPE-001 PPE Verification": "SOP-PPE-001 PPE सत्यापन",
+  "SOP-LUL-001 Loading Unloading": "SOP-LUL-001 लोडिंग अनलोडिंग",
+  "SOP-TRN-001 Material Transport": "SOP-TRN-001 सामग्री परिवहन",
+  "SOP-STR-001 Store Receiving & Issuing": "SOP-STR-001 स्टोर प्राप्ति एवं निर्गम",
+  "SOP-OFF-001 Office Work": "SOP-OFF-001 कार्यालय कार्य",
+  "SOP-MNT-001 Equipment Maintenance (LOTO)": "SOP-MNT-001 उपकरण रखरखाव (LOTO)",
+  "SOP-PRK-003 Transport Park": "SOP-PRK-003 परिवहन पार्क",
+  "SOP-SCR-001 Scrap Handling": "SOP-SCR-001 स्क्रैप हैंडलिंग",
+  "SOP-WGH-002 Weigh Bridge Operation": "SOP-WGH-002 वेट ब्रिज संचालन",
+  "SOP-PTH-001 Pedestrian Pathway": "SOP-PTH-001 पैदल मार्ग",
+  "SOP-FOB-001 Foot Over Bridge": "SOP-FOB-001 फुट ओवर ब्रिज",
+  "SOP-ELC-001 High Mast Work": "SOP-ELC-001 हाई मास्ट कार्य",
+  "SOP-DG-001 DG Operation & Fuel Handling": "SOP-DG-001 DG संचालन एवं ईंधन हैंडलिंग",
+  "SOP-PMP-001 Pump House Operation": "SOP-PMP-001 पंप हाउस संचालन",
+  "SOP-WTR-001 Drinking Water": "SOP-WTR-001 पेयजल",
+  "SOP-ELC-002 Electrical Panel (LOTO)": "SOP-ELC-002 विद्युत पैनल (LOTO)",
+  "SOP-CHM-001 Chemical Spray": "SOP-CHM-001 रासायनिक स्प्रे",
+  "SOP-HOT-001 Hot Work / Welding": "SOP-HOT-001 हॉट वर्क / वेल्डिंग",
+  "SOP-HK-001 Housekeeping & Hygiene": "SOP-HK-001 हाउसकीपिंग एवं स्वच्छता",
+  "SOP-HK-002 Housekeeping": "SOP-HK-002 हाउसकीपिंग"
 };
 
 function translateDataText(value) {
@@ -958,6 +1230,7 @@ function applyTranslations() {
   });
   const languageButton = document.getElementById('languageToggle');
   if (languageButton) languageButton.textContent = currentLanguage === 'en' ? 'हिन्दी' : 'English';
+  if (typeof applyRequestFormI18n === 'function') applyRequestFormI18n();
 }
 
 function ppeLabelFor(ppe) {
@@ -992,6 +1265,37 @@ const PPE_OPTIONS = [
 // ============== LOCATIONS (free-text; no fixed list) ==============
 // Locations and sub-locations are now free-text inputs in the form.
 // Below is just a small suggestion list used as datalist hints.
+const LOCATION_SOP = {
+  'Entry Gate': 'SOP-VEH-ENT Vehicle Entry',
+  'Security Post': 'SOP-SEC-001 Security Monitoring',
+  'Traffic Guard Post': 'SOP-TRF-001 Traffic Control',
+  'Out Gate': 'SOP-VEH-EXT Vehicle Exit',
+  'Weighment Area': 'SOP-WGH-001 Weighment Procedure',
+  'Vehicle Load Parking': 'SOP-PRK-001 Loaded Vehicle Parking',
+  'Empty Vehicle Parking': 'SOP-PRK-002 Empty Vehicle Parking',
+  'Safety Check Area': 'SOP-PPE-001 PPE Verification',
+  'Loading Unloading': 'SOP-LUL-001 Loading Unloading',
+  'Transporting Road': 'SOP-TRN-001 Material Transport',
+  'Store': 'SOP-STR-001 Store Receiving & Issuing',
+  'Office Area': 'SOP-OFF-001 Office Work',
+  'Equipment Maintenance': 'SOP-MNT-001 Equipment Maintenance (LOTO)',
+  'Transport Park': 'SOP-PRK-003 Transport Park',
+  'Scray Yard': 'SOP-SCR-001 Scrap Handling',
+  'Weigh Bridge Area': 'SOP-WGH-002 Weigh Bridge Operation',
+  'Pathway Area': 'SOP-PTH-001 Pedestrian Pathway',
+  'FOB (Foot Over Bridge)': 'SOP-FOB-001 Foot Over Bridge',
+  'High Mast Area': 'SOP-ELC-001 High Mast Work',
+  'DG Area': 'SOP-DG-001 DG Operation & Fuel Handling',
+  'Pump House': 'SOP-PMP-001 Pump House Operation',
+  'Drinking Water Area': 'SOP-WTR-001 Drinking Water',
+  'Electrical Panel': 'SOP-ELC-002 Electrical Panel (LOTO)',
+  'Scrap Yard': 'SOP-SCR-001 Scrap Handling',
+  'Chemical Spray Area': 'SOP-CHM-001 Chemical Spray',
+  'Utility': 'SOP-HOT-001 Hot Work / Welding',
+  'Toilet': 'SOP-HK-001 Housekeeping & Hygiene',
+  'Housekeeping': 'SOP-HK-002 Housekeeping'
+};
+
 const LOCATION_SUGGESTIONS = [
   'Weighment Area', 'Weigh Bridge Area', 'Office Area', 'Store',
   'Vehicle Load Parking', 'Empty Vehicle Parking', 'Transport Park',
@@ -1029,6 +1333,10 @@ function rowTemplate(idx) {
         <label>${t('form.subLocation')}</label>
         <input type="text" class="f-subloc" placeholder="${t('form.subLocationPlaceholder')}" oninput="updatePreview()">
       </div>
+    </div>
+    <div class="form-row">
+      <label>${t('form.sop')}</label>
+      <input type="text" class="f-sop" list="sop-suggestions" placeholder="${t('form.sopPlaceholder')}" oninput="updatePreview()">
     </div>
     <div class="form-row">
       <label>${t('form.activity')}</label>
@@ -1144,6 +1452,11 @@ function pickFilledArea(rowIdxStr) {
   const src = data.rows[idx];
   filterMode = idx;
   filterInfo = displayLocation(src);
+  sopFilter = null;
+  const sopSel = document.getElementById('pickSop');
+  if (sopSel) sopSel.value = '';
+  const qsop = document.getElementById('quickSopFilter');
+  if (qsop) qsop.value = '';
   // Sync the quick filter dropdown
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = rowIdxStr;
@@ -1159,16 +1472,83 @@ function pickFilledArea(rowIdxStr) {
 // Track filter state
 let filterMode = null;   // row index being filtered, or null = show all
 let filterInfo = null;   // display name of the filter
+let sopFilter = null;    // SOP name being filtered, or null = show all
 
 function clearFilter() {
   filterMode = null;
   filterInfo = null;
+  sopFilter = null;
   const sel = document.getElementById('pickFilled');
   if (sel) sel.value = '';
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = '';
+  const sopSel = document.getElementById('pickSop');
+  if (sopSel) sopSel.value = '';
+  const qsop = document.getElementById('quickSopFilter');
+  if (qsop) qsop.value = '';
   updatePreview();
   toast(t('toast.filterCleared'));
+}
+
+function uniqueSops(rows) {
+  const seen = [];
+  (rows || []).forEach(r => {
+    const sop = (r.sop || '').trim();
+    if (sop && !seen.includes(sop)) seen.push(sop);
+  });
+  return seen;
+}
+
+function refreshSopFilters() {
+  const rows = collectData().rows;
+  const sops = uniqueSops(rows);
+  const current = sopFilter || '';
+  let opts = `<option value="">${t('filter.sopShowAll')}</option>`;
+  if (sops.length === 0) {
+    opts = `<option value="">${t('filter.sopNone')}</option>`;
+  } else {
+    sops.forEach(sop => {
+      opts += `<option value="${escapeHtml(sop)}">${escapeHtml(translateDataText(sop))}</option>`;
+    });
+  }
+  ['pickSop', 'quickSopFilter'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = opts;
+    sel.value = current;
+  });
+}
+
+function applySopFilter(sopValue, showToast) {
+  if (!sopValue) {
+    sopFilter = null;
+    refreshSopFilters();
+    updatePreview();
+    return;
+  }
+  // SOP filter is independent of location filter: clear location so print is SOP-only
+  filterMode = null;
+  filterInfo = null;
+  const locSel = document.getElementById('pickFilled');
+  if (locSel) locSel.value = '';
+  const qsel = document.getElementById('quickFilter');
+  if (qsel) qsel.value = '';
+  sopFilter = sopValue;
+  refreshSopFilters();
+  updatePreview();
+  if (showToast !== false) toast(t('toast.sopFiltered', { name: translateDataText(sopValue) }));
+  setTimeout(() => {
+    const wrap = document.getElementById('previewWrap');
+    if (wrap) wrap.scrollTop = 0;
+  }, 50);
+}
+
+function pickSopFilter(sopValue) {
+  applySopFilter(sopValue);
+}
+
+function quickSopFilterChange(sopValue) {
+  applySopFilter(sopValue);
 }
 
 function deleteRow(idx) {
@@ -1181,6 +1561,8 @@ function populateRow(idx, d) {
   if (!root) return;
   root.querySelector('.f-loc').value    = d.location || '';
   root.querySelector('.f-subloc').value = d.subLocation || '';
+  const sopEl = root.querySelector('.f-sop');
+  if (sopEl) sopEl.value = d.sop || LOCATION_SOP[d.location] || '';
   root.querySelector('.f-act').value    = (d.activity || []).join('\n');
   root.querySelector('.f-hzt').value    = (d.hazardType || []).join('\n');
   root.querySelector('.f-hz').value     = (d.hazard || []).join('\n');
@@ -1208,6 +1590,7 @@ function collectData() {
     data.rows.push({
       location: sec.querySelector('.f-loc').value.trim(),
       subLocation: sec.querySelector('.f-subloc').value.trim(),
+      sop: (sec.querySelector('.f-sop') && sec.querySelector('.f-sop').value.trim()) || '',
       activity: sec.querySelector('.f-act').value.split('\n').filter(s => s.trim()),
       hazardType: sec.querySelector('.f-hzt').value.split('\n').filter(s => s.trim()),
       hazard: sec.querySelector('.f-hz').value.split('\n').filter(s => s.trim()),
@@ -1225,6 +1608,7 @@ function updatePreview() {
   document.getElementById('hazardMap').innerHTML = buildMap(d);
   refreshPickFilled();
   refreshQuickFilter();
+  refreshSopFilters();
   saveState();
 }
 
@@ -1234,9 +1618,12 @@ function buildMap(d) {
 
   const allRows = d.rows;
   if (filterMode !== null && allRows[filterMode]) filterInfo = displayLocation(allRows[filterMode]);
-  const displayRows = (filterMode !== null && allRows[filterMode])
+  let displayRows = (filterMode !== null && allRows[filterMode])
     ? [allRows[filterMode]]
     : allRows;
+  if (sopFilter) {
+    displayRows = displayRows.filter(r => (r.sop || '').trim() === sopFilter);
+  }
   const displayRowsIndexed = displayRows.map((r, i) => ({ r, origIdx: allRows.indexOf(r) }));
 
   const rowsHTML = displayRowsIndexed.map(({ r, origIdx }, i) => {
@@ -1250,13 +1637,15 @@ function buildMap(d) {
       <td class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}>${origIdx + 1}</td>
       <td class="loc-cell" ${isColumnVisible('col-loc')?'':'style="display:none"'}>${escape(translateDataText(r.location)) || '—'}</td>
       <td class="subloc-cell" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>${escape(translateDataText(r.subLocation)) || '—'}</td>
+      <td class="sop-cell" ${isColumnVisible('col-sop')?'':'style="display:none"'}>${escape(translateDataText(r.sop)) || '—'}</td>
       <td ${isColumnVisible('col-act')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.activity).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hzt')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.hazardType).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hz')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.hazard).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
-      <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}>${escape(translateDataText(r.riskDescription)) || '—'}</td>
+      <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}>${escape(translateDataText(r.riskDescription || (sopFilter ? r.remarks : '') )) || '—'}</td>
       <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${t('risk.' + risk.value + '.label')}</div></td>
       <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
       <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(translateDataText(r.remarks)) || ''}</td>
+      <td class="action-cell col-action"><button type="button" class="action-req-btn" onclick="openHazardRequest(${origIdx})">${t('request.btn')}</button></td>
     </tr>`;
   }).join('');
 
@@ -1270,12 +1659,18 @@ function buildMap(d) {
     </div>
   `;
 
-  const filterBanner = (filterMode !== null && filterInfo)
-    ? `<div class="filter-banner">
+  let filterBanner = '';
+  if (sopFilter) {
+    filterBanner = `<div class="filter-banner" style="background:linear-gradient(90deg,#1b5e20,#43a047);">
+         <div class="fb-info">${t('table.filteredSopView', { name: escape(translateDataText(sopFilter)) })}</div>
+         <button class="fb-clear" onclick="clearFilter()">${t('table.clearShowAll', { count: allRows.length })}</button>
+       </div>`;
+  } else if (filterMode !== null && filterInfo) {
+    filterBanner = `<div class="filter-banner">
          <div class="fb-info">${t('table.filteredView', { name: escape(filterInfo) })}</div>
          <button class="fb-clear" onclick="clearFilter()">${t('table.clearShowAll', { count: allRows.length })}</button>
-       </div>`
-    : '';
+       </div>`;
+  }
 
   return `
     <div class="hm-header">
@@ -1289,6 +1684,7 @@ function buildMap(d) {
           <th class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}      >${t('table.sr')}</th>
           <th class="col-loc" ${isColumnVisible('col-loc')?'':'style="display:none"'}    >${t('table.location')}</th>
           <th class="col-subloc" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>${t('table.subLocation')}</th>
+          <th class="col-sop" ${isColumnVisible('col-sop')?'':'style="display:none"'}    >${t('table.sop')}</th>
           <th class="col-act" ${isColumnVisible('col-act')?'':'style="display:none"'}    >${t('table.activity')}</th>
           <th class="col-hzt" ${isColumnVisible('col-hzt')?'':'style="display:none"'}    >${t('table.hazardTypes')}</th>
           <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >${t('table.hazard')}</th>
@@ -1296,16 +1692,17 @@ function buildMap(d) {
           <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >${t('table.riskLevel')}</th>
           <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >${t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' })}</th>
           <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >${t('table.remarks')}</th>
+          <th class="col-action">${t('table.action')}</th>
         </tr>
       </thead>
-      <tbody>${rowsHTML || (filterMode !== null ? `<tr><td colspan="10" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="10" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`)}</tbody>
+      <tbody>${rowsHTML || (sopFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noSopData')}</td></tr>` : (filterMode !== null ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`))}</tbody>
     </table>
-    <div class="hm-legend">
+    ${sopFilter ? '' : `<div class="hm-legend">
       <div>
         <h3>${t('table.riskLegend')}</h3>
         ${legend}
       </div>
-    </div>
+    </div>`}
     <div class="hm-footer">
       <div>${escape(d.footer) || ''}</div>
       <div>${t('table.date')} <span>${escape(d.date) || ''}</span></div>
@@ -1382,6 +1779,11 @@ function quickFilterChange(idxStr) {
   filterMode = idx;
   const src = data.rows[idx];
   filterInfo = displayLocation(src);
+  sopFilter = null;
+  const sopSel = document.getElementById('pickSop');
+  if (sopSel) sopSel.value = '';
+  const qsop = document.getElementById('quickSopFilter');
+  if (qsop) qsop.value = '';
   // Also sync the form panel dropdown
   const formSel = document.getElementById('pickFilled');
   if (formSel) formSel.value = idxStr;
@@ -1424,6 +1826,7 @@ function buildColumnToggles() {
     { id: 'col-sr',      label: 'Sr. No.', key: 'table.sr' },
     { id: 'col-loc',     label: 'Location', key: 'table.location' },
     { id: 'col-subloc',  label: 'Sub Location', key: 'table.subLocation' },
+    { id: 'col-sop',     label: 'SOP', key: 'table.sop' },
     { id: 'col-act',     label: 'Activity', key: 'table.activity' },
     { id: 'col-hzt',     label: 'Hazard Types', key: 'table.hazardTypes' },
     { id: 'col-hz',      label: 'Hazard', key: 'table.hazard' },
@@ -1444,6 +1847,11 @@ function buildColumnToggles() {
 }
 
 function isColumnVisible(colId) {
+  if (colId === 'col-action') return true;
+  // SOP print view: only Activity, Hazard Type, Hazard, Risk Description, Required PPE
+  if (sopFilter) {
+    return ['col-act','col-hzt','col-hz','col-rdesc','col-ppe'].includes(colId);
+  }
   const stored = localStorage.getItem('hazardMapColumnVisibility');
   if (!stored) return true;
   try {
@@ -1461,7 +1869,7 @@ function toggleColumn(colId, visible) {
 }
 
 function setAllColumns(visible) {
-  const cols = ['col-sr','col-loc','col-subloc','col-act','col-hzt','col-hz','col-rdesc','col-rsk','col-ppe','col-rem'];
+  const cols = ['col-sr','col-loc','col-subloc','col-sop','col-act','col-hzt','col-hz','col-rdesc','col-rsk','col-ppe','col-rem'];
   const map = {};
   cols.forEach(c => map[c] = visible);
   localStorage.setItem('hazardMapColumnVisibility', JSON.stringify(map));
@@ -1479,44 +1887,45 @@ function loadSample() {
   document.getElementById('metaReviewed').value = 'Plant Head';
 
   const sample = [
-    { loc:'Entry Gate',           sub:'Main Gate Cabin',                                activity:['Vehicle Entry','ID Check','Documentation'],         hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip','Unauthorized access'],                  risk:'moderate', ppe:['helmet','reflective','shoes'],                                              remarks:'Follow entry procedure & traffic rules.' },
-    { loc:'Security Post', sub:'General Area',        activity:['Monitoring','Gate Operation','Patrolling'],          hazardType:['Physical','Security'],        hazard:['Vehicle hit','Ergonomic strain','Weather exposure'],                     risk:'moderate', ppe:['shoes','reflective'],                                                          remarks:'Wear ID card & maintain log.' },
-    { loc:'Traffic Guard Post', sub:'General Area',   activity:['Traffic Control','Vehicle Direction'],             hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Noise','Dust'],                                          risk:'critical', ppe:['helmet','reflective','shoes','dustmask','earplug'],                            remarks:'Use stop sign & follow traffic plan.' },
-    { loc:'Out Gate', sub:'General Area',             activity:['Vehicle Exit','Weighment Check'],                   hazardType:['Physical','Traffic'],         hazard:['Vehicle movement','Pinch point'],                                         risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Cross-check challan before exit.' },
-    { loc:'Weighment Area', sub:'General Area',       activity:['Weighing','Documentation'],                         hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load'],                              risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Stay outside weighbridge during weighing.' },
-    { loc:'Vehicle Load Parking', sub:'General Area', activity:['Loading','Waiting','Engine Idle'],                  hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Fire'],                                   risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in designated slot, engine off.' },
-    { loc:'Empty Vehicle Parking', sub:'General Area',activity:['Parking','Waiting','Inspection'],                   hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip'],                                              risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use reverse horn while parking.' },
-    { loc:'Safety Check Area', sub:'General Area',    activity:['PPE Verification','Vehicle Inspection'],            hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Sharp edges','Pinch points'],                            risk:'critical', ppe:['helmet','reflective','shoes','gloves','goggles'],                              remarks:'100% PPE check before entry. Use checklist.' },
-    { loc:'Loading Unloading', sub:'General Area',    activity:['Loading','Unloading','Stacking'],                   hazardType:['Mechanical','Physical'],      hazard:['Falling material','Hit by vehicle','Slip/Trip','Back injury'],             risk:'critical', ppe:['helmet','reflective','shoes','gloves','dustmask'],                             remarks:'Use banksman & follow stacking SOP.' },
-    { loc:'Transporting Road', sub:'General Area',    activity:['Vehicle Movement','Material Transport'],           hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Pedestrian hit','Dust'],                                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Speed limit 20 km/h. Use zebra crossing.' },
-    { loc:'Store', sub:'General Area',                activity:['Receiving','Issuing','Stacking'],                  hazardType:['Mechanical','Physical'],      hazard:['Falling material','Slip/Trip','Manual handling'],                         risk:'moderate', ppe:['helmet','shoes','gloves'],                                                     remarks:'FIFO method. Max stack height 1.5m.' },
-    { loc:'Office Area', sub:'General Area',          activity:['Documentation','Meeting','Computer Work'],          hazardType:['Ergonomic','Physical'],       hazard:['Eye strain','Poor posture','Slip/Trip'],                                   risk:'safe',     ppe:['shoes'],                                                                        remarks:'Maintain good posture & clean desk.' },
-    { loc:'Equipment Maintenance', sub:'General Area',activity:['Repair','Lubrication','Overhaul','Overhead work'],  hazardType:['Mechanical','Physical'],      hazard:['Entanglement','Oil spill','Pinch points','Sharp edges','Fall from height'],risk:'critical', ppe:['helmet','shoes','gloves','leather','goggles','face','harness'],                       remarks:'LOTO mandatory before maintenance. Use full body harness for overhead work above 2m.' },
-    { loc:'Transport Park', sub:'General Area',       activity:['Bus Parking','Driver Rest','Vehicle Cleaning'],      hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Slip/Trip'],                               risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in reverse. Engine off before cleaning.' },
-    { loc:'Scray Yard', sub:'General Area',           activity:['Scrap Collection','Segregation','Loading'],          hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust','Cuts'],                risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask','face'],                      remarks:'Use designated bins. No manual lifting > 25kg.' },
-    { loc:'Weigh Bridge Area', sub:'General Area',    activity:['Weighing','Calibration','Cleaning'],                hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load','Pinch points'],                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask','gloves'],                             remarks:'Stay outside weighbridge during operation.' },
-    { loc:'Pathway Area', sub:'General Area',         activity:['Walking','Material Movement','Inspection'],          hazardType:['Physical','Traffic'],         hazard:['Slip/Trip','Hit by vehicle','Uneven surface','Obstruction'],                risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use designated walkway. No mobile use.' },
-    { loc:'FOB (Foot Over Bridge)', sub:'General Area',activity:['Crossing','Inspection','Maintenance'],             hazardType:['Physical','Height'],          hazard:['Fall from height','Slip/Trip','Structural collapse'],                      risk:'vhigh',    ppe:['helmet','shoes','reflective','harness','extinguisher'],                              remarks:'No jumping/leaning. Load limit strictly followed. Fire extinguisher kept ready.' },
-    { loc:'High Mast Area', sub:'General Area',       activity:['Lighting Operation','Maintenance','Inspection'],    hazardType:['Electrical','Height'],        hazard:['Fall from height','Electric shock','Falling object','Arc flash'],           risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','harness'],          remarks:'Climb permit mandatory. Work in pair. LOTO required. Full body harness compulsory above 2m.' },
-    { loc:'DG Area', sub:'General Area',              activity:['DG Operation','Fuel Handling','Maintenance'],       hazardType:['Electrical','Chemical'],      hazard:['Electric shock','Fire risk','Fuel spill','Burns','Noise','Fumes','Gas leak'], risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','earplug','gasdetect','extinguisher'], remarks:'No smoking. Fuel transfer only by authorized person. Carry gas detector & fire extinguisher.' },
-    { loc:'Pump House', sub:'General Area',           activity:['Pump Operation','Maintenance','Cleaning'],          hazardType:['Electrical','Physical'],      hazard:['Electric shock','Slip/Trip','Water splash','Mechanical injury','Gas leak'],  risk:'critical', ppe:['helmet','shoes','gumboots','elecgloves','reflective','gasdetect','extinguisher'],       remarks:'Dry area before electrical work. LOTO mandatory. Use gas detector in confined space.' },
-    { loc:'Drinking Water Area', sub:'General Area',  activity:['Water Collection','Bottle Refill','Cleaning'],     hazardType:['Biological','Physical'],      hazard:['Slip/Trip','Water spill','Contamination','Hygiene risk'],                   risk:'safe',     ppe:['shoes','rubgloves'],                                                                 remarks:'Keep area clean. Report leak immediately.' },
-    { loc:'Electrical Panel', sub:'General Area',     activity:['Operation','Maintenance','Inspection'],             hazardType:['Electrical','Physical'],      hazard:['Electric shock','Arc flash','Fire'],                                       risk:'vhigh',    ppe:['helmet','elecgloves','face','shoes','frjacket','frpant'],                            remarks:'Authorized personnel only. Follow LOTO. Full FR suit (jacket + pant) compulsory for arc flash work.' },
-    { loc:'Scrap Yard', sub:'General Area',           activity:['Scrap Collection','Sorting','Loading'],             hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust'],                     risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask'],                              remarks:'Use designated bins. No manual lifting > 25kg.' },
-    { loc:'Chemical Spray Area', sub:'General Area',  activity:['Spraying','Mixing','Fumigation'],                   hazardType:['Chemical','Physical'],        hazard:['Chemical splash','Toxic vapour','Fire risk','Skin burn'],                  risk:'vhigh',    ppe:['helmet','rubgloves','goggles','face','respirator','apron','gumboots'],              remarks:'SDS & SOP mandatory. Use chemical apron.' },
-    { loc:'Utility', sub:'General Area',              activity:['General Maintenance','Hot Work','Welding','Gas Cutting'],hazardType:['Mechanical','Physical'],  hazard:['Hot surfaces','Fumes','Burns','Sparks','Gas leak','UV radiation','Flash burn'],risk:'critical', ppe:['helmet','shoes','leather','gasgoggle','face','apron','frjacket','frpant','gasdetect','extinguisher'], remarks:'Hot work permit required. Fire watcher mandatory. Use gas cutting goggle for cutting work.' },
-    { loc:'Toilet', sub:'General Area',               activity:['Personal Use','Cleaning'],                          hazardType:['Biological','Chemical'],      hazard:['Slip/Trip','Hygiene risk','Chemical exposure'],                            risk:'moderate', ppe:['gumboots','rubgloves'],                                                         remarks:'Wash hands after use. Daily cleaning log.' },
-    { loc:'Housekeeping', sub:'General Area',         activity:['Sweeping','Mopping','Waste Collection','Grass Cutting'],hazardType:['Physical','Chemical'],     hazard:['Slip/Trip','Sharp objects','Dust','Grass flying','Chemical spray'],       risk:'critical', ppe:['helmet','shoes','gumboots','rubgloves','dustmask','apron','hkdress'],            remarks:'Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.' }
+    { loc:'Entry Gate', sop:'SOP-VEH-ENT Vehicle Entry',           sub:'Main Gate Cabin',                                activity:['Vehicle Entry','ID Check','Documentation'],         hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip','Unauthorized access'],                  risk:'moderate', ppe:['helmet','reflective','shoes'],                                              remarks:'Follow entry procedure & traffic rules.' },
+    { loc:'Security Post', sop:'SOP-SEC-001 Security Monitoring', sub:'General Area',        activity:['Monitoring','Gate Operation','Patrolling'],          hazardType:['Physical','Security'],        hazard:['Vehicle hit','Ergonomic strain','Weather exposure'],                     risk:'moderate', ppe:['shoes','reflective'],                                                          remarks:'Wear ID card & maintain log.' },
+    { loc:'Traffic Guard Post', sop:'SOP-TRF-001 Traffic Control', sub:'General Area',   activity:['Traffic Control','Vehicle Direction'],             hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Noise','Dust'],                                          risk:'critical', ppe:['helmet','reflective','shoes','dustmask','earplug'],                            remarks:'Use stop sign & follow traffic plan.' },
+    { loc:'Out Gate', sop:'SOP-VEH-EXT Vehicle Exit', sub:'General Area',             activity:['Vehicle Exit','Weighment Check'],                   hazardType:['Physical','Traffic'],         hazard:['Vehicle movement','Pinch point'],                                         risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Cross-check challan before exit.' },
+    { loc:'Weighment Area', sop:'SOP-WGH-001 Weighment Procedure', sub:'General Area',       activity:['Weighing','Documentation'],                         hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load'],                              risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Stay outside weighbridge during weighing.' },
+    { loc:'Vehicle Load Parking', sop:'SOP-PRK-001 Loaded Vehicle Parking', sub:'General Area', activity:['Loading','Waiting','Engine Idle'],                  hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Fire'],                                   risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in designated slot, engine off.' },
+    { loc:'Empty Vehicle Parking', sop:'SOP-PRK-002 Empty Vehicle Parking', sub:'General Area',activity:['Parking','Waiting','Inspection'],                   hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip'],                                              risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use reverse horn while parking.' },
+    { loc:'Safety Check Area', sop:'SOP-PPE-001 PPE Verification', sub:'General Area',    activity:['PPE Verification','Vehicle Inspection'],            hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Sharp edges','Pinch points'],                            risk:'critical', ppe:['helmet','reflective','shoes','gloves','goggles'],                              remarks:'100% PPE check before entry. Use checklist.' },
+    { loc:'Loading Unloading', sop:'SOP-LUL-001 Loading Unloading', sub:'General Area',    activity:['Loading','Unloading','Stacking'],                   hazardType:['Mechanical','Physical'],      hazard:['Falling material','Hit by vehicle','Slip/Trip','Back injury'],             risk:'critical', ppe:['helmet','reflective','shoes','gloves','dustmask'],                             remarks:'Use banksman & follow stacking SOP.' },
+    { loc:'Transporting Road', sop:'SOP-TRN-001 Material Transport', sub:'General Area',    activity:['Vehicle Movement','Material Transport'],           hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Pedestrian hit','Dust'],                                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Speed limit 20 km/h. Use zebra crossing.' },
+    { loc:'Store', sop:'SOP-STR-001 Store Receiving & Issuing', sub:'General Area',                activity:['Receiving','Issuing','Stacking'],                  hazardType:['Mechanical','Physical'],      hazard:['Falling material','Slip/Trip','Manual handling'],                         risk:'moderate', ppe:['helmet','shoes','gloves'],                                                     remarks:'FIFO method. Max stack height 1.5m.' },
+    { loc:'Office Area', sop:'SOP-OFF-001 Office Work', sub:'General Area',          activity:['Documentation','Meeting','Computer Work'],          hazardType:['Ergonomic','Physical'],       hazard:['Eye strain','Poor posture','Slip/Trip'],                                   risk:'safe',     ppe:['shoes'],                                                                        remarks:'Maintain good posture & clean desk.' },
+    { loc:'Equipment Maintenance', sop:'SOP-MNT-001 Equipment Maintenance (LOTO)', sub:'General Area',activity:['Repair','Lubrication','Overhaul','Overhead work'],  hazardType:['Mechanical','Physical'],      hazard:['Entanglement','Oil spill','Pinch points','Sharp edges','Fall from height'],risk:'critical', ppe:['helmet','shoes','gloves','leather','goggles','face','harness'],                       remarks:'LOTO mandatory before maintenance. Use full body harness for overhead work above 2m.' },
+    { loc:'Transport Park', sop:'SOP-PRK-003 Transport Park', sub:'General Area',       activity:['Bus Parking','Driver Rest','Vehicle Cleaning'],      hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Slip/Trip'],                               risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in reverse. Engine off before cleaning.' },
+    { loc:'Scray Yard', sop:'SOP-SCR-001 Scrap Handling', sub:'General Area',           activity:['Scrap Collection','Segregation','Loading'],          hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust','Cuts'],                risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask','face'],                      remarks:'Use designated bins. No manual lifting > 25kg.' },
+    { loc:'Weigh Bridge Area', sop:'SOP-WGH-002 Weigh Bridge Operation', sub:'General Area',    activity:['Weighing','Calibration','Cleaning'],                hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load','Pinch points'],                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask','gloves'],                             remarks:'Stay outside weighbridge during operation.' },
+    { loc:'Pathway Area', sop:'SOP-PTH-001 Pedestrian Pathway', sub:'General Area',         activity:['Walking','Material Movement','Inspection'],          hazardType:['Physical','Traffic'],         hazard:['Slip/Trip','Hit by vehicle','Uneven surface','Obstruction'],                risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use designated walkway. No mobile use.' },
+    { loc:'FOB (Foot Over Bridge)', sop:'SOP-FOB-001 Foot Over Bridge', sub:'General Area',activity:['Crossing','Inspection','Maintenance'],             hazardType:['Physical','Height'],          hazard:['Fall from height','Slip/Trip','Structural collapse'],                      risk:'vhigh',    ppe:['helmet','shoes','reflective','harness','extinguisher'],                              remarks:'No jumping/leaning. Load limit strictly followed. Fire extinguisher kept ready.' },
+    { loc:'High Mast Area', sop:'SOP-ELC-001 High Mast Work', sub:'General Area',       activity:['Lighting Operation','Maintenance','Inspection'],    hazardType:['Electrical','Height'],        hazard:['Fall from height','Electric shock','Falling object','Arc flash'],           risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','harness'],          remarks:'Climb permit mandatory. Work in pair. LOTO required. Full body harness compulsory above 2m.' },
+    { loc:'DG Area', sop:'SOP-DG-001 DG Operation & Fuel Handling', sub:'General Area',              activity:['DG Operation','Fuel Handling','Maintenance'],       hazardType:['Electrical','Chemical'],      hazard:['Electric shock','Fire risk','Fuel spill','Burns','Noise','Fumes','Gas leak'], risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','earplug','gasdetect','extinguisher'], remarks:'No smoking. Fuel transfer only by authorized person. Carry gas detector & fire extinguisher.' },
+    { loc:'Pump House', sop:'SOP-PMP-001 Pump House Operation', sub:'General Area',           activity:['Pump Operation','Maintenance','Cleaning'],          hazardType:['Electrical','Physical'],      hazard:['Electric shock','Slip/Trip','Water splash','Mechanical injury','Gas leak'],  risk:'critical', ppe:['helmet','shoes','gumboots','elecgloves','reflective','gasdetect','extinguisher'],       remarks:'Dry area before electrical work. LOTO mandatory. Use gas detector in confined space.' },
+    { loc:'Drinking Water Area', sop:'SOP-WTR-001 Drinking Water', sub:'General Area',  activity:['Water Collection','Bottle Refill','Cleaning'],     hazardType:['Biological','Physical'],      hazard:['Slip/Trip','Water spill','Contamination','Hygiene risk'],                   risk:'safe',     ppe:['shoes','rubgloves'],                                                                 remarks:'Keep area clean. Report leak immediately.' },
+    { loc:'Electrical Panel', sop:'SOP-ELC-002 Electrical Panel (LOTO)', sub:'General Area',     activity:['Operation','Maintenance','Inspection'],             hazardType:['Electrical','Physical'],      hazard:['Electric shock','Arc flash','Fire'],                                       risk:'vhigh',    ppe:['helmet','elecgloves','face','shoes','frjacket','frpant'],                            remarks:'Authorized personnel only. Follow LOTO. Full FR suit (jacket + pant) compulsory for arc flash work.' },
+    { loc:'Scrap Yard', sop:'SOP-SCR-001 Scrap Handling', sub:'General Area',           activity:['Scrap Collection','Sorting','Loading'],             hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust'],                     risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask'],                              remarks:'Use designated bins. No manual lifting > 25kg.' },
+    { loc:'Chemical Spray Area', sop:'SOP-CHM-001 Chemical Spray', sub:'General Area',  activity:['Spraying','Mixing','Fumigation'],                   hazardType:['Chemical','Physical'],        hazard:['Chemical splash','Toxic vapour','Fire risk','Skin burn'],                  risk:'vhigh',    ppe:['helmet','rubgloves','goggles','face','respirator','apron','gumboots'],              remarks:'SDS & SOP mandatory. Use chemical apron.' },
+    { loc:'Utility', sop:'SOP-HOT-001 Hot Work / Welding', sub:'General Area',              activity:['General Maintenance','Hot Work','Welding','Gas Cutting'],hazardType:['Mechanical','Physical'],  hazard:['Hot surfaces','Fumes','Burns','Sparks','Gas leak','UV radiation','Flash burn'],risk:'critical', ppe:['helmet','shoes','leather','gasgoggle','face','apron','frjacket','frpant','gasdetect','extinguisher'], remarks:'Hot work permit required. Fire watcher mandatory. Use gas cutting goggle for cutting work.' },
+    { loc:'Toilet', sop:'SOP-HK-001 Housekeeping & Hygiene', sub:'General Area',               activity:['Personal Use','Cleaning'],                          hazardType:['Biological','Chemical'],      hazard:['Slip/Trip','Hygiene risk','Chemical exposure'],                            risk:'moderate', ppe:['gumboots','rubgloves'],                                                         remarks:'Wash hands after use. Daily cleaning log.' },
+    { loc:'Housekeeping', sop:'SOP-HK-002 Housekeeping', sub:'General Area',         activity:['Sweeping','Mopping','Waste Collection','Grass Cutting'],hazardType:['Physical','Chemical'],     hazard:['Slip/Trip','Sharp objects','Dust','Grass flying','Chemical spray'],       risk:'critical', ppe:['helmet','shoes','gumboots','rubgloves','dustmask','apron','hkdress'],            remarks:'Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.' }
   ];
 
   sample.forEach(d => {
     addRow({
       location: d.loc,
       subLocation: d.sub || '',
+      sop: d.sop || '',
       activity: d.activity,
       hazardType: d.hazardType,
       hazard: d.hazard,
-      riskDescription: d.riskDescription || '',
+      riskDescription: d.riskDescription || d.remarks || '',
       risk: d.risk,
       remarks: d.remarks,
       ppe: d.ppe
@@ -1607,7 +2016,7 @@ function downloadExcel() {
     aoa.push([`${d.company || 'Emvess Infraventures Pvt Ltd'}  |  Date: ${d.date || '-'}  |  Prepared By: ${d.prepared || '-'}  |  Reviewed By: ${d.reviewed || '-'}`]);
     aoa.push([]);
     aoa.push([
-      t('table.sr').replace('<br>', ' '), t('table.location'), t('table.subLocation'),
+      t('table.sr').replace('<br>', ' '), t('table.location'), t('table.subLocation'), t('table.sop'),
       t('table.activity'), t('table.hazardTypes'), t('table.hazard'), t('table.riskDescribe'),
       t('table.riskLevel'), t('table.reqPpe', { company: escape(d.company) || 'Emvess Infraventures Pvt Ltd' }),
       'PPE COUNT', t('table.remarks')
@@ -1618,6 +2027,7 @@ function downloadExcel() {
         i + 1,
         translateDataText(r.location || ''),
         translateDataText(r.subLocation || ''),
+        translateDataText(r.sop || ''),
         translateDataList(r.activity).join('\n'),
         translateDataList(r.hazardType).join('\n'),
         translateDataList(r.hazard).join('\n'),
@@ -1638,6 +2048,7 @@ function downloadExcel() {
       { wch: 5 },   // Sr
       { wch: 16 },  // Location
       { wch: 16 },  // Sub Location
+      { wch: 28 },  // SOP
       { wch: 20 },  // Activity
       { wch: 16 },  // Hazard Types
       { wch: 22 },  // Hazard
@@ -1651,9 +2062,9 @@ function downloadExcel() {
     // Merge cells
     const lastRow = aoa.length;
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // title
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // subtitle
-      { s: { r: lastRow - 1, c: 0 }, e: { r: lastRow - 1, c: 10 } } // footer
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 11 } }, // title
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 11 } }, // subtitle
+      { s: { r: lastRow - 1, c: 0 }, e: { r: lastRow - 1, c: 11 } } // footer
     ];
 
     // Apply formatting via cell-level styles
@@ -1672,7 +2083,7 @@ function downloadExcel() {
            alignment: { horizontal: 'center' } }
     });
     // Header row (row 4)
-    for (let c = 0; c < 11; c++) {
+    for (let c = 0; c < 12; c++) {
       const addr = XLSX.utils.encode_cell({ r: 3, c });
       setCellStyle(addr, {
         s: { font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
@@ -1687,13 +2098,13 @@ function downloadExcel() {
     const riskFontColor = { critical: 'FFFFFF', vhigh: 'FFFFFF' };
     (d.rows || []).forEach((r, i) => {
       const row = 5 + i;
-      for (let c = 0; c < 11; c++) {
+      for (let c = 0; c < 12; c++) {
         const addr = XLSX.utils.encode_cell({ r: row - 1, c });
-        const isRisk = c === 7;
+        const isRisk = c === 8;
         const isLoc = c === 1;
         const isSub = c === 2;
         const style = {
-          s: { alignment: { vertical: 'center', wrapText: true, horizontal: c === 0 || c === 9 || c === 7 ? 'center' : 'left' },
+          s: { alignment: { vertical: 'center', wrapText: true, horizontal: c === 0 || c === 10 || c === 8 ? 'center' : 'left' },
                font: { sz: 10, bold: isRisk || isLoc || c === 0 },
                border: { top:{style:'thin',color:{rgb:'CCCCCC'}}, bottom:{style:'thin',color:{rgb:'CCCCCC'}},
                          left:{style:'thin',color:{rgb:'CCCCCC'}}, right:{style:'thin',color:{rgb:'CCCCCC'}} } }
@@ -1830,8 +2241,8 @@ function downloadPPT() {
       s = pres.addSlide();
       // header
       s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
-      s.addText(`AREA #${idx+1}  –  ${translateDataText(r.location || '')}${r.subLocation ? '  ›  ' + translateDataText(r.subLocation) : ''}`,
-        { x:0.3, y:0.15, w:10, h:0.5, fontSize:18, bold:true, color:'FFFFFF' });
+      s.addText(`AREA #${idx+1}  –  ${translateDataText(r.location || '')}${r.subLocation ? '  ›  ' + translateDataText(r.subLocation) : ''}${r.sop ? '  |  ' + translateDataText(r.sop) : ''}`,
+        { x:0.3, y:0.15, w:10, h:0.5, fontSize:16, bold:true, color:'FFFFFF' });
       // risk badge
       const rk = r.risk || 'critical';
       s.addShape(pres.ShapeType.rect, { x:10.5, y:0.1, w:2.6, h:0.6, fill:{color:riskColor[rk]} });
@@ -1903,12 +2314,196 @@ function downloadPPT() {
   }
 }
 
+const REQUEST_EMAIL = 'emvssafetyteam@gmail.com';
+let _reqRowIdx = null;
+
+function applyRequestFormI18n() {
+  const set = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  const ph = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); };
+  set('reqTitle', 'request.title');
+  set('reqToNote', 'request.to');
+  set('reqEmpLabel', 'request.employee');
+  ph('reqEmployee', 'request.employeePh');
+  set('reqAnonLbl', 'request.anonymous');
+  set('reqAnonHint', 'request.anonymousHint');
+  set('reqTypeLabel', 'request.type');
+  set('reqAddLbl', 'request.add');
+  set('reqChangeLbl', 'request.change');
+  set('reqRemoveLbl', 'request.remove');
+  set('reqSopLabel', 'request.sop');
+  set('reqAreaLabel', 'request.area');
+  set('reqHzLabel', 'request.hazardName');
+  ph('reqHazardName', 'request.hazardNamePh');
+  set('reqDetLabel', 'request.details');
+  ph('reqDetails', 'request.detailsPh');
+  set('reqCancelBtn', 'request.cancel');
+  set('reqSubmitBtn', 'request.submit');
+}
+
+function fillRequestDropdowns(prefill) {
+  const data = collectData();
+  const sopSel = document.getElementById('reqSop');
+  const areaSel = document.getElementById('reqArea');
+  const sops = uniqueSops(data.rows);
+  let sopOpts = `<option value="">${t('request.chooseSop')}</option>`;
+  sops.forEach(sop => {
+    sopOpts += `<option value="${escapeHtml(sop)}">${escapeHtml(translateDataText(sop))}</option>`;
+  });
+  sopSel.innerHTML = sopOpts;
+  const areas = [];
+  data.rows.forEach(r => {
+    const loc = (r.location || '').trim();
+    if (!loc) return;
+    const label = displayLocation(r);
+    const val = loc + (r.subLocation ? ' › ' + r.subLocation : '');
+    if (!areas.some(a => a.val === val)) areas.push({ val, label });
+  });
+  let areaOpts = `<option value="">${t('request.chooseArea')}</option>`;
+  areas.forEach(a => {
+    areaOpts += `<option value="${escapeHtml(a.val)}">${escapeHtml(a.label)}</option>`;
+  });
+  areaSel.innerHTML = areaOpts;
+  if (prefill) {
+    if (prefill.sop) sopSel.value = prefill.sop;
+    if (prefill.area) areaSel.value = prefill.area;
+  }
+}
+
+function openHazardRequest(rowIdx) {
+  _reqRowIdx = (typeof rowIdx === 'number' && !isNaN(rowIdx)) ? rowIdx : null;
+  applyRequestFormI18n();
+  const data = collectData();
+  const r = (_reqRowIdx !== null && data.rows[_reqRowIdx]) ? data.rows[_reqRowIdx] : null;
+  const prefill = r ? {
+    sop: (r.sop || '').trim(),
+    area: (r.location || '') + (r.subLocation ? ' › ' + r.subLocation : '')
+  } : null;
+  fillRequestDropdowns(prefill);
+  document.getElementById('reqEmployee').value = '';
+  const anon = document.getElementById('reqAnonymous');
+  if (anon) anon.checked = false;
+  document.getElementById('reqHazardName').value = '';
+  document.getElementById('reqDetails').value = '';
+  document.querySelectorAll('input[name="reqType"]').forEach(x => { x.checked = false; });
+  if (r && (r.hazard || []).length === 1) {
+    document.getElementById('reqHazardName').value = r.hazard[0];
+  }
+  const overlay = document.getElementById('reqOverlay');
+  overlay.classList.add('show');
+  setTimeout(() => {
+    const n = document.getElementById('reqEmployee');
+    if (n) n.focus();
+  }, 50);
+}
+
+function closeHazardRequest() {
+  const overlay = document.getElementById('reqOverlay');
+  if (overlay) overlay.classList.remove('show');
+  _reqRowIdx = null;
+}
+
+function buildRequestEmail(payload) {
+  const typeLabel = payload.type === 'add' ? t('request.add')
+    : payload.type === 'remove' ? t('request.remove') : t('request.change');
+  const subjectKey = payload.type === 'add' ? 'request.subjectAdd'
+    : payload.type === 'remove' ? 'request.subjectRemove' : 'request.subjectChange';
+  const subject = t(subjectKey) + (payload.hazardName ? ' – ' + payload.hazardName : '');
+  const body = [
+    'HAZARD MAP CHANGE REQUEST',
+    '=========================',
+    '',
+    'Employee Name : ' + payload.employee + (payload.anonymous ? ' (sent anonymously)' : ''),
+    'Request Type  : ' + typeLabel + ' (' + payload.type + ')',
+    'SOP           : ' + (payload.sop || '—'),
+    'Area/Location : ' + (payload.area || '—'),
+    'Hazard Name   : ' + payload.hazardName,
+    '',
+    'Details / Reason:',
+    payload.details || '—',
+    '',
+    'Submitted     : ' + new Date().toLocaleString(),
+    '',
+    'Please review and update the Hazard Map accordingly.'
+  ].join('\n');
+  return { subject, body, typeLabel };
+}
+
+function submitHazardRequest() {
+  const typedName = (document.getElementById('reqEmployee').value || '').trim();
+  const anonymous = !!(document.getElementById('reqAnonymous') && document.getElementById('reqAnonymous').checked);
+  const typeEl = document.querySelector('input[name="reqType"]:checked');
+  const sop = (document.getElementById('reqSop').value || '').trim();
+  const area = (document.getElementById('reqArea').value || '').trim();
+  const hazardName = (document.getElementById('reqHazardName').value || '').trim();
+  const details = (document.getElementById('reqDetails').value || '').trim();
+  if (!anonymous && !typedName) { toast(t('request.needName')); document.getElementById('reqEmployee').focus(); return; }
+  if (!typeEl) { toast(t('request.needType')); return; }
+  if (!hazardName) { toast(t('request.needHazard')); document.getElementById('reqHazardName').focus(); return; }
+
+  const employee = anonymous ? t('request.anonymousName') : typedName;
+  const payload = { employee, anonymous, type: typeEl.value, sop, area, hazardName, details };
+  const mail = buildRequestEmail(payload);
+  const btn = document.getElementById('reqSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = t('request.sending');
+
+  const formData = {
+    _subject: mail.subject,
+    _template: 'table',
+    _captcha: 'false',
+    employee_name: payload.employee,
+    request_type: mail.typeLabel,
+    sop: payload.sop || '—',
+    area: payload.area || '—',
+    hazard_name: payload.hazardName,
+    details: payload.details || '—',
+    message: mail.body
+  };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 8000);
+  fetch('https://formsubmit.co/ajax/' + REQUEST_EMAIL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(formData),
+    signal: controller.signal
+  }).then(res => res.json()).then(json => {
+    clearTimeout(timer);
+    btn.disabled = false;
+    btn.textContent = t('request.submit');
+    if (json && (json.success === 'true' || json.success === true)) {
+      closeHazardRequest();
+      toast(t('request.sent'));
+    } else {
+      openMailtoRequest(mail);
+    }
+  }).catch(() => {
+    clearTimeout(timer);
+    btn.disabled = false;
+    btn.textContent = t('request.submit');
+    openMailtoRequest(mail);
+  });
+}
+
+function openMailtoRequest(mail) {
+  const href = 'mailto:' + REQUEST_EMAIL
+    + '?subject=' + encodeURIComponent(mail.subject)
+    + '&body=' + encodeURIComponent(mail.body);
+  closeHazardRequest();
+  toast(t('request.mailOpen'));
+  window.location.href = href;
+}
+
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2000);
 }
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeHazardRequest();
+});
 
 window.addEventListener('DOMContentLoaded', () => {
   try {
