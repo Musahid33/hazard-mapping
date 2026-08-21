@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hazard Map Dashboard – Emvess Infraventures Pvt Ltd</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+  body { background: #eef2f7; padding: 20px; color: #1a1a1a; }
+
+  .topbar {
+    background: linear-gradient(135deg, #1a3a6c, #0d2649);
+    color: #fff; padding: 14px 22px; border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 18px; box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .topbar h1 { font-size: 20px; letter-spacing: 0.5px; }
+  .topbar .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .topbar button {
+    background: #fff; color: #1a3a6c; border: none;
+    padding: 9px 16px; border-radius: 4px; font-weight: 700;
+    cursor: pointer; font-size: 13px; transition: all 0.2s;
+  }
+  .topbar button:hover { background: #ffd54a; transform: translateY(-1px); }
+  .topbar button.print { background: #4caf50; color: #fff; }
+  .topbar button.dl    { background: #ff9800; color: #fff; }
+  .topbar button.xlsx  { background: #1d6f42; color: #fff; }
+  .topbar button.pptx  { background: #d24726; color: #fff; }
+  .topbar button.reset { background: #9e9e9e; color: #fff; }
+  .topbar button.locked {
+    border: 2px solid #ff9800 !important;
+    box-shadow: 0 0 0 2px rgba(255,152,0,0.2);
+  }
+
+  .layout { display: grid; grid-template-columns: 380px 1fr; gap: 18px; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+
+  .form-panel {
+    background: #fff; border-radius: 8px; padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .form-panel h2 {
+    color: #1a3a6c; font-size: 16px; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 2px solid #1a3a6c;
+  }
+  .form-section {
+    background: #f5f7fb; border-left: 4px solid #1a3a6c;
+    padding: 10px 12px; margin-bottom: 14px; border-radius: 4px;
+  }
+  .form-section.filter-section {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border: 2px solid #fbc02d;
+    border-left: 6px solid #f57f17;
+    box-shadow: 0 2px 8px rgba(245,127,23,0.15);
+  }
+  .form-section.filter-section h3 {
+    color: #e65100;
+    font-size: 14px;
+  }
+  .form-section.filter-section select {
+    border: 2px solid #fbc02d;
+    background: #fffef7;
+    font-weight: 600;
+  }
+  .form-section h3 {
+    color: #1a3a6c; font-size: 13px; margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .form-section h3 .row-num {
+    background: #1a3a6c; color: #fff; width: 22px; height: 22px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+  }
+  .form-row { margin-bottom: 8px; }
+  .form-row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .form-row-half .form-row { margin-bottom: 0; }
+  .form-row label {
+    display: block; font-size: 11px; font-weight: 700; color: #555;
+    margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .form-row input, .form-row select, .form-row textarea {
+    width: 100%; padding: 7px 9px; border: 1px solid #cfd4dc;
+    border-radius: 4px; font-size: 13px; font-family: inherit;
+    background: #fff;
+  }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+    outline: none; border-color: #1a3a6c; box-shadow: 0 0 0 2px rgba(26,58,108,0.15);
+  }
+  .form-row textarea { resize: vertical; min-height: 50px; }
+  .ppe-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+  .ppe-checks label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; padding: 4px 6px; background: #fff;
+    border: 1px solid #cfd4dc; border-radius: 3px; cursor: pointer;
+    text-transform: none; letter-spacing: 0; color: #333; font-weight: 500;
+  }
+  .ppe-checks label input { width: auto; }
+  .ppe-checks label:has(input:checked) { background: #e3f2fd; border-color: #1a3a6c; }
+
+  .form-section .del-row {
+    background: #f44336; color: #fff; border: none;
+    padding: 4px 10px; border-radius: 3px; font-size: 11px;
+    cursor: pointer; font-weight: 600;
+  }
+  .form-section .del-row:hover { background: #c62828; }
+
+  .add-row {
+    width: 100%; background: #4caf50; color: #fff;
+    border: none; padding: 10px; border-radius: 4px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    margin-bottom: 14px;
+  }
+  .add-row:hover { background: #388e3c; }
+
+  .meta-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .meta-form .form-row label { font-size: 10px; }
+
+  .preview-panel {
+    background: #fff; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .preview-header {
+    background: #f5f7fb; padding: 10px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .preview-header h2 { color: #1a3a6c; font-size: 15px; }
+  .preview-header .zoom { display: flex; gap: 4px; }
+  .preview-header .zoom button {
+    background: #1a3a6c; color: #fff; border: none;
+    width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
+    font-weight: 700;
+  }
+
+  .preview-tip {
+    background: linear-gradient(90deg, #fff3e0, #fff8e1);
+    color: #5d4037; padding: 10px 16px;
+    font-size: 12.5px; line-height: 1.5;
+    border-bottom: 2px solid #ffb74d;
+    border-left: 4px solid #ff9800;
+  }
+  .preview-tip b { color: #e65100; }
+
+  .preview-wrap { padding: 14px; overflow: auto; max-height: 90vh; }
+
+  .hazard-map {
+    background: #fff; width: 100%; min-width: 1100px;
+    border: 1px solid #999; font-size: 11px;
+  }
+
+  .filter-banner {
+    background: linear-gradient(90deg, #1a3a6c, #0d6efd);
+    color: #fff; padding: 10px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid #ffd54a;
+  }
+  .filter-banner .fb-info {
+    font-size: 13px; font-weight: 700;
+  }
+  .filter-banner .fb-info span {
+    background: #ffd54a; color: #1a3a6c;
+    padding: 2px 8px; border-radius: 3px; margin: 0 4px;
+  }
+  .filter-banner .fb-clear {
+    background: #fff; color: #1a3a6c; border: none;
+    padding: 5px 12px; border-radius: 3px; font-weight: 700;
+    cursor: pointer; font-size: 12px;
+  }
+  .filter-banner .fb-clear:hover { background: #ffd54a; }
+  .hm-header {
+    background: #1a3a6c; color: #fff; padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hm-header h1 { font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
+  .hm-header .logo {
+    background: #fff; color: #1a3a6c; padding: 4px 12px;
+    border-radius: 3px; font-weight: 800; font-size: 14px;
+  }
+
+  .hm-table { width: 100%; border-collapse: collapse; }
+  .hm-table th, .hm-table td {
+    border: 1px solid #999; padding: 5px 6px; vertical-align: middle;
+    text-align: center; font-size: 11px;
+  }
+  .hm-table th {
+    background: #1a3a6c; color: #fff; font-weight: 700; padding: 8px 4px;
+    text-transform: uppercase; font-size: 11px;
+  }
+  .hm-table .col-sr { width: 32px; }
+  .hm-table .col-loc { width: 80px; }
+  .hm-table .col-subloc { width: 80px; }
+  .hm-table .col-act { width: 100px; }
+  .hm-table .col-hzt { width: 85px; }
+  .hm-table .col-hz  { width: 110px; }
+  .hm-table .col-rsk { width: 70px; }
+  .hm-table .col-ppe { width: auto; }
+  .hm-table .col-rem { width: 110px; }
+
+  .loc-cell { font-weight: 800; font-size: 11px; color: #1a3a6c; }
+  .subloc-cell { font-weight: 600; font-size: 10px; color: #555; font-style: italic; }
+  .loc-icon { font-size: 24px; display: block; margin: 2px 0; }
+  .list-cell { text-align: left; padding-left: 12px; }
+  .list-cell ul { list-style: none; }
+  .list-cell li { padding-left: 10px; position: relative; }
+  .list-cell li::before { content: "•"; position: absolute; left: 0; }
+
+  .risk-badge {
+    color: #fff; font-weight: 900; padding: 12px 4px;
+    text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;
+  }
+  .risk-safe     { background: #4caf50; }
+  .risk-moderate { background: #ffc107; color: #1a1a1a; }
+  .risk-critical { background: #ff5722; }
+  .risk-vhigh    { background: #f44336; }
+
+  .ppe-cell { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; }
+  .ppe-cell .ppe-item {
+    width: 62px; padding: 4px 2px; text-align: center;
+    border-right: 1px solid #e0e0e0;
+  }
+  .ppe-cell .ppe-item:last-child { border-right: none; }
+  .ppe-cell .ppe-item .icon { font-size: 22px; line-height: 1; }
+  .ppe-cell .ppe-item .lbl { font-size: 9px; margin-top: 2px; font-weight: 600; }
+
+  .remarks-cell { text-align: left; padding-left: 8px; font-size: 10.5px; }
+
+  .hm-legend {
+    display: grid; grid-template-columns: 1fr 2fr; gap: 0;
+    border-top: 2px solid #1a3a6c;
+  }
+  .hm-legend > div { border: 1px solid #999; padding: 8px 10px; }
+  .hm-legend h3 {
+    color: #1a3a6c; font-size: 12px; text-align: center;
+    margin-bottom: 6px; font-weight: 800; text-transform: uppercase;
+  }
+  .risk-legend { display: flex; gap: 6px; justify-content: space-around; }
+  .risk-box {
+    flex: 1; padding: 6px 4px; text-align: center; color: #fff;
+    font-weight: 800; font-size: 11px; border-radius: 2px;
+  }
+  .risk-box .sub { font-size: 9px; font-weight: 600; display: block; margin-top: 1px; }
+  .ppe-guide { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 4px; }
+  .ppe-guide .g-item { width: 75px; text-align: center; padding: 2px; }
+  .ppe-guide .g-item .icon { font-size: 22px; }
+  .ppe-guide .g-item .lbl { font-size: 9px; font-weight: 600; margin-top: 2px; }
+
+  .hm-footer {
+    padding: 6px 12px; display: flex; justify-content: space-between;
+    border-top: 1px solid #999; font-size: 10px; font-weight: 600;
+  }
+  .hm-footer span { border-bottom: 1px dotted #555; padding: 0 30px 1px 4px; }
+
+  @media print {
+    @page { size: A3 landscape; margin: 8mm; }
+    body { background: #fff; padding: 0; }
+    .topbar, .form-panel, .preview-header, .preview-tip { display: none !important; }
+    .layout { display: block; }
+    .preview-panel { box-shadow: none; border-radius: 0; }
+    .preview-wrap { padding: 0; max-height: none; overflow: visible; }
+    .hazard-map { min-width: 0; border: 1px solid #000; }
+    .hm-table th, .risk-badge, .risk-box, .ppe-cell, .ppe-item, .loc-cell, .list-cell,
+    .remarks-cell, .hm-header, .hm-legend h3, .hm-footer {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+  }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #4caf50; color: #fff; padding: 12px 20px;
+    border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<script src="libs/xlsx.full.min.js"></script>
+<script src="libs/pptxgen.bundle.js"></script>
+
+<div class="topbar">
+  <h1>🛡️ Hazard Map Dashboard <span style="font-size:14px;font-weight:400;opacity:0.9;">| Emvess Infraventures Pvt Ltd</span></h1>
+  <div class="actions">
+    <button class="print" onclick="window.print()">🖨️ Print / PDF</button>
+    <button class="xlsx"  onclick="downloadExcel()">📊 Download Excel</button>
+    <button class="pptx"  onclick="downloadPPT()">📽️ Download PPT</button>
+    <button class="locked" onclick="askPassword('sample')">📋 Sample 🔒</button>
+    <button class="reset locked" onclick="askPassword('reset')">↺ Reset 🔒</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="form-panel">
+    <h2 id="builderHeader" onclick="askPassword('builder')" style="cursor:pointer; user-select:none;" title="Click to unlock (password protected)">
+      📝 Hazard Map Builder 🔒
+    </h2>
+    <div id="builderLockedBanner" style="background:#fff3e0; border:2px solid #ff9800; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px;">
+      <span style="font-size:24px;">🔒</span>
+      <div style="flex:1;">
+        <div style="font-weight:700; color:#e65100; font-size:13px;">Builder is Locked</div>
+        <div style="font-size:11px; color:#555;">Click the header or this banner to unlock with password.</div>
+      </div>
+      <button onclick="askPassword('builder')" style="background:#ff9800; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">Unlock</button>
+    </div>
+    <div id="builderContent" style="display:none;">
+
+    <div class="form-section" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 2px solid #1976d2; border-left: 6px solid #0d47a1;">
+      <h3 style="color: #0d47a1;">🔍 Filter Column (Show/Hide)</h3>
+      <div class="form-row">
+        <label style="color:#0d47a1; font-weight:700;">Choose which columns to display in the preview table:</label>
+        <div id="columnToggles" style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:6px; background:#fff; padding:8px; border-radius:4px; border:1px solid #bbdefb;"></div>
+      </div>
+      <div style="font-size:11px; color:#0d47a1; margin-top:6px; background:#e1f5fe; padding:6px 8px; border-radius:3px; border-left:3px solid #0277bd;">
+        💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.
+      </div>
+      <div style="display:flex; gap:6px; margin-top:8px;">
+        <button onclick="setAllColumns(true)" style="flex:1; background:#4caf50; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✓ Show All</button>
+        <button onclick="setAllColumns(false)" style="flex:1; background:#f44336; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✗ Hide All</button>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>📌 Document Info</h3>
+      <div class="meta-form">
+        <div class="form-row">
+          <label>Date</label>
+          <input type="date" id="metaDate">
+        </div>
+        <div class="form-row">
+          <label>Prepared By</label>
+          <input type="text" id="metaPrepared" placeholder="Name">
+        </div>
+        <div class="form-row">
+          <label>Reviewed By</label>
+          <input type="text" id="metaReviewed" placeholder="Name">
+        </div>
+      </div>
+    </div>
+
+    <div id="rowsContainer"></div>
+
+    <datalist id="loc-suggestions">
+      <option value="Weighment Area">
+      <option value="Weigh Bridge Area">
+      <option value="Office Area">
+      <option value="Store">
+      <option value="Vehicle Load Parking">
+      <option value="Empty Vehicle Parking">
+      <option value="Transport Park">
+      <option value="Safety Check Area">
+      <option value="Entry Gate">
+      <option value="Out Gate">
+      <option value="Security Post">
+      <option value="Traffic Guard Post">
+      <option value="Pathway Area">
+      <option value="FOB (Foot Over Bridge)">
+      <option value="High Mast Area">
+      <option value="DG Area">
+      <option value="Pump House">
+      <option value="Drinking Water Area">
+      <option value="Electrical Panel">
+      <option value="Scrap Yard">
+      <option value="Chemical Spray Area">
+      <option value="Utility">
+      <option value="Toilet">
+      <option value="Housekeeping">
+      <option value="Transporting Road">
+      <option value="Loading Unloading">
+      <option value="Equipment Maintenance">
+      <option value="Workshop">
+      <option value="Production Floor">
+      <option value="Control Room">
+    </datalist>
+
+    <button class="add-row" onclick="addRow()">➕ Add Hazard Area</button>
+
+    <div class="form-section filter-section" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); border-left-color: #f57f17;">
+      <h3>🔍 Filter View by Location</h3>
+      <div class="form-row">
+        <label style="color:#e65100;">Select a location to filter the table to show only that location's details</label>
+        <select id="pickFilled" onchange="pickFilledArea(this.value)" style="border:2px solid #fbc02d; background:#fffef7; font-weight:600; padding:9px;">
+          <option value="">-- Show All Locations --</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:#bf360c;margin-top:6px; background:#fff3e0; padding:6px 8px; border-radius:3px; border-left:3px solid #f57f17;">
+        💡 Select any location from the dropdown to <b>filter</b> the preview table to just that one area. Use "Show All Locations" to clear the filter.
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>⚙️ Settings</h3>
+      <div class="form-row">
+        <label>Map Title</label>
+        <input type="text" id="mapTitle" value="HAZARD MAP – WORK AREA & PPE REQUIREMENT">
+      </div>
+      <div class="form-row">
+        <label>Company / Logo Text</label>
+        <input type="text" id="companyName" value="Emvess Infraventures Pvt Ltd">
+      </div>
+      <div class="form-row">
+        <label>Footer Note</label>
+        <input type="text" id="footerNote" value="Note: All PPE must be Tata Steel Approved Make Only.">
+      </div>
+    </div>
+    </div><!-- /builderContent -->
+  </div>
+
+  <div class="preview-panel">
+    <div class="preview-header">
+      <h2>👁️ Live Preview</h2>
+      <div class="zoom">
+        <button onclick="adjustZoom(-10)">−</button>
+        <button onclick="adjustZoom(10)">+</button>
+        <button onclick="adjustZoom(0)">⛶</button>
+      </div>
+    </div>
+    <div class="preview-tip">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="font-size:18px;">💡</span>
+        <span style="flex:1; min-width: 200px;">
+          <b>Tip:</b> Select any location from the dropdown below to <b>filter</b> the preview table to just that one area. Use <b>"Show All Locations"</b> to clear the filter.
+        </span>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <span style="font-size:11px; font-weight:700; color:#e65100; min-width: 80px;">🔍 Quick Filter:</span>
+        <select id="quickFilter" onchange="quickFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #ff9800; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
+          <option value="">-- Show All Locations --</option>
+        </select>
+        <button id="quickFilterClear" onclick="quickFilterClear()" style="background:#f44336; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">✕ Clear Filter</button>
+      </div>
+    </div>
+    <div class="preview-wrap" id="previewWrap">
+      <div class="hazard-map" id="hazardMap"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============== PPE OPTIONS (Tata Steel Plant) ==============
+const PPE_OPTIONS = [
+  { id: 'helmet',     label: 'Safety Helmet',       icon: '⛑️' },
+  { id: 'shoes',      label: 'Safety Shoe',         icon: '🥾' },
+  { id: 'gumboots',   label: 'Gum Boot',            icon: '👢' },
+  { id: 'goggles',    label: 'Safety Goggles',      icon: '🥽' },
+  { id: 'gasgoggle',  label: 'Gas Cutting Goggle',  icon: '🥽' },
+  { id: 'face',       label: 'Face Shield',         icon: '🛡️' },
+  { id: 'gloves',     label: 'Hand Gloves',         icon: '🧤' },
+  { id: 'rubgloves',  label: 'Rubber Gloves',       icon: '🧤' },
+  { id: 'leather',    label: 'Leather Hand Gloves', icon: '🧤' },
+  { id: 'elecgloves', label: 'Electrical Gloves',   icon: '🧤' },
+  { id: 'reflective', label: 'Reflective Jacket',   icon: '🦺' },
+  { id: 'frjacket',   label: 'FR Jacket',           icon: '🥻' },
+  { id: 'frpant',     label: 'FR Pant',             icon: '👖' },
+  { id: 'harness',    label: 'Full Body Harness',   icon: '🪢' },
+  { id: 'hkdress',    label: 'Housekeeping Dress',  icon: '👔' },
+  { id: 'apron',      label: 'Grass Cutting Apron', icon: '🥼' },
+  { id: 'earplug',    label: 'Ear Plug',            icon: '🎧' },
+  { id: 'dustmask',   label: 'Dust Mask',           icon: '😷' },
+  { id: 'respirator', label: 'Respirator',          icon: '😷' },
+  { id: 'gasdetect',  label: 'Gas Detector',        icon: '📟' },
+  { id: 'extinguisher', label: 'Fire Extinguisher', icon: '🧯' }
+];
+
+// ============== LOCATIONS (free-text; no fixed list) ==============
+// Locations and sub-locations are now free-text inputs in the form.
+// Below is just a small suggestion list used as datalist hints.
+const LOCATION_SUGGESTIONS = [
+  'Weighment Area', 'Weigh Bridge Area', 'Office Area', 'Store',
+  'Vehicle Load Parking', 'Empty Vehicle Parking', 'Transport Park',
+  'Safety Check Area', 'Entry Gate', 'Out Gate', 'Security Post',
+  'Traffic Guard Post', 'Pathway Area', 'FOB (Foot Over Bridge)',
+  'High Mast Area', 'DG Area', 'Pump House', 'Drinking Water Area',
+  'Electrical Panel', 'Scrap Yard', 'Chemical Spray Area', 'Utility',
+  'Toilet', 'Housekeeping', 'Transporting Road', 'Loading Unloading',
+  'Equipment Maintenance'
+];
+
+const RISK_LEVELS = [
+  { value: 'safe',     label: 'SAFE',          cls: 'risk-safe',     desc: '(Low Risk)' },
+  { value: 'moderate', label: 'MODERATE',      cls: 'risk-moderate', desc: '(Medium Risk)' },
+  { value: 'critical', label: 'CRITICAL',      cls: 'risk-critical', desc: '(High Risk)' },
+  { value: 'vhigh',    label: 'VERY CRITICAL', cls: 'risk-vhigh',    desc: '(Very High Risk)' }
+];
+
+let rowCount = 0;
+let currentZoom = 100;
+
+// ============== ROW TEMPLATE ==============
+function rowTemplate(idx) {
+  return `
+  <div class="form-section" data-row="${idx}">
+    <h3>Area #<span class="row-num">${idx + 1}</span>
+      <button class="del-row" onclick="deleteRow(${idx})">🗑 Delete</button>
+    </h3>
+    <div class="form-row-half">
+      <div class="form-row">
+        <label>Location</label>
+        <input type="text" class="f-loc" list="loc-suggestions" placeholder="e.g. Workshop" oninput="updatePreview()">
+      </div>
+      <div class="form-row">
+        <label>Sub Location</label>
+        <input type="text" class="f-subloc" placeholder="e.g. Welding Bay" oninput="updatePreview()">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Activity (one per line)</label>
+      <textarea class="f-act" placeholder="Loading&#10;Unloading" oninput="updatePreview()"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Hazard Types (one per line)</label>
+      <textarea class="f-hzt" placeholder="Mechanical&#10;Physical" oninput="updatePreview()"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Hazards (one per line)</label>
+      <textarea class="f-hz" placeholder="Hit by vehicle&#10;Falling material" oninput="updatePreview()"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Risk Level</label>
+      <select class="f-risk" onchange="updatePreview()">
+        <option value="safe">SAFE (Low Risk)</option>
+        <option value="moderate">MODERATE (Medium Risk)</option>
+        <option value="critical" selected>CRITICAL (High Risk)</option>
+        <option value="vhigh">VERY CRITICAL (Very High Risk)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Remarks</label>
+      <textarea class="f-rem" placeholder="Follow safety procedure." oninput="updatePreview()"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Required PPE (check all that apply)</label>
+      <div class="ppe-checks">
+        ${PPE_OPTIONS.map(p => `
+          <label>
+            <input type="checkbox" class="f-ppe" value="${p.id}" onchange="updatePreview()">
+            ${p.icon} ${p.label}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function addRow(data) {
+  const container = document.getElementById('rowsContainer');
+  const idx = rowCount++;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = rowTemplate(idx);
+  container.appendChild(wrap.firstElementChild);
+  if (data) populateRow(idx, data);
+  updatePreview();
+  saveState();
+  refreshPickFilled();
+}
+
+// Refresh the "Pick from Filled" dropdown to show all currently filled areas
+function refreshPickFilled() {
+  const sel = document.getElementById('pickFilled');
+  if (!sel) return;
+  const current = sel.value;
+  const rows = collectData().rows;
+  let opts = '<option value="">-- Choose a location to duplicate --</option>';
+  rows.forEach((r, i) => {
+    if (!r.location && !r.subLocation) return;
+    const label = (r.location || '(no location)') + (r.subLocation ? '  ›  ' + r.subLocation : '');
+    opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
+  });
+  if (rows.length === 0) {
+    opts = '<option value="">— No filled areas yet —</option>';
+  }
+  sel.innerHTML = opts;
+  sel.value = current;
+}
+
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Called when user picks a filled area from the dropdown
+// Filters the table to show only that location's details
+function pickFilledArea(rowIdxStr) {
+  if (rowIdxStr === '') {
+    filterMode = null;
+    filterInfo = null;
+    refreshPickFilled();
+    const qsel = document.getElementById('quickFilter');
+    if (qsel) qsel.value = '';
+    updatePreview();
+    return;
+  }
+  const idx = parseInt(rowIdxStr, 10);
+  const data = collectData();
+  if (isNaN(idx) || !data.rows[idx]) {
+    refreshPickFilled();
+    return;
+  }
+  const src = data.rows[idx];
+  filterMode = idx;
+  filterInfo = (src.location || '') + (src.subLocation ? ' › ' + src.subLocation : '');
+  // Sync the quick filter dropdown
+  const qsel = document.getElementById('quickFilter');
+  if (qsel) qsel.value = rowIdxStr;
+  updatePreview();
+  toast('🔍 Filtered to "' + filterInfo + '" — clear filter to see all');
+  // Scroll the preview to top so user sees the filtered result
+  setTimeout(() => {
+    const wrap = document.getElementById('previewWrap');
+    if (wrap) wrap.scrollTop = 0;
+  }, 50);
+}
+
+// Track filter state
+let filterMode = null;   // row index being filtered, or null = show all
+let filterInfo = null;   // display name of the filter
+
+function clearFilter() {
+  filterMode = null;
+  filterInfo = null;
+  const sel = document.getElementById('pickFilled');
+  if (sel) sel.value = '';
+  const qsel = document.getElementById('quickFilter');
+  if (qsel) qsel.value = '';
+  updatePreview();
+  toast('✓ Filter cleared — showing all areas');
+}
+
+function deleteRow(idx) {
+  const el = document.querySelector(`[data-row="${idx}"]`);
+  if (el) { el.remove(); updatePreview(); saveState(); }
+}
+
+function populateRow(idx, d) {
+  const root = document.querySelector(`[data-row="${idx}"]`);
+  if (!root) return;
+  root.querySelector('.f-loc').value    = d.location || '';
+  root.querySelector('.f-subloc').value = d.subLocation || '';
+  root.querySelector('.f-act').value    = (d.activity || []).join('\n');
+  root.querySelector('.f-hzt').value    = (d.hazardType || []).join('\n');
+  root.querySelector('.f-hz').value     = (d.hazard || []).join('\n');
+  root.querySelector('.f-risk').value   = d.risk || 'critical';
+  root.querySelector('.f-rem').value    = d.remarks || '';
+  root.querySelectorAll('.f-ppe').forEach(cb => {
+    cb.checked = (d.ppe || []).includes(cb.value);
+  });
+}
+
+function collectData() {
+  const data = {
+    title: document.getElementById('mapTitle').value,
+    company: document.getElementById('companyName').value,
+    footer: document.getElementById('footerNote').value,
+    date: document.getElementById('metaDate').value,
+    prepared: document.getElementById('metaPrepared').value,
+    reviewed: document.getElementById('metaReviewed').value,
+    rows: []
+  };
+  document.querySelectorAll('#rowsContainer .form-section').forEach(sec => {
+    const ppe = [];
+    sec.querySelectorAll('.f-ppe:checked').forEach(cb => ppe.push(cb.value));
+    data.rows.push({
+      location: sec.querySelector('.f-loc').value.trim(),
+      subLocation: sec.querySelector('.f-subloc').value.trim(),
+      activity: sec.querySelector('.f-act').value.split('\n').filter(s => s.trim()),
+      hazardType: sec.querySelector('.f-hzt').value.split('\n').filter(s => s.trim()),
+      hazard: sec.querySelector('.f-hz').value.split('\n').filter(s => s.trim()),
+      risk: sec.querySelector('.f-risk').value,
+      remarks: sec.querySelector('.f-rem').value,
+      ppe: ppe
+    });
+  });
+  return data;
+}
+
+function updatePreview() {
+  const d = collectData();
+  document.getElementById('hazardMap').innerHTML = buildMap(d);
+  refreshPickFilled();
+  refreshQuickFilter();
+  saveState();
+}
+
+function buildMap(d) {
+  const ppeMap = Object.fromEntries(PPE_OPTIONS.map(p => [p.id, p]));
+  const riskMap = Object.fromEntries(RISK_LEVELS.map(r => [r.value, r]));
+
+  const allRows = d.rows;
+  const displayRows = (filterMode !== null && allRows[filterMode])
+    ? [allRows[filterMode]]
+    : allRows;
+  const displayRowsIndexed = displayRows.map((r, i) => ({ r, origIdx: allRows.indexOf(r) }));
+
+  const rowsHTML = displayRowsIndexed.map(({ r, origIdx }, i) => {
+    const risk = riskMap[r.risk] || riskMap.critical;
+    const ppeHTML = r.ppe.map(id => {
+      const p = ppeMap[id];
+      return p ? `<div class="ppe-item"><div class="icon">${p.icon}</div><div class="lbl">${p.label}</div></div>` : '';
+    }).join('');
+    return `
+    <tr>
+      <td class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}>${origIdx + 1}</td>
+      <td class="loc-cell" ${isColumnVisible('col-loc')?'':'style="display:none"'}>${escape(r.location) || '—'}</td>
+      <td class="subloc-cell" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>${escape(r.subLocation) || '—'}</td>
+      <td ${isColumnVisible('col-act')?'':'style="display:none"'}><div class="list-cell"><ul>${r.activity.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
+      <td ${isColumnVisible('col-hzt')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazardType.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
+      <td ${isColumnVisible('col-hz')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazard.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
+      <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${risk.label}</div></td>
+      <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
+      <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(r.remarks) || ''}</td>
+    </tr>`;
+  }).join('');
+
+  const legend = `
+    <div class="risk-legend">
+      ${RISK_LEVELS.map(r => `
+        <div class="risk-box ${r.cls}">
+          ${r.label}<span class="sub">${r.desc}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const filterBanner = (filterMode !== null && filterInfo)
+    ? `<div class="filter-banner">
+         <div class="fb-info">🔍 FILTERED VIEW: Showing only <span>${escape(filterInfo)}</span></div>
+         <button class="fb-clear" onclick="clearFilter()">✕ Clear Filter — Show All ${allRows.length} Areas</button>
+       </div>`
+    : '';
+
+  return `
+    <div class="hm-header">
+      <h1>${escape(d.title) || 'HAZARD MAP'}</h1>
+      <div class="logo">${escape(d.company) || 'Emvess Infraventures Pvt Ltd'}</div>
+    </div>
+    ${filterBanner}
+    <table class="hm-table">
+      <thead>
+        <tr>
+          <th class="col-sr" ${isColumnVisible('col-sr')?'':'style="display:none"'}      >Sr.<br>No.</th>
+          <th class="col-loc" ${isColumnVisible('col-loc')?'':'style="display:none"'}    >LOCATION</th>
+          <th class="col-subloc" ${isColumnVisible('col-subloc')?'':'style="display:none"'}>SUB LOCATION</th>
+          <th class="col-act" ${isColumnVisible('col-act')?'':'style="display:none"'}    >ACTIVITY</th>
+          <th class="col-hzt" ${isColumnVisible('col-hzt')?'':'style="display:none"'}    >HAZARD TYPES</th>
+          <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >HAZARD</th>
+          <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >RISK LEVEL</th>
+          <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >REQ PPE (${escape(d.company) || 'Emvess Infraventures Pvt Ltd'} APPROVED)</th>
+          <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >REMARKS</th>
+        </tr>
+      </thead>
+      <tbody>${rowsHTML || (filterMode !== null ? '<tr><td colspan="9" style="padding:30px;color:#999">No data for filtered area. Click "Clear Filter" above to show all areas.</td></tr>' : '<tr><td colspan="9" style="padding:30px;color:#999">Add at least one hazard area to see preview</td></tr>')}</tbody>
+    </table>
+    <div class="hm-legend">
+      <div>
+        <h3>Risk Level Legend</h3>
+        ${legend}
+      </div>
+    </div>
+    <div class="hm-footer">
+      <div>${escape(d.footer) || ''}</div>
+      <div>Date: <span>${escape(d.date) || ''}</span></div>
+      <div>Prepared By: <span>${escape(d.prepared) || ''}</span></div>
+      <div>Reviewed By: <span>${escape(d.reviewed) || ''}</span></div>
+    </div>
+  `;
+}
+
+function escape(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ============== PASSWORD PROTECTION ==============
+const APP_PASSWORD = "Musahid#123";
+let _pendingAction = null;
+
+function askPassword(action) {
+  _pendingAction = action;
+  const labels = { sample: 'Load Sample Data', reset: 'Reset All Data', builder: 'Unlock Hazard Map Builder' };
+  const actionLabel = labels[action] || 'this action';
+  const pwd = window.prompt(
+    `🔒 PASSWORD REQUIRED\n\nAction: ${actionLabel}\n\nThis action is password protected.\nEnter password to continue:`,
+    ''
+  );
+  if (pwd === null) {
+    _pendingAction = null;
+    return;  // user cancelled
+  }
+  if (pwd === APP_PASSWORD) {
+    if (action === 'sample') loadSample();
+    else if (action === 'reset') resetAll();
+    else if (action === 'builder') unlockBuilder();
+    _pendingAction = null;
+  } else {
+    toast('✗ Wrong password — access denied');
+    _pendingAction = null;
+  }
+}
+
+// ============== QUICK FILTER (in preview tip banner) ==============
+function refreshQuickFilter() {
+  const sel = document.getElementById('quickFilter');
+  if (!sel) return;
+  const data = collectData();
+  const current = sel.value;
+  let opts = '<option value="">-- Show All Locations --</option>';
+  data.rows.forEach((r, i) => {
+    if (!r.location && !r.subLocation) return;
+    const label = (r.location || '(no location)') + (r.subLocation ? ' › ' + r.subLocation : '');
+    opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
+  });
+  if (data.rows.length === 0) {
+    opts = '<option value="">— No filled areas yet —</option>';
+  }
+  sel.innerHTML = opts;
+  sel.value = current;
+}
+
+function quickFilterChange(idxStr) {
+  if (idxStr === '') {
+    clearFilter();
+    return;
+  }
+  const idx = parseInt(idxStr, 10);
+  const data = collectData();
+  if (isNaN(idx) || !data.rows[idx]) {
+    refreshQuickFilter();
+    return;
+  }
+  filterMode = idx;
+  const src = data.rows[idx];
+  filterInfo = (src.location || '') + (src.subLocation ? ' › ' + src.subLocation : '');
+  // Also sync the form panel dropdown
+  const formSel = document.getElementById('pickFilled');
+  if (formSel) formSel.value = idxStr;
+  updatePreview();
+  toast('🔍 Filtered to "' + filterInfo + '"');
+  // Scroll preview to top
+  setTimeout(() => {
+    const wrap = document.getElementById('previewWrap');
+    if (wrap) wrap.scrollTop = 0;
+  }, 50);
+}
+
+function quickFilterClear() {
+  clearFilter();
+  const sel = document.getElementById('quickFilter');
+  if (sel) sel.value = '';
+  const formSel = document.getElementById('pickFilled');
+  if (formSel) formSel.value = '';
+}
+
+// ============== BUILDER UNLOCK ==============
+let builderUnlocked = false;
+
+function unlockBuilder() {
+  builderUnlocked = true;
+  document.getElementById('builderHeader').innerHTML = '📝 Hazard Map Builder ✅ (Unlocked)';
+  document.getElementById('builderHeader').style.color = '#2e7d32';
+  document.getElementById('builderHeader').title = 'Builder is unlocked';
+  document.getElementById('builderLockedBanner').style.display = 'none';
+  document.getElementById('builderContent').style.display = 'block';
+  // Build column toggles
+  buildColumnToggles();
+  toast('🔓 Builder unlocked — you can now edit');
+}
+
+function buildColumnToggles() {
+  const cols = [
+    { id: 'col-sr',      label: 'Sr. No.' },
+    { id: 'col-loc',     label: 'Location' },
+    { id: 'col-subloc',  label: 'Sub Location' },
+    { id: 'col-act',     label: 'Activity' },
+    { id: 'col-hzt',     label: 'Hazard Types' },
+    { id: 'col-hz',      label: 'Hazard' },
+    { id: 'col-rsk',     label: 'Risk Level' },
+    { id: 'col-ppe',     label: 'Req PPE' },
+    { id: 'col-rem',     label: 'Remarks' }
+  ];
+  const container = document.getElementById('columnToggles');
+  if (!container) return;
+  container.innerHTML = cols.map(c => {
+    const checked = isColumnVisible(c.id) ? 'checked' : '';
+    return `<label style="display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 6px; background:#f5f7fb; border:1px solid #cfd4dc; border-radius:3px; cursor:pointer;">
+      <input type="checkbox" data-col="${c.id}" ${checked} onchange="toggleColumn('${c.id}', this.checked); updatePreview();" style="width:auto;">
+      <span>${c.label}</span>
+    </label>`;
+  }).join('');
+}
+
+function isColumnVisible(colId) {
+  const stored = localStorage.getItem('hazardMapColumnVisibility');
+  if (!stored) return true;
+  try {
+    const map = JSON.parse(stored);
+    return map[colId] !== false;
+  } catch(e) { return true; }
+}
+
+function toggleColumn(colId, visible) {
+  const stored = localStorage.getItem('hazardMapColumnVisibility');
+  let map = {};
+  try { map = stored ? JSON.parse(stored) : {}; } catch(e) { map = {}; }
+  map[colId] = visible;
+  localStorage.setItem('hazardMapColumnVisibility', JSON.stringify(map));
+}
+
+function setAllColumns(visible) {
+  const cols = ['col-sr','col-loc','col-subloc','col-act','col-hzt','col-hz','col-rsk','col-ppe','col-rem'];
+  const map = {};
+  cols.forEach(c => map[c] = visible);
+  localStorage.setItem('hazardMapColumnVisibility', JSON.stringify(map));
+  buildColumnToggles();
+  updatePreview();
+  toast(visible ? '✓ All columns shown' : '✗ All columns hidden');
+}
+
+// ============== SAMPLE DATA (All 19 locations) ==============
+function loadSample() {
+  document.getElementById('rowsContainer').innerHTML = '';
+  rowCount = 0;
+  document.getElementById('metaDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('metaPrepared').value = 'Safety Officer';
+  document.getElementById('metaReviewed').value = 'Plant Head';
+
+  const sample = [
+    { loc:'Entry Gate',           sub:'Main Gate Cabin',                                activity:['Vehicle Entry','ID Check','Documentation'],         hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip','Unauthorized access'],                  risk:'moderate', ppe:['helmet','reflective','shoes'],                                              remarks:'Follow entry procedure & traffic rules.' },
+    { loc:'Security Post', sub:'General Area',        activity:['Monitoring','Gate Operation','Patrolling'],          hazardType:['Physical','Security'],        hazard:['Vehicle hit','Ergonomic strain','Weather exposure'],                     risk:'moderate', ppe:['shoes','reflective'],                                                          remarks:'Wear ID card & maintain log.' },
+    { loc:'Traffic Guard Post', sub:'General Area',   activity:['Traffic Control','Vehicle Direction'],             hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Noise','Dust'],                                          risk:'critical', ppe:['helmet','reflective','shoes','dustmask','earplug'],                            remarks:'Use stop sign & follow traffic plan.' },
+    { loc:'Out Gate', sub:'General Area',             activity:['Vehicle Exit','Weighment Check'],                   hazardType:['Physical','Traffic'],         hazard:['Vehicle movement','Pinch point'],                                         risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Cross-check challan before exit.' },
+    { loc:'Weighment Area', sub:'General Area',       activity:['Weighing','Documentation'],                         hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load'],                              risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Stay outside weighbridge during weighing.' },
+    { loc:'Vehicle Load Parking', sub:'General Area', activity:['Loading','Waiting','Engine Idle'],                  hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Fire'],                                   risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in designated slot, engine off.' },
+    { loc:'Empty Vehicle Parking', sub:'General Area',activity:['Parking','Waiting','Inspection'],                   hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip'],                                              risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use reverse horn while parking.' },
+    { loc:'Safety Check Area', sub:'General Area',    activity:['PPE Verification','Vehicle Inspection'],            hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Sharp edges','Pinch points'],                            risk:'critical', ppe:['helmet','reflective','shoes','gloves','goggles'],                              remarks:'100% PPE check before entry. Use checklist.' },
+    { loc:'Loading Unloading', sub:'General Area',    activity:['Loading','Unloading','Stacking'],                   hazardType:['Mechanical','Physical'],      hazard:['Falling material','Hit by vehicle','Slip/Trip','Back injury'],             risk:'critical', ppe:['helmet','reflective','shoes','gloves','dustmask'],                             remarks:'Use banksman & follow stacking SOP.' },
+    { loc:'Transporting Road', sub:'General Area',    activity:['Vehicle Movement','Material Transport'],           hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Pedestrian hit','Dust'],                                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Speed limit 20 km/h. Use zebra crossing.' },
+    { loc:'Store', sub:'General Area',                activity:['Receiving','Issuing','Stacking'],                  hazardType:['Mechanical','Physical'],      hazard:['Falling material','Slip/Trip','Manual handling'],                         risk:'moderate', ppe:['helmet','shoes','gloves'],                                                     remarks:'FIFO method. Max stack height 1.5m.' },
+    { loc:'Office Area', sub:'General Area',          activity:['Documentation','Meeting','Computer Work'],          hazardType:['Ergonomic','Physical'],       hazard:['Eye strain','Poor posture','Slip/Trip'],                                   risk:'safe',     ppe:['shoes'],                                                                        remarks:'Maintain good posture & clean desk.' },
+    { loc:'Equipment Maintenance', sub:'General Area',activity:['Repair','Lubrication','Overhaul','Overhead work'],  hazardType:['Mechanical','Physical'],      hazard:['Entanglement','Oil spill','Pinch points','Sharp edges','Fall from height'],risk:'critical', ppe:['helmet','shoes','gloves','leather','goggles','face','harness'],                       remarks:'LOTO mandatory before maintenance. Use full body harness for overhead work above 2m.' },
+    { loc:'Transport Park', sub:'General Area',       activity:['Bus Parking','Driver Rest','Vehicle Cleaning'],      hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Exhaust fume','Slip/Trip'],                               risk:'critical', ppe:['helmet','reflective','shoes','dustmask'],                                      remarks:'Park in reverse. Engine off before cleaning.' },
+    { loc:'Scray Yard', sub:'General Area',           activity:['Scrap Collection','Segregation','Loading'],          hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust','Cuts'],                risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask','face'],                      remarks:'Use designated bins. No manual lifting > 25kg.' },
+    { loc:'Weigh Bridge Area', sub:'General Area',    activity:['Weighing','Calibration','Cleaning'],                hazardType:['Physical','Mechanical'],      hazard:['Hit by vehicle','Slip/Trip','Falling load','Pinch points'],                 risk:'critical', ppe:['helmet','reflective','shoes','dustmask','gloves'],                             remarks:'Stay outside weighbridge during operation.' },
+    { loc:'Pathway Area', sub:'General Area',         activity:['Walking','Material Movement','Inspection'],          hazardType:['Physical','Traffic'],         hazard:['Slip/Trip','Hit by vehicle','Uneven surface','Obstruction'],                risk:'moderate', ppe:['helmet','reflective','shoes'],                                                 remarks:'Use designated walkway. No mobile use.' },
+    { loc:'FOB (Foot Over Bridge)', sub:'General Area',activity:['Crossing','Inspection','Maintenance'],             hazardType:['Physical','Height'],          hazard:['Fall from height','Slip/Trip','Structural collapse'],                      risk:'vhigh',    ppe:['helmet','shoes','reflective','harness','extinguisher'],                              remarks:'No jumping/leaning. Load limit strictly followed. Fire extinguisher kept ready.' },
+    { loc:'High Mast Area', sub:'General Area',       activity:['Lighting Operation','Maintenance','Inspection'],    hazardType:['Electrical','Height'],        hazard:['Fall from height','Electric shock','Falling object','Arc flash'],           risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','harness'],          remarks:'Climb permit mandatory. Work in pair. LOTO required. Full body harness compulsory above 2m.' },
+    { loc:'DG Area', sub:'General Area',              activity:['DG Operation','Fuel Handling','Maintenance'],       hazardType:['Electrical','Chemical'],      hazard:['Electric shock','Fire risk','Fuel spill','Burns','Noise','Fumes','Gas leak'], risk:'vhigh',    ppe:['helmet','shoes','reflective','elecgloves','face','frjacket','frpant','earplug','gasdetect','extinguisher'], remarks:'No smoking. Fuel transfer only by authorized person. Carry gas detector & fire extinguisher.' },
+    { loc:'Pump House', sub:'General Area',           activity:['Pump Operation','Maintenance','Cleaning'],          hazardType:['Electrical','Physical'],      hazard:['Electric shock','Slip/Trip','Water splash','Mechanical injury','Gas leak'],  risk:'critical', ppe:['helmet','shoes','gumboots','elecgloves','reflective','gasdetect','extinguisher'],       remarks:'Dry area before electrical work. LOTO mandatory. Use gas detector in confined space.' },
+    { loc:'Drinking Water Area', sub:'General Area',  activity:['Water Collection','Bottle Refill','Cleaning'],     hazardType:['Biological','Physical'],      hazard:['Slip/Trip','Water spill','Contamination','Hygiene risk'],                   risk:'safe',     ppe:['shoes','rubgloves'],                                                                 remarks:'Keep area clean. Report leak immediately.' },
+    { loc:'Electrical Panel', sub:'General Area',     activity:['Operation','Maintenance','Inspection'],             hazardType:['Electrical','Physical'],      hazard:['Electric shock','Arc flash','Fire'],                                       risk:'vhigh',    ppe:['helmet','elecgloves','face','shoes','frjacket','frpant'],                            remarks:'Authorized personnel only. Follow LOTO. Full FR suit (jacket + pant) compulsory for arc flash work.' },
+    { loc:'Scrap Yard', sub:'General Area',           activity:['Scrap Collection','Sorting','Loading'],             hazardType:['Physical','Mechanical'],      hazard:['Sharp edges','Hit by vehicle','Falling scrap','Dust'],                     risk:'critical', ppe:['helmet','shoes','leather','reflective','dustmask'],                              remarks:'Use designated bins. No manual lifting > 25kg.' },
+    { loc:'Chemical Spray Area', sub:'General Area',  activity:['Spraying','Mixing','Fumigation'],                   hazardType:['Chemical','Physical'],        hazard:['Chemical splash','Toxic vapour','Fire risk','Skin burn'],                  risk:'vhigh',    ppe:['helmet','rubgloves','goggles','face','respirator','apron','gumboots'],              remarks:'SDS & SOP mandatory. Use chemical apron.' },
+    { loc:'Utility', sub:'General Area',              activity:['General Maintenance','Hot Work','Welding','Gas Cutting'],hazardType:['Mechanical','Physical'],  hazard:['Hot surfaces','Fumes','Burns','Sparks','Gas leak','UV radiation','Flash burn'],risk:'critical', ppe:['helmet','shoes','leather','gasgoggle','face','apron','frjacket','frpant','gasdetect','extinguisher'], remarks:'Hot work permit required. Fire watcher mandatory. Use gas cutting goggle for cutting work.' },
+    { loc:'Toilet', sub:'General Area',               activity:['Personal Use','Cleaning'],                          hazardType:['Biological','Chemical'],      hazard:['Slip/Trip','Hygiene risk','Chemical exposure'],                            risk:'moderate', ppe:['gumboots','rubgloves'],                                                         remarks:'Wash hands after use. Daily cleaning log.' },
+    { loc:'Housekeeping', sub:'General Area',         activity:['Sweeping','Mopping','Waste Collection','Grass Cutting'],hazardType:['Physical','Chemical'],     hazard:['Slip/Trip','Sharp objects','Dust','Grass flying','Chemical spray'],       risk:'critical', ppe:['helmet','shoes','gumboots','rubgloves','dustmask','apron','hkdress'],            remarks:'Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.' }
+  ];
+
+  sample.forEach(d => {
+    addRow({
+      location: d.loc,
+      subLocation: d.sub || '',
+      activity: d.activity,
+      hazardType: d.hazardType,
+      hazard: d.hazard,
+      risk: d.risk,
+      remarks: d.remarks,
+      ppe: d.ppe
+    });
+  });
+  toast('✓ Loaded all 28 areas with sub-locations & 21 PPEs');
+}
+
+function saveState() {
+  try { localStorage.setItem('hazardDashboard', JSON.stringify(collectData())); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('hazardDashboard');
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    document.getElementById('mapTitle').value = d.title || '';
+    document.getElementById('companyName').value = d.company || '';
+    document.getElementById('footerNote').value = d.footer || '';
+    document.getElementById('metaDate').value = d.date || '';
+    document.getElementById('metaPrepared').value = d.prepared || '';
+    document.getElementById('metaReviewed').value = d.reviewed || '';
+    document.getElementById('rowsContainer').innerHTML = '';
+    rowCount = 0;
+    (d.rows || []).forEach(r => addRow(r));
+    return true;
+  } catch(e) { return false; }
+}
+
+function resetAll() {
+  if (confirm('Reset all data?')) {
+    localStorage.removeItem('hazardDashboard');
+    document.getElementById('rowsContainer').innerHTML = '';
+    rowCount = 0;
+    document.getElementById('mapTitle').value = 'HAZARD MAP – WORK AREA & PPE REQUIREMENT';
+    document.getElementById('companyName').value = 'Emvess Infraventures Pvt Ltd';
+    document.getElementById('footerNote').value = 'Note: All PPE must be Tata Steel Approved Make Only.';
+    document.getElementById('metaDate').value = '';
+    document.getElementById('metaPrepared').value = '';
+    document.getElementById('metaReviewed').value = '';
+    addRow();
+    toast('↺ Reset complete');
+  }
+}
+
+function adjustZoom(delta) {
+  if (delta === 0) currentZoom = 100;
+  else currentZoom = Math.max(60, Math.min(150, currentZoom + delta));
+  document.getElementById('hazardMap').style.transform = `scale(${currentZoom/100})`;
+  document.getElementById('hazardMap').style.transformOrigin = 'top left';
+}
+
+function downloadHTML() {
+  const d = collectData();
+  const mapHTML = buildMap(d);
+  const css = document.querySelector('style').textContent;
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${escape(d.title)}</title><style>${css}</style></head><body><div style="padding:20px"><div class="hazard-map">${mapHTML}</div></div></body></html>`;
+  const blob = new Blob([html], {type: 'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `hazard_map_${(d.date||'today')}.html`;
+  a.click();
+  toast('⬇ HTML downloaded');
+}
+
+function downloadExcel() {
+  try {
+    if (typeof XLSX === 'undefined') { throw new Error('XLSX library not loaded'); }
+    const d = collectData();
+    toast('⏳ Generating Excel…');
+
+    const ppeLabel = {
+      helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
+      gasgoggle:'Gas Cutting Goggle',face:'Face Shield',gloves:'Hand Gloves',rubgloves:'Rubber Gloves',
+      leather:'Leather Hand Gloves',elecgloves:'Electrical Gloves',reflective:'Reflective Jacket',
+      frjacket:'FR Jacket',frpant:'FR Pant',harness:'Full Body Harness',hkdress:'Housekeeping Dress',
+      apron:'Grass Cutting Apron',earplug:'Ear Plug',dustmask:'Dust Mask',respirator:'Respirator',
+      gasdetect:'Gas Detector',extinguisher:'Fire Extinguisher'
+    };
+    const riskText = {safe:'SAFE',moderate:'MODERATE',critical:'CRITICAL',vhigh:'VERY CRITICAL'};
+
+    const wb = XLSX.utils.book_new();
+
+    // --- Sheet 1: Hazard Map ---
+    const aoa = [];
+    aoa.push([d.title || 'HAZARD MAP']);
+    aoa.push([`${d.company || 'Emvess Infraventures Pvt Ltd'}  |  Date: ${d.date || '-'}  |  Prepared By: ${d.prepared || '-'}  |  Reviewed By: ${d.reviewed || '-'}`]);
+    aoa.push([]);
+    aoa.push(['Sr.', 'LOCATION', 'SUB LOCATION', 'ACTIVITY', 'HAZARD TYPES', 'HAZARD', 'RISK LEVEL', 'PPE REQUIRED', 'PPE COUNT', 'REMARKS']);
+    (d.rows || []).forEach((r, i) => {
+      const ppeList = (r.ppe || []).map(p => ppeLabel[p] || p);
+      aoa.push([
+        i + 1,
+        r.location || '',
+        r.subLocation || '',
+        (r.activity || []).join('\n'),
+        (r.hazardType || []).join('\n'),
+        (r.hazard || []).join('\n'),
+        riskText[r.risk] || (r.risk || '').toUpperCase(),
+        ppeList.join(', '),
+        ppeList.length,
+        r.remarks || ''
+      ]);
+    });
+    aoa.push([]);
+    aoa.push([d.footer || 'All PPE must be Tata Steel Approved Make Only.']);
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+    // Column widths (chars)
+    ws['!cols'] = [
+      { wch: 5 },   // Sr
+      { wch: 16 },  // Location
+      { wch: 16 },  // Sub Location
+      { wch: 20 },  // Activity
+      { wch: 16 },  // Hazard Types
+      { wch: 22 },  // Hazard
+      { wch: 16 },  // Risk
+      { wch: 55 },  // PPE
+      { wch: 10 },  // PPE count
+      { wch: 30 }   // Remarks
+    ];
+
+    // Merge cells
+    const lastRow = aoa.length;
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }, // title
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } }, // subtitle
+      { s: { r: lastRow - 1, c: 0 }, e: { r: lastRow - 1, c: 9 } } // footer
+    ];
+
+    // Apply formatting via cell-level styles
+    const setCellStyle = (addr, style) => {
+      if (!ws[addr]) return;
+      Object.assign(ws[addr], style);
+    };
+    // Title
+    setCellStyle('A1', {
+      s: { font: { bold: true, sz: 18, color: { rgb: '1A3A6C' } },
+           alignment: { horizontal: 'center', vertical: 'center' },
+           fill: { fgColor: { rgb: 'E8EAF6' } } }
+    });
+    setCellStyle('A2', {
+      s: { font: { italic: true, sz: 10, color: { rgb: '555555' } },
+           alignment: { horizontal: 'center' } }
+    });
+    // Header row (row 4)
+    for (let c = 0; c < 10; c++) {
+      const addr = XLSX.utils.encode_cell({ r: 3, c });
+      setCellStyle(addr, {
+        s: { font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+             fill: { fgColor: { rgb: '1A3A6C' } },
+             alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+             border: { top:{style:'thin',color:{rgb:'999999'}}, bottom:{style:'thin',color:{rgb:'999999'}},
+                       left:{style:'thin',color:{rgb:'999999'}}, right:{style:'thin',color:{rgb:'999999'}} } }
+      });
+    }
+    // Data rows + risk color
+    const riskFill = { safe: 'C8E6C9', moderate: 'FFF59D', critical: 'FFCCBC', vhigh: 'FFCDD2' };
+    const riskFontColor = { critical: 'FFFFFF', vhigh: 'FFFFFF' };
+    (d.rows || []).forEach((r, i) => {
+      const row = 5 + i;
+      for (let c = 0; c < 10; c++) {
+        const addr = XLSX.utils.encode_cell({ r: row - 1, c });
+        const isRisk = c === 6;
+        const isLoc = c === 1;
+        const isSub = c === 2;
+        const style = {
+          s: { alignment: { vertical: 'center', wrapText: true, horizontal: c === 0 || c === 8 || c === 6 ? 'center' : 'left' },
+               font: { sz: 10, bold: isRisk || isLoc || c === 0 },
+               border: { top:{style:'thin',color:{rgb:'CCCCCC'}}, bottom:{style:'thin',color:{rgb:'CCCCCC'}},
+                         left:{style:'thin',color:{rgb:'CCCCCC'}}, right:{style:'thin',color:{rgb:'CCCCCC'}} } }
+        };
+        if (isRisk) {
+          style.s.fill = { fgColor: { rgb: riskFill[r.risk] || 'FFFFFF' } };
+          style.s.font.bold = true;
+          style.s.font.sz = 12;
+        }
+        if (isLoc) style.s.fill = { fgColor: { rgb: 'F5F7FB' } };
+        if (isSub) style.s.fill = { fgColor: { rgb: 'FAFBFD' } };
+        setCellStyle(addr, style);
+      }
+    });
+    // Footer
+    const footerAddr = XLSX.utils.encode_cell({ r: lastRow - 1, c: 0 });
+    setCellStyle(footerAddr, {
+      s: { font: { italic: true, bold: true, color: { rgb: 'C0392B' }, sz: 10 },
+           alignment: { horizontal: 'center' },
+           fill: { fgColor: { rgb: 'FFFBEA' } } }
+    });
+
+    // Row heights
+    ws['!rows'] = [];
+    ws['!rows'][0] = { hpt: 30 };
+    ws['!rows'][1] = { hpt: 22 };
+    ws['!rows'][3] = { hpt: 32 };
+    (d.rows || []).forEach((r, i) => {
+      const ppeCount = (r.ppe || []).length;
+      const maxLines = Math.max(ppeCount > 0 ? 1 : 0, (r.hazard || []).length, (r.activity || []).length, 2);
+      ws['!rows'][4 + i] = { hpt: 16 * maxLines + 10 };
+    });
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Hazard Map');
+
+    // --- Sheet 2: Risk Levels ---
+    const riskAoa = [['RISK LEVEL LEGEND'], [],
+      ['Level', 'Description', 'Color Code'],
+      ['SAFE', 'Low Risk', 'Green #4CAF50'],
+      ['MODERATE', 'Medium Risk', 'Yellow #FFC107'],
+      ['CRITICAL', 'High Risk', 'Orange #FF5722'],
+      ['VERY CRITICAL', 'Very High Risk', 'Red #F44336']
+    ];
+    const wsRisk = XLSX.utils.aoa_to_sheet(riskAoa);
+    wsRisk['!cols'] = [{ wch: 18 }, { wch: 18 }, { wch: 22 }];
+    wsRisk['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+    const riskHeaderFill = { safe: '4CAF50', moderate: 'FFC107', critical: 'FF5722', vhigh: 'F44336' };
+    ['SAFE','MODERATE','CRITICAL','VERY CRITICAL'].forEach((lbl, i) => {
+      const key = ['safe','moderate','critical','vhigh'][i];
+      const addr = `A${i+4}`;
+      if (wsRisk[addr]) wsRisk[addr].s = {
+        font: { bold: true, color: { rgb: (key === 'critical' || key === 'vhigh') ? 'FFFFFF' : '000000' }, sz: 12 },
+        fill: { fgColor: { rgb: riskHeaderFill[key] } },
+        alignment: { horizontal: 'center' }
+      };
+    });
+    XLSX.utils.book_append_sheet(wb, wsRisk, 'Risk Levels');
+
+    const fname = `hazard_map_${(d.date || 'today')}.xlsx`;
+    XLSX.writeFile(wb, fname);
+    toast('✓ Excel downloaded');
+  } catch (e) {
+    console.error(e);
+    toast('✗ Excel error: ' + e.message);
+  }
+}
+
+function downloadPPT() {
+  try {
+    if (typeof PptxGenJS === 'undefined') { throw new Error('PptxGenJS library not loaded'); }
+    const d = collectData();
+    toast('⏳ Generating PowerPoint…');
+
+    const ppeLabel = {
+      helmet:'Safety Helmet',shoes:'Safety Shoe',gumboots:'Gum Boot',goggles:'Safety Goggles',
+      gasgoggle:'Gas Cutting Goggle',face:'Face Shield',gloves:'Hand Gloves',rubgloves:'Rubber Gloves',
+      leather:'Leather Hand Gloves',elecgloves:'Electrical Gloves',reflective:'Reflective Jacket',
+      frjacket:'FR Jacket',frpant:'FR Pant',harness:'Full Body Harness',hkdress:'Housekeeping Dress',
+      apron:'Grass Cutting Apron',earplug:'Ear Plug',dustmask:'Dust Mask',respirator:'Respirator',
+      gasdetect:'Gas Detector',extinguisher:'Fire Extinguisher'
+    };
+    const ppeIcon = {
+      helmet:'⛑️',shoes:'🥾',gumboots:'👢',goggles:'🥽',gasgoggle:'🥽',face:'🛡️',
+      gloves:'🧤',rubgloves:'🧤',leather:'🧤',elecgloves:'🧤',reflective:'🦺',
+      frjacket:'🥻',frpant:'👖',harness:'🪢',hkdress:'👔',apron:'🥼',
+      earplug:'🎧',dustmask:'😷',respirator:'😷',gasdetect:'📟',extinguisher:'🧯'
+    };
+    const riskColor = { safe:'4CAF50', moderate:'FFC107', critical:'FF5722', vhigh:'F44336' };
+    const riskText = { safe:'SAFE', moderate:'MODERATE', critical:'CRITICAL', vhigh:'VERY CRITICAL' };
+    const riskTxtColor = { safe:'FFFFFF', moderate:'000000', critical:'FFFFFF', vhigh:'FFFFFF' };
+
+    const pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_WIDE';   // 13.33 x 7.5 inches
+    pres.title = d.title || 'Hazard Map';
+    pres.company = d.company || 'Emvess Infraventures Pvt Ltd';
+    pres.subject = 'Plant Layout & PPE Requirement';
+
+    // ---------- Slide 1: Title ----------
+    let s = pres.addSlide();
+    s.background = { color: '1A3A6C' };
+    s.addShape(pres.ShapeType.rect, { x:1, y:2.5, w:11.3, h:2.5, fill:{color:'FFFFFF'}, line:{color:'FFFFFF'} });
+    s.addText(d.title || 'HAZARD MAP – WORK AREA & PPE REQUIREMENT',
+      { x:1, y:2.7, w:11.3, h:0.8, fontSize:32, bold:true, color:'1A3A6C', align:'center' });
+    s.addText('Plant Layout & PPE Requirement',
+      { x:1, y:3.5, w:11.3, h:0.5, fontSize:18, color:'C0392B', align:'center' });
+    s.addText(`Date: ${d.date || '-'}   |   Prepared By: ${d.prepared || '-'}   |   Reviewed By: ${d.reviewed || '-'}`,
+      { x:1, y:4.1, w:11.3, h:0.4, fontSize:12, italic:true, color:'555555', align:'center' });
+    s.addText(d.company || 'Emvess Infraventures Pvt Ltd',
+      { x:1, y:6.7, w:11.3, h:0.4, fontSize:16, bold:true, color:'FFFFFF', align:'center' });
+    s.addText('🛡️ SAFETY FIRST',
+      { x:1, y:0.3, w:11.3, h:0.4, fontSize:14, bold:true, color:'FFD54A', align:'center' });
+
+    // ---------- Slide 2: Risk Legend ----------
+    s = pres.addSlide();
+    s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
+    s.addText('RISK LEVEL LEGEND', { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
+
+    [{l:'SAFE',s:'Low Risk',c:'4CAF50',t:'FFFFFF'},
+     {l:'MODERATE',s:'Medium Risk',c:'FFC107',t:'000000'},
+     {l:'CRITICAL',s:'High Risk',c:'FF5722',t:'FFFFFF'},
+     {l:'VERY CRITICAL',s:'Very High Risk',c:'F44336',t:'FFFFFF'}
+    ].forEach((r,i) => {
+      const x = 1.5 + i*2.6;
+      s.addShape(pres.ShapeType.rect, { x, y:2.0, w:2.3, h:2.0, fill:{color:r.c} });
+      s.addText(r.l, { x, y:2.3, w:2.3, h:0.7, fontSize:20, bold:true, color:r.t, align:'center' });
+      s.addText(r.s, { x, y:3.0, w:2.3, h:0.5, fontSize:12, italic:true, color:r.t, align:'center' });
+    });
+
+    s.addText('Use this legend to interpret the risk level badge shown in the LOCATION column of every area.',
+      { x:1, y:5.0, w:11.3, h:0.6, fontSize:12, italic:true, color:'555555', align:'center' });
+
+    // ---------- Slides for each area ----------
+    (d.rows || []).forEach((r, idx) => {
+      s = pres.addSlide();
+      // header
+      s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
+      s.addText(`AREA #${idx+1}  –  ${r.location || ''}${r.subLocation ? '  ›  ' + r.subLocation : ''}`,
+        { x:0.3, y:0.15, w:10, h:0.5, fontSize:18, bold:true, color:'FFFFFF' });
+      // risk badge
+      const rk = r.risk || 'critical';
+      s.addShape(pres.ShapeType.rect, { x:10.5, y:0.1, w:2.6, h:0.6, fill:{color:riskColor[rk]} });
+      s.addText(riskText[rk], { x:10.5, y:0.1, w:2.6, h:0.6, fontSize:14, bold:true, color:riskTxtColor[rk], align:'center', valign:'middle' });
+
+      // left column
+      const lx = 0.4, lw = 6.2;
+      s.addText('ACTIVITY', { x:lx, y:1.1, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
+      s.addShape(pres.ShapeType.rect, { x:lx, y:1.5, w:lw, h:1.2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
+      s.addText((r.activity||[]).map(a=>'• '+a).join('\n') || '—',
+        { x:lx+0.1, y:1.55, w:lw-0.2, h:1.1, fontSize:12, color:'333333' });
+      s.addText('HAZARD TYPES', { x:lx, y:2.85, w:lw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
+      s.addShape(pres.ShapeType.rect, { x:lx, y:3.25, w:lw, h:1.0, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
+      s.addText((r.hazardType||[]).map(a=>'• '+a).join('\n') || '—',
+        { x:lx+0.1, y:3.30, w:lw-0.2, h:0.9, fontSize:12, color:'333333' });
+      s.addText('HAZARDS', { x:lx, y:4.4, w:lw, h:0.4, fontSize:12, bold:true, color:'C0392B' });
+      s.addShape(pres.ShapeType.rect, { x:lx, y:4.8, w:lw, h:1.4, fill:{color:'FFF3E0'}, line:{color:'E0B080', width:0.5} });
+      s.addText((r.hazard||[]).map(a=>'• '+a).join('\n') || '—',
+        { x:lx+0.1, y:4.85, w:lw-0.2, h:1.3, fontSize:12, color:'333333' });
+
+      // right column: PPEs
+      const rx = 7.0, rw = 6.0;
+      s.addText(`REQUIRED PPE  (${(r.ppe||[]).length} items)`,
+        { x:rx, y:1.1, w:rw, h:0.4, fontSize:12, bold:true, color:'1A3A6C' });
+      const cellWP = 1.4, cellHP = 1.1;
+      (r.ppe || []).forEach((pid, j) => {
+        const rr = Math.floor(j/4), cc = j%4;
+        const x = rx + cc*cellWP;
+        const y = 1.6 + rr*cellHP;
+        s.addShape(pres.ShapeType.rect, { x, y, w:cellWP-0.1, h:cellHP-0.1, fill:{color:'E3F2FD'}, line:{color:'1A3A6C', width:1} });
+        s.addText(`${ppeIcon[pid]||'•'}\n${ppeLabel[pid]||pid}`,
+          { x, y, w:cellWP-0.1, h:cellHP-0.1, fontSize:10, bold:true, color:'1A3A6C', align:'center', valign:'middle' });
+      });
+
+      // remarks band
+      s.addShape(pres.ShapeType.rect, { x:0, y:6.6, w:13.33, h:0.9, fill:{color:'FFFBEA'}, line:{color:'FBC02D', width:0.5} });
+      s.addText('REMARKS:', { x:0.3, y:6.65, w:2.0, h:0.8, fontSize:11, bold:true, color:'C0392B', valign:'middle' });
+      s.addText(r.remarks || '—', { x:2.0, y:6.65, w:11, h:0.8, fontSize:11, color:'333333', valign:'middle' });
+    });
+
+    // ---------- Summary slide ----------
+    s = pres.addSlide();
+    s.addShape(pres.ShapeType.rect, { x:0, y:0, w:13.33, h:0.8, fill:{color:'1A3A6C'} });
+    s.addText('SUMMARY & SIGN-OFF', { x:0.3, y:0.15, w:13, h:0.5, fontSize:22, bold:true, color:'FFFFFF' });
+    const safeN = (d.rows||[]).filter(r=>r.risk==='safe').length;
+    const modN  = (d.rows||[]).filter(r=>r.risk==='moderate').length;
+    const crN   = (d.rows||[]).filter(r=>r.risk==='critical').length;
+    const vhN   = (d.rows||[]).filter(r=>r.risk==='vhigh').length;
+    s.addText(`Total Areas Covered: ${(d.rows||[]).length}`, { x:0.5, y:1.2, w:12.3, h:0.5, fontSize:18, bold:true, color:'1A3A6C' });
+    s.addText(`🟢 SAFE: ${safeN}    🟡 MODERATE: ${modN}    🟠 CRITICAL: ${crN}    🔴 VERY CRITICAL: ${vhN}`,
+      { x:0.5, y:1.8, w:12.3, h:0.5, fontSize:16, color:'333333' });
+    s.addText(d.footer || 'All PPE must be Tata Steel Approved Make Only.',
+      { x:0.5, y:2.6, w:12.3, h:0.4, fontSize:12, italic:true, color:'C0392B' });
+    s.addShape(pres.ShapeType.rect, { x:0.5, y:4.5, w:6, h:2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
+    s.addText('PREPARED BY', { x:0.5, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
+    s.addText(d.prepared || '__________________', { x:0.5, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
+    s.addText('Signature / Date', { x:0.5, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
+    s.addShape(pres.ShapeType.rect, { x:6.8, y:4.5, w:6, h:2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
+    s.addText('REVIEWED BY', { x:6.8, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
+    s.addText(d.reviewed || '__________________', { x:6.8, y:5.6, w:6, h:0.5, fontSize:14, bold:true, color:'1A3A6C', align:'center' });
+    s.addText('Signature / Date', { x:6.8, y:6.1, w:6, h:0.4, fontSize:10, italic:true, color:'888888', align:'center' });
+
+    const fname = `hazard_map_${(d.date || 'today')}.pptx`;
+    pres.writeFile({ fileName: fname });
+    toast('✓ PowerPoint downloaded');
+  } catch (e) {
+    console.error(e);
+    toast('✗ PPT error: ' + e.message);
+  }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (!loadState()) {
+    loadSample();
+  } else {
+    updatePreview();
+  }
+});
+</script>
+</body>
+</html>
