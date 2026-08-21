@@ -74,6 +74,46 @@
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
     font-size: 12px;
   }
+  .form-label-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 3px;
+  }
+  .form-label-row label { margin-bottom: 0; }
+
+  .btn-field-translate {
+    background: #e8eaf6; color: #1a237e; border: 1px solid #c5cae9;
+    border-radius: 3px; padding: 2px 7px; font-size: 10.5px;
+    font-weight: 700; cursor: pointer; display: inline-flex;
+    align-items: center; gap: 3px; transition: all 0.15s ease;
+    line-height: 1.2;
+  }
+  .btn-field-translate:hover { background: #c5cae9; color: #0d1b54; }
+  .btn-field-translate:disabled { opacity: 0.6; cursor: wait; }
+
+  .btn-row-translate {
+    background: #e8eaf6; color: #1a237e; border: 1px solid #c5cae9;
+    border-radius: 3px; padding: 4px 8px; font-size: 11px;
+    font-weight: 700; cursor: pointer; transition: all 0.15s ease;
+  }
+  .btn-row-translate:hover { background: #c5cae9; color: #0d1b54; }
+  .btn-row-translate:disabled { opacity: 0.6; cursor: wait; }
+
+  .builder-translate-toolbar {
+    background: linear-gradient(135deg, #ede7f6, #d1c4e9);
+    border: 1.5px solid #b39ddb; border-left: 5px solid #7b1fa2;
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .builder-translate-toolbar .btn-trans-all {
+    border: none; padding: 5px 11px; border-radius: 4px;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .builder-translate-toolbar .btn-trans-hi { background: #7b1fa2; color: #fff; }
+  .builder-translate-toolbar .btn-trans-hi:hover { background: #4a148c; }
+  .builder-translate-toolbar .btn-trans-en { background: #0277bd; color: #fff; }
+  .builder-translate-toolbar .btn-trans-en:hover { background: #01579b; }
+
   .form-row { margin-bottom: 8px; }
   .form-row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
   .form-row-half .form-row { margin-bottom: 0; }
@@ -347,6 +387,67 @@
     font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 9999;
   }
   .toast.show { opacity: 1; }
+  /* Auth Modal */
+  .auth-overlay {
+    display: none; position: fixed; inset: 0; z-index: 10002;
+    background: rgba(13,38,73,0.65); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .auth-overlay.show { display: flex; }
+  .auth-modal {
+    background: #fff; width: 100%; max-width: 420px;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+    animation: authModalPop 0.25s ease-out;
+  }
+  @keyframes authModalPop {
+    from { opacity: 0; transform: scale(0.92) translateY(-10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .auth-header {
+    background: linear-gradient(135deg, #1a3a6c, #0d2649);
+    color: #fff; padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .auth-header h2 { font-size: 16px; margin: 0; font-weight: 700; }
+  .auth-body { padding: 20px; }
+  .auth-action-banner {
+    background: #fff3e0; color: #e65100; border-left: 4px solid #ff9800;
+    padding: 8px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .auth-input-wrap {
+    position: relative; display: flex; align-items: center;
+  }
+  .auth-input-icon {
+    position: absolute; left: 10px; font-size: 14px; pointer-events: none; opacity: 0.7;
+  }
+  .auth-input-wrap input {
+    width: 100%; padding: 9px 36px 9px 32px; border: 1.5px solid #cfd4dc;
+    border-radius: 6px; font-size: 13.5px;
+  }
+  .auth-input-wrap input:focus {
+    border-color: #1a3a6c; box-shadow: 0 0 0 3px rgba(26,58,108,0.18); outline: none;
+  }
+  .btn-toggle-pwd {
+    position: absolute; right: 8px; background: none; border: none;
+    font-size: 15px; cursor: pointer; opacity: 0.6; padding: 4px;
+  }
+  .btn-toggle-pwd:hover { opacity: 1; }
+  .auth-error {
+    background: #ffebee; color: #c62828; border: 1px solid #ffcdd2;
+    padding: 8px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;
+    margin-top: 10px;
+  }
+  .auth-actions { display: flex; gap: 10px; margin-top: 18px; }
+  .auth-actions button {
+    flex: 1; padding: 10px; border: none; border-radius: 6px;
+    font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .auth-submit { background: #2e7d32; color: #fff; }
+  .auth-submit:hover { background: #1b5e20; }
+  .auth-cancel { background: #eceff1; color: #37474f; }
+  .auth-cancel:hover { background: #cfd8dc; }
 </style>
 </head>
 <body>
@@ -359,15 +460,14 @@
     <button class="print" data-i18n="toolbar.print" onclick="window.print()">🖨️ Print / PDF</button>
     <button class="xlsx" data-i18n="toolbar.excel"  onclick="downloadExcel()">📊 Download Excel</button>
     <button class="pptx" data-i18n="toolbar.ppt"  onclick="downloadPPT()">📽️ Download PPT</button>
-    <button class="locked" data-i18n="toolbar.sample" onclick="askPassword('sample')">📋 Sample 🔒</button>
-    <button class="reset locked" data-i18n="toolbar.reset" onclick="askPassword('reset')">↺ Reset 🔒</button>
+    <button class="reset locked" data-i18n="toolbar.reset" onclick="openAuthModal('reset')">↺ Reset 🔒</button>
     <button class="lang-toggle" id="languageToggle" onclick="toggleLanguage()">हिन्दी</button>
   </div>
 </div>
 
 <div class="layout">
   <div class="form-panel">
-    <h2 id="builderHeader" onclick="askPassword('builder')" style="cursor:pointer; user-select:none;" title="Click to unlock (password protected)" data-i18n-title="builder.titleAttr">
+    <h2 id="builderHeader" onclick="openAuthModal('builder')" style="cursor:pointer; user-select:none;" title="Click to unlock (password protected)" data-i18n-title="builder.titleAttr">
       <span id="builderHeaderText" data-i18n="builder.title">📝 Hazard Map Builder 🔒</span>
     </h2>
     <div id="builderLockedBanner" style="background:#fff3e0; border:2px solid #ff9800; border-radius:6px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:10px;">
@@ -376,7 +476,7 @@
         <div data-i18n="builder.locked" style="font-weight:700; color:#e65100; font-size:13px;">Builder is Locked</div>
         <div data-i18n="builder.unlockHint" style="font-size:11px; color:#555;">Click the header or this banner to unlock with password.</div>
       </div>
-      <button data-i18n="builder.unlock" onclick="askPassword('builder')" style="background:#ff9800; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">Unlock</button>
+      <button data-i18n="builder.unlock" onclick="openAuthModal('builder')" style="background:#ff9800; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">Unlock</button>
     </div>
     <div id="builderContent" style="display:none;">
 
@@ -392,6 +492,14 @@
       <div style="display:flex; gap:6px; margin-top:8px;">
         <button data-i18n="columns.showAll" onclick="setAllColumns(true)" style="flex:1; background:#4caf50; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✓ Show All</button>
         <button data-i18n="columns.hideAll" onclick="setAllColumns(false)" style="flex:1; background:#f44336; color:#fff; border:none; padding:5px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:600;">✗ Hide All</button>
+      </div>
+    </div>
+
+    <div class="builder-translate-toolbar">
+      <span style="font-size:12px; font-weight:700; color:#4a148c;" data-i18n="builder.autoTranslate">🌐 Translate Form Inputs:</span>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button type="button" class="btn-trans-all btn-trans-hi" onclick="translateAllRows('hi')" data-i18n="translate.allHi">🇮🇳 Inputs to हिन्दी</button>
+        <button type="button" class="btn-trans-all btn-trans-en" onclick="translateAllRows('en')" data-i18n="translate.allEn">🇬🇧 Inputs to English</button>
       </div>
     </div>
 
@@ -506,6 +614,23 @@
       </div>
     </div>
 
+    <div class="form-section filter-section" style="background: linear-gradient(135deg, #ffebee, #ffcdd2); border: 2px solid #ef5350; border-left: 6px solid #c62828; box-shadow: 0 2px 8px rgba(198,40,40,0.15);">
+      <h3 data-i18n="filter.riskTitle" style="color:#c62828;">⚠️ Filter View by Risk Level</h3>
+      <div class="form-row">
+        <label data-i18n="filter.riskSelectHint" style="color:#c62828;">Select a risk level to show only areas matching that risk category</label>
+        <select id="pickRisk" onchange="pickRiskFilter(this.value)" style="border:2px solid #ef5350; background:#fff8f8; font-weight:600; padding:9px;">
+          <option value="" data-i18n="filter.riskShowAll">-- Show All Risk Levels --</option>
+          <option value="safe">🟢 SAFE (Low Risk)</option>
+          <option value="moderate">🟡 MODERATE (Medium Risk)</option>
+          <option value="critical">🟠 CRITICAL (High Risk)</option>
+          <option value="vhigh">🔴 VERY CRITICAL (Very High Risk)</option>
+        </select>
+      </div>
+      <div style="font-size:11px;color:#b71c1c;margin-top:6px; background:#ffebee; padding:6px 8px; border-radius:3px; border-left:3px solid #c62828;">
+        <span data-i18n-html="filter.riskHelp">💡 Select <b>SAFE, MODERATE, CRITICAL or VERY CRITICAL</b> to filter the preview table to that specific risk severity.</span>
+      </div>
+    </div>
+
     <div class="form-section">
       <h3 data-i18n="settings.title">⚙️ Settings</h3>
       <div class="form-row">
@@ -545,9 +670,17 @@
         <select id="quickFilter" onchange="quickFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #ff9800; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
           <option value="">-- Show All Locations --</option>
         </select>
-        <span data-i18n="preview.quickSopFilter" style="font-size:11px; font-weight:700; color:#1b5e20; min-width: 80px;">📋 SOP Filter:</span>
-        <select id="quickSopFilter" onchange="quickSopFilterChange(this.value)" style="flex:1; min-width:200px; padding:6px 10px; border:2px solid #2e7d32; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
+        <span data-i18n="preview.quickSopFilter" style="font-size:11px; font-weight:700; color:#1b5e20; min-width: 75px;">📋 SOP Filter:</span>
+        <select id="quickSopFilter" onchange="quickSopFilterChange(this.value)" style="flex:1; min-width:170px; padding:6px 10px; border:2px solid #2e7d32; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
           <option value="">-- Show All SOPs --</option>
+        </select>
+        <span data-i18n="preview.quickRiskFilter" style="font-size:11px; font-weight:700; color:#c62828; min-width: 75px;">⚠️ Risk Filter:</span>
+        <select id="quickRiskFilter" onchange="quickRiskFilterChange(this.value)" style="flex:1; min-width:170px; padding:6px 10px; border:2px solid #c62828; border-radius:4px; background:#fff; font-size:12px; font-weight:600; color:#1a3a6c; cursor:pointer;">
+          <option value="" data-i18n="filter.riskShowAll">-- Show All Risk Levels --</option>
+          <option value="safe">🟢 SAFE (Low Risk)</option>
+          <option value="moderate">🟡 MODERATE (Medium Risk)</option>
+          <option value="critical">🟠 CRITICAL (High Risk)</option>
+          <option value="vhigh">🔴 VERY CRITICAL (Very High Risk)</option>
         </select>
         <button id="quickFilterClear" data-i18n="preview.clearFilter" onclick="quickFilterClear()" style="background:#f44336; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:11px; font-weight:700; cursor:pointer;">✕ Clear Filter</button>
       </div>
@@ -559,6 +692,42 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+
+<div class="auth-overlay" id="authOverlay" onclick="if(event.target===this) closeAuthModal()">
+  <div class="auth-modal" role="dialog" aria-modal="true">
+    <div class="auth-header">
+      <div style="font-size:26px;">🔒</div>
+      <div>
+        <h2 id="authTitle" data-i18n="auth.title">Authentication Required</h2>
+        <div id="authSubtitle" data-i18n="auth.subtitle" style="font-size:12px; opacity:0.85; margin-top:2px;">Enter authorized credentials to continue</div>
+      </div>
+    </div>
+    <form class="auth-body" onsubmit="event.preventDefault(); submitAuthModal();">
+      <div id="authActionBanner" class="auth-action-banner"><span data-i18n="auth.actionLabel">Action:</span> <b id="authActionText">Unlock Builder</b></div>
+      <div class="form-row">
+        <label for="authUsername" data-i18n="auth.username">Username</label>
+        <div class="auth-input-wrap">
+          <span class="auth-input-icon">👤</span>
+          <input type="text" id="authUsername" autocomplete="username" placeholder="Enter username" required autofocus>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="authPassword" data-i18n="auth.password">Password</label>
+        <div class="auth-input-wrap">
+          <span class="auth-input-icon">🔑</span>
+          <input type="password" id="authPassword" autocomplete="current-password" placeholder="Enter password" required>
+          <button type="button" class="btn-toggle-pwd" onclick="toggleAuthPasswordVisibility()" title="Show/Hide password">👁️</button>
+        </div>
+      </div>
+      <div id="authErrorMsg" class="auth-error" style="display:none;"></div>
+      <div class="auth-actions">
+        <button type="button" class="auth-cancel" onclick="closeAuthModal()" data-i18n="auth.cancel">Cancel</button>
+        <button type="submit" class="auth-submit" id="authSubmitBtn" data-i18n="auth.unlock">🔓 Unlock</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="req-overlay" id="reqOverlay" onclick="if(event.target===this) closeHazardRequest()">
   <div class="req-modal" role="dialog" aria-modal="true">
@@ -622,6 +791,7 @@ const TRANSLATIONS = {
     'builder.titleAttr': 'Click to unlock (password protected)',
     'builder.unlockedTitle': 'Builder is unlocked',
     'builder.addArea': '➕ Add Hazard Area',
+    'builder.autoTranslate': '🌐 Translate Form Inputs:',
     'columns.title': '🔍 Filter Column (Show/Hide)',
     'columns.choose': 'Choose which columns to display in the preview table:',
     'columns.hint': "💡 Uncheck columns you don't want to see. Useful for printing smaller reports or focusing on specific data.",
@@ -644,6 +814,14 @@ const TRANSLATIONS = {
     'filter.sopNone': '— No SOP filled yet —',
     'filter.sopHelp': '💡 Select any SOP from the dropdown to <b>filter</b> the preview/print to just that SOP: Activity, Hazard Type, Hazard, Risk Description and Required PPE.',
     'preview.quickSopFilter': '📋 SOP Filter:',
+    'preview.quickRiskFilter': '⚠️ Risk Filter:',
+    'filter.riskTitle': '⚠️ Filter View by Risk Level',
+    'filter.riskSelectHint': 'Select a risk level to show only areas matching that risk category',
+    'filter.riskShowAll': '-- Show All Risk Levels --',
+    'filter.riskHelp': '💡 Select <b>SAFE, MODERATE, CRITICAL or VERY CRITICAL</b> to filter the preview table to that specific risk severity.',
+    'table.filteredRiskView': '⚠️ RISK FILTER: Showing only <span>{{name}}</span> ({{count}} areas)',
+    'table.noRiskData': 'No areas found with this risk level. Click "Clear Filter" above to show all areas.',
+    'toast.riskFiltered': '⚠️ Risk filtered to "{{name}}"',
     'settings.title': '⚙️ Settings',
     'settings.mapTitle': 'Map Title',
     'settings.company': 'Company / Logo Text',
@@ -710,6 +888,16 @@ const TRANSLATIONS = {
     'password.action': 'Action:',
     'password.protected': 'This action is password protected.',
     'password.enter': 'Enter password to continue:',
+    'auth.title': 'Authentication Required',
+    'auth.subtitle': 'Enter authorized credentials to continue',
+    'auth.actionLabel': 'Action:',
+    'auth.username': 'Username',
+    'auth.password': 'Password',
+    'auth.unlock': '🔓 Unlock / Continue',
+    'auth.cancel': 'Cancel',
+    'auth.invalid': '✗ Invalid username or password — access denied',
+    'auth.actionBuilder': 'Unlock Hazard Map Builder',
+    'auth.actionReset': 'Reset All Dashboard Data',
     'toast.filtered': '🔍 Filtered to "{{name}}"',
     'toast.filteredClearHint': '🔍 Filtered to "{{name}}" — clear filter to see all',
     'toast.sopFiltered': '📋 SOP filtered to "{{name}}"',
@@ -760,6 +948,15 @@ const TRANSLATIONS = {
     'error.excel': '✗ Excel error: {{message}}',
     'error.ppt': '✗ PPT error: {{message}}',
     'confirm.reset': 'Reset all data?',
+    'translate.btn': 'Translate',
+    'translate.row': 'Translate Row',
+    'translate.allHi': '🇮🇳 Inputs to हिन्दी',
+    'translate.allEn': '🇬🇧 Inputs to English',
+    'translate.translating': 'Translating…',
+    'toast.translatedHi': '✓ Translated to Hindi',
+    'toast.translatedEn': '✓ Translated to English',
+    'toast.translating': '⏳ Translating text…',
+    'toast.translateAllDone': '✓ All form inputs translated',
     'ppe.helmet': 'Safety Helmet',
     'ppe.shoes': 'Safety Shoe',
     'ppe.gumboots': 'Gum Boot',
@@ -798,6 +995,7 @@ const TRANSLATIONS = {
     'builder.titleAttr': 'अनलॉक करने के लिए क्लिक करें (पासवर्ड सुरक्षित)',
     'builder.unlockedTitle': 'बिल्डर अनलॉक है',
     'builder.addArea': '➕ हैज़र्ड एरिया जोड़ें',
+    'builder.autoTranslate': '🌐 फॉर्म इनपुट अनुवाद करें:',
     'columns.title': '🔍 कॉलम फ़िल्टर (दिखाएँ/छिपाएँ)',
     'columns.choose': 'प्रिव्यू टेबल में दिखाने के लिए कॉलम चुनें:',
     'columns.hint': '💡 जिन कॉलम को नहीं देखना चाहते, उन्हें अनचेक करें। छोटे रिपोर्ट प्रिंट करने या खास डेटा पर ध्यान देने के लिए उपयोगी।',
@@ -820,6 +1018,14 @@ const TRANSLATIONS = {
     'filter.sopNone': '— अभी कोई SOP भरा नहीं है —',
     'filter.sopHelp': '💡 SOP चुनकर प्रिव्यू/प्रिंट में केवल उस SOP की <b>गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE</b> दिखेगी।',
     'preview.quickSopFilter': '📋 SOP फ़िल्टर:',
+    'preview.quickRiskFilter': '⚠️ जोखिम फ़िल्टर:',
+    'filter.riskTitle': '⚠️ जोखिम स्तर के अनुसार फ़िल्टर',
+    'filter.riskSelectHint': 'जोखिम स्तर चुनें — केवल उस गंभीरता (सुरक्षित, मध्यम, गंभीर, अति गंभीर) के एरिया दिखेंगे',
+    'filter.riskShowAll': '-- सभी जोखिम स्तर दिखाएँ --',
+    'filter.riskHelp': '💡 टेबल को केवल उस गंभीरता (सुरक्षित, मध्यम, गंभीर या अति गंभीर) पर <b>फ़िल्टर</b> करने के लिए जोखिम स्तर चुनें।',
+    'table.filteredRiskView': '⚠️ जोखिम फ़िल्टर: केवल <span>{{name}}</span> दिखाया जा रहा है ({{count}} एरिया)',
+    'table.noRiskData': 'इस जोखिम स्तर का कोई एरिया नहीं मिला। सभी एरिया देखने के लिए ऊपर "फ़िल्टर हटाएँ" पर क्लिक करें।',
+    'toast.riskFiltered': '⚠️ जोखिम स्तर "{{name}}" पर फ़िल्टर किया गया',
     'settings.title': '⚙️ सेटिंग्स',
     'settings.mapTitle': 'मैप शीर्षक',
     'settings.company': 'कंपनी / लोगो टेक्स्ट',
@@ -886,6 +1092,16 @@ const TRANSLATIONS = {
     'password.action': 'कार्य:',
     'password.protected': 'यह कार्य पासवर्ड से सुरक्षित है।',
     'password.enter': 'जारी रखने के लिए पासवर्ड दर्ज करें:',
+    'auth.title': 'प्रमाणीकरण आवश्यक है',
+    'auth.subtitle': 'जारी रखने के लिए अधिकृत यूज़रनेम और पासवर्ड दर्ज करें',
+    'auth.actionLabel': 'कार्य:',
+    'auth.username': 'यूज़रनेम',
+    'auth.password': 'पासवर्ड',
+    'auth.unlock': '🔓 अनलॉक करें',
+    'auth.cancel': 'रद्द करें',
+    'auth.invalid': '✗ गलत यूज़रनेम या पासवर्ड — अनुमति अस्वीकृत',
+    'auth.actionBuilder': 'हैज़र्ड मैप बिल्डर अनलॉक करें',
+    'auth.actionReset': 'सारा डैशबोर्ड डेटा रीसेट करें',
     'toast.filtered': '🔍 "{{name}}" पर फ़िल्टर किया गया',
     'toast.filteredClearHint': '🔍 "{{name}}" पर फ़िल्टर किया गया — सभी देखने के लिए फ़िल्टर हटाएँ',
     'toast.sopFiltered': '📋 SOP "{{name}}" पर फ़िल्टर किया गया',
@@ -936,6 +1152,15 @@ const TRANSLATIONS = {
     'error.excel': '✗ एक्सेल त्रुटि: {{message}}',
     'error.ppt': '✗ PPT त्रुटि: {{message}}',
     'confirm.reset': 'सारा डेटा रीसेट करें?',
+    'translate.btn': 'अनुवाद',
+    'translate.row': 'पंक्ति का अनुवाद',
+    'translate.allHi': '🇮🇳 इनपुट हिन्दी में',
+    'translate.allEn': '🇬🇧 इनपुट अंग्रेजी में',
+    'translate.translating': 'अनुवाद हो रहा है…',
+    'toast.translatedHi': '✓ हिन्दी में अनुवाद किया गया',
+    'toast.translatedEn': '✓ अंग्रेजी में अनुवाद किया गया',
+    'toast.translating': '⏳ अनुवाद किया जा रहा है…',
+    'toast.translateAllDone': '✓ सभी इनपुट का अनुवाद पूरा हुआ',
     'ppe.helmet': 'सुरक्षा हेलमेट',
     'ppe.shoes': 'सुरक्षा जूते',
     'ppe.gumboots': 'गम बूट',
@@ -960,190 +1185,253 @@ const TRANSLATIONS = {
   }
 };
 
-
-// Built-in hazard-map data translations. User-entered values that are not in this
-// dictionary remain unchanged, while the supplied sample hazard map is translated.
+// Built-in hazard-map dictionary & phrase translations
 const HINDI_DATA_TRANSLATIONS = {
+  // Locations & Areas
   "Entry Gate": "प्रवेश द्वार",
+  "Main Gate": "मुख्य द्वार",
   "Main Gate Cabin": "मुख्य गेट केबिन",
+  "Security Post": "सुरक्षा पोस्ट",
+  "Security Gate": "सुरक्षा गेट",
+  "General Area": "सामान्य क्षेत्र",
+  "Traffic Guard Post": "ट्रैफिक गार्ड पोस्ट",
+  "Out Gate": "निकास द्वार",
+  "Exit Gate": "निकास द्वार",
+  "Weighment Area": "वेटमेंट क्षेत्र",
+  "Weigh Bridge Area": "वेट ब्रिज क्षेत्र",
+  "Vehicle Load Parking": "वाहन लोड पार्किंग",
+  "Empty Vehicle Parking": "खाली वाहन पार्किंग",
+  "Parking Area": "पार्किंग क्षेत्र",
+  "Safety Check Area": "सुरक्षा जांच क्षेत्र",
+  "Loading Unloading": "लोडिंग-अनलोडिंग",
+  "Loading Unloading Area": "लोडिंग-अनलोडिंग क्षेत्र",
+  "Transporting Road": "परिवहन मार्ग",
+  "Store": "स्टोर",
+  "Main Store": "मुख्य स्टोर",
+  "Warehouse": "गोदाम",
+  "Office Area": "कार्यालय क्षेत्र",
+  "Equipment Maintenance": "उपकरण रखरखाव",
+  "Transport Park": "परिवहन पार्क",
+  "Scrap Yard": "स्क्रैप यार्ड",
+  "Scray Yard": "स्क्रैप यार्ड",
+  "Pathway Area": "रास्ता क्षेत्र",
+  "FOB (Foot Over Bridge)": "FOB (फुट ओवर ब्रिज)",
+  "Foot Over Bridge": "फुट ओवर ब्रिज",
+  "High Mast Area": "हाई मास्ट क्षेत्र",
+  "DG Area": "DG क्षेत्र",
+  "DG Room": "DG रूम",
+  "Pump House": "पंप हाउस",
+  "Drinking Water Area": "पेयजल क्षेत्र",
+  "Electrical Panel": "विद्युत पैनल",
+  "Substation": "सबस्टेशन",
+  "Switchyard": "स्विचयार्ड",
+  "Chemical Spray Area": "रासायनिक स्प्रे क्षेत्र",
+  "Utility": "यूटिलिटी",
+  "Toilet": "शौचालय",
+  "Housekeeping": "हाउसकीपिंग",
+  "Workshop": "वर्कशॉप",
+  "Production Floor": "उत्पादन तल",
+  "Control Room": "नियंत्रण कक्ष",
+  "Boiler Area": "बॉयलर क्षेत्र",
+  "Turbine Area": "टरबाइन क्षेत्र",
+  "Compressor Room": "कंप्रेसर रूम",
+  "Battery Room": "बैटरी रूम",
+  "Laboratory": "प्रयोगशाला",
+  "Canteen": "कैंटीन",
+  "Crusher Plant": "क्रशर प्लांट",
+  "Conveyor Gallery": "कन्वेयर गैलरी",
+  "Silo Area": "साइलो क्षेत्र",
+  "Furnace Area": "फर्नेस क्षेत्र",
+  "Fabrication Yard": "फैब्रिकेशन यार्ड",
+  "Welding Bay": "वेल्डिंग बे",
+
+  // Hazard Types
+  "Physical": "भौतिक",
+  "Mechanical": "यांत्रिक",
+  "Electrical": "विद्युत",
+  "Chemical": "रासायनिक",
+  "Biological": "जैविक",
+  "Ergonomic": "एर्गोनॉमिक",
+  "Psychosocial": "मनोसामाजिक",
+  "Environmental": "पर्यावरणीय",
+  "Traffic": "यातायात",
+  "Security": "सुरक्षा",
+  "Radiation": "विकिरण",
+  "Thermal": "तापीय",
+
+  // Activities
   "Vehicle Entry": "वाहन प्रवेश",
+  "Vehicle Exit": "वाहन निकास",
   "ID Check": "आईडी जांच",
   "Documentation": "दस्तावेज़ीकरण",
-  "Physical": "भौतिक",
-  "Traffic": "यातायात",
-  "Hit by vehicle": "वाहन से टकराने का खतरा",
-  "Slip/Trip": "फिसलने/ठोकर लगने का खतरा",
-  "Unauthorized access": "अनधिकृत प्रवेश",
-  "Follow entry procedure & traffic rules.": "प्रवेश प्रक्रिया और यातायात नियमों का पालन करें।",
-  "Security Post": "सुरक्षा पोस्ट",
-  "General Area": "सामान्य क्षेत्र",
   "Monitoring": "निगरानी",
   "Gate Operation": "गेट संचालन",
   "Patrolling": "गश्त",
-  "Security": "सुरक्षा",
-  "Vehicle hit": "वाहन की टक्कर",
-  "Ergonomic strain": "एर्गोनॉमिक तनाव",
-  "Weather exposure": "मौसम के संपर्क में आने का खतरा",
-  "Wear ID card & maintain log.": "आईडी कार्ड पहनें और लॉग बनाए रखें।",
-  "Traffic Guard Post": "ट्रैफिक गार्ड पोस्ट",
   "Traffic Control": "यातायात नियंत्रण",
   "Vehicle Direction": "वाहन दिशा-निर्देशन",
-  "Noise": "शोर",
-  "Dust": "धूल",
-  "Use stop sign & follow traffic plan.": "स्टॉप साइन का उपयोग करें और यातायात योजना का पालन करें।",
-  "Out Gate": "निकास द्वार",
-  "Vehicle Exit": "वाहन निकास",
   "Weighment Check": "वेटमेंट जांच",
-  "Vehicle movement": "वाहन की आवाजाही",
-  "Pinch point": "चुटने का खतरा",
-  "Cross-check challan before exit.": "निकास से पहले चालान की दोबारा जांच करें।",
-  "Weighment Area": "वेटमेंट क्षेत्र",
   "Weighing": "वजन करना",
-  "Mechanical": "यांत्रिक",
-  "Falling load": "गिरते हुए भार का खतरा",
-  "Stay outside weighbridge during weighing.": "वजन के दौरान वेट ब्रिज से बाहर रहें।",
-  "Vehicle Load Parking": "वाहन लोड पार्किंग",
   "Loading": "लोडिंग",
+  "Unloading": "अनलोडिंग",
   "Waiting": "प्रतीक्षा",
   "Engine Idle": "इंजन चालू अवस्था",
-  "Exhaust fume": "निकास धुएँ का खतरा",
-  "Fire": "आग",
-  "Park in designated slot, engine off.": "निर्धारित स्थान पर पार्क करें और इंजन बंद रखें।",
-  "Empty Vehicle Parking": "खाली वाहन पार्किंग",
   "Parking": "पार्किंग",
   "Inspection": "निरीक्षण",
-  "Use reverse horn while parking.": "पार्किंग के समय रिवर्स हॉर्न का उपयोग करें।",
-  "Safety Check Area": "सुरक्षा जांच क्षेत्र",
   "PPE Verification": "PPE सत्यापन",
   "Vehicle Inspection": "वाहन निरीक्षण",
-  "Sharp edges": "नुकीले किनारों का खतरा",
-  "Pinch points": "चुटने के स्थानों का खतरा",
-  "100% PPE check before entry. Use checklist.": "प्रवेश से पहले 100% PPE जांच करें। चेकलिस्ट का उपयोग करें।",
-  "Loading Unloading": "लोडिंग-अनलोडिंग",
-  "Unloading": "अनलोडिंग",
   "Stacking": "सामग्री जमाना",
-  "Falling material": "गिरती सामग्री का खतरा",
-  "Back injury": "कमर में चोट का खतरा",
-  "Use banksman & follow stacking SOP.": "बैंक्समैन का उपयोग करें और स्टैकिंग SOP का पालन करें।",
-  "Transporting Road": "परिवहन मार्ग",
   "Vehicle Movement": "वाहन की आवाजाही",
   "Material Transport": "सामग्री परिवहन",
-  "Pedestrian hit": "पैदल व्यक्ति को टक्कर का खतरा",
-  "Speed limit 20 km/h. Use zebra crossing.": "गति सीमा 20 किमी/घंटा रखें। ज़ेब्रा क्रॉसिंग का उपयोग करें।",
-  "Store": "स्टोर",
   "Receiving": "प्राप्त करना",
   "Issuing": "जारी करना",
-  "Manual handling": "मैनुअल हैंडलिंग",
-  "FIFO method. Max stack height 1.5m.": "FIFO पद्धति अपनाएँ। स्टैक की अधिकतम ऊंचाई 1.5 मीटर रखें।",
-  "Office Area": "कार्यालय क्षेत्र",
   "Meeting": "बैठक",
   "Computer Work": "कंप्यूटर कार्य",
-  "Ergonomic": "एर्गोनॉमिक",
-  "Eye strain": "आंखों पर तनाव",
-  "Poor posture": "गलत मुद्रा",
-  "Maintain good posture & clean desk.": "सही मुद्रा बनाए रखें और डेस्क साफ रखें।",
-  "Equipment Maintenance": "उपकरण रखरखाव",
+  "Office Work": "कार्यालय कार्य",
   "Repair": "मरम्मत",
   "Lubrication": "लुब्रिकेशन",
   "Overhaul": "ओवरहॉल",
   "Overhead work": "ऊंचाई पर कार्य",
-  "Entanglement": "फंसने का खतरा",
-  "Oil spill": "तेल रिसाव",
-  "Fall from height": "ऊंचाई से गिरने का खतरा",
-  "LOTO mandatory before maintenance. Use full body harness for overhead work above 2m.": "रखरखाव से पहले LOTO अनिवार्य है। 2 मीटर से अधिक ऊंचाई पर पूर्ण शरीर हार्नेस का उपयोग करें।",
-  "Transport Park": "परिवहन पार्क",
   "Bus Parking": "बस पार्किंग",
   "Driver Rest": "ड्राइवर विश्राम",
   "Vehicle Cleaning": "वाहन सफाई",
-  "Park in reverse. Engine off before cleaning.": "रिवर्स में पार्क करें। सफाई से पहले इंजन बंद करें।",
-  "Scray Yard": "स्क्रैप यार्ड",
   "Scrap Collection": "स्क्रैप संग्रह",
   "Segregation": "अलग-अलग करना",
-  "Falling scrap": "गिरते स्क्रैप का खतरा",
-  "Cuts": "कट लगने का खतरा",
-  "Use designated bins. No manual lifting > 25kg.": "निर्धारित डिब्बों का उपयोग करें। 25 किलोग्राम से अधिक भार मैन्युअल रूप से न उठाएँ।",
-  "Weigh Bridge Area": "वेट ब्रिज क्षेत्र",
+  "Sorting": "छंटाई",
   "Calibration": "कैलिब्रेशन",
   "Cleaning": "सफाई",
-  "Stay outside weighbridge during operation.": "संचालन के दौरान वेट ब्रिज से बाहर रहें।",
-  "Pathway Area": "रास्ता क्षेत्र",
   "Walking": "चलना",
   "Material Movement": "सामग्री की आवाजाही",
-  "Uneven surface": "असमान सतह",
-  "Obstruction": "रुकावट",
-  "Use designated walkway. No mobile use.": "निर्धारित रास्ते का उपयोग करें। मोबाइल का उपयोग न करें।",
-  "FOB (Foot Over Bridge)": "FOB (फुट ओवर ब्रिज)",
   "Crossing": "पार करना",
   "Maintenance": "रखरखाव",
-  "Height": "ऊंचाई",
-  "Structural collapse": "संरचना ढहने का खतरा",
-  "No jumping/leaning. Load limit strictly followed. Fire extinguisher kept ready.": "कूदें या झुकें नहीं। भार सीमा का सख्ती से पालन करें। अग्निशामक तैयार रखें।",
-  "High Mast Area": "हाई मास्ट क्षेत्र",
   "Lighting Operation": "लाइटिंग संचालन",
-  "Electrical": "विद्युत",
-  "Electric shock": "बिजली के झटके का खतरा",
-  "Falling object": "गिरती वस्तु का खतरा",
-  "Arc flash": "आर्क फ्लैश का खतरा",
-  "Climb permit mandatory. Work in pair. LOTO required. Full body harness compulsory above 2m.": "चढ़ाई परमिट अनिवार्य है। दो लोगों की टीम में काम करें। LOTO आवश्यक है। 2 मीटर से अधिक ऊंचाई पर पूर्ण शरीर हार्नेस अनिवार्य है।",
-  "DG Area": "DG क्षेत्र",
   "DG Operation": "DG संचालन",
   "Fuel Handling": "ईंधन हैंडलिंग",
-  "Chemical": "रासायनिक",
-  "Fire risk": "आग का जोखिम",
-  "Fuel spill": "ईंधन रिसाव",
-  "Burns": "जलने का खतरा",
-  "Fumes": "धुएँ का खतरा",
-  "Gas leak": "गैस रिसाव का खतरा",
-  "No smoking. Fuel transfer only by authorized person. Carry gas detector & fire extinguisher.": "धूम्रपान निषेध है। ईंधन स्थानांतरण केवल अधिकृत व्यक्ति करें। गैस डिटेक्टर और अग्निशामक साथ रखें।",
-  "Pump House": "पंप हाउस",
   "Pump Operation": "पंप संचालन",
-  "Water splash": "पानी के छींटों का खतरा",
-  "Mechanical injury": "यांत्रिक चोट का खतरा",
-  "Dry area before electrical work. LOTO mandatory. Use gas detector in confined space.": "विद्युत कार्य से पहले क्षेत्र सूखा रखें। LOTO अनिवार्य है। सीमित स्थान में गैस डिटेक्टर का उपयोग करें।",
-  "Drinking Water Area": "पेयजल क्षेत्र",
   "Water Collection": "पानी संग्रह",
   "Bottle Refill": "बोतल भरना",
-  "Biological": "जैविक",
-  "Water spill": "पानी फैलने का खतरा",
-  "Contamination": "दूषित होने का खतरा",
-  "Hygiene risk": "स्वच्छता जोखिम",
-  "Keep area clean. Report leak immediately.": "क्षेत्र साफ रखें। रिसाव की तुरंत सूचना दें।",
-  "Electrical Panel": "विद्युत पैनल",
   "Operation": "संचालन",
-  "Authorized personnel only. Follow LOTO. Full FR suit (jacket + pant) compulsory for arc flash work.": "केवल अधिकृत कर्मचारी। LOTO का पालन करें। आर्क फ्लैश कार्य के लिए पूरा FR सूट (जैकेट और पैंट) अनिवार्य है।",
-  "Scrap Yard": "स्क्रैप यार्ड",
-  "Sorting": "छंटाई",
-  "Chemical Spray Area": "रासायनिक स्प्रे क्षेत्र",
   "Spraying": "स्प्रे करना",
   "Mixing": "मिश्रण",
   "Fumigation": "फ्यूमिगेशन",
-  "Chemical splash": "रासायनिक छींटों का खतरा",
-  "Toxic vapour": "जहरीली गैस/वाष्प का खतरा",
-  "Skin burn": "त्वचा जलने का खतरा",
-  "SDS & SOP mandatory. Use chemical apron.": "SDS और SOP अनिवार्य हैं। रासायनिक एप्रन का उपयोग करें।",
-  "Utility": "यूटिलिटी",
   "General Maintenance": "सामान्य रखरखाव",
   "Hot Work": "हॉट वर्क",
   "Welding": "वेल्डिंग",
   "Gas Cutting": "गैस कटिंग",
-  "Hot surfaces": "गर्म सतहों का खतरा",
-  "Sparks": "चिंगारी का खतरा",
-  "UV radiation": "UV विकिरण का खतरा",
-  "Flash burn": "फ्लैश बर्न का खतरा",
-  "Hot work permit required. Fire watcher mandatory. Use gas cutting goggle for cutting work.": "हॉट वर्क परमिट आवश्यक है। फायर वॉचर अनिवार्य है। कटिंग कार्य के लिए गैस कटिंग गॉगल का उपयोग करें।",
-  "Toilet": "शौचालय",
+  "Grinding": "ग्राइंडिंग",
+  "Drilling": "ड्रिलिंग",
+  "Painting": "पेंटिंग",
   "Personal Use": "व्यक्तिगत उपयोग",
-  "Chemical exposure": "रसायनों के संपर्क का खतरा",
-  "Wash hands after use. Daily cleaning log.": "उपयोग के बाद हाथ धोएँ। दैनिक सफाई लॉग बनाए रखें।",
-  "Housekeeping": "हाउसकीपिंग",
   "Sweeping": "झाड़ू लगाना",
   "Mopping": "पोछा लगाना",
   "Waste Collection": "कचरा संग्रह",
   "Grass Cutting": "घास काटना",
+  "Excavation": "खुदाई",
+  "Scaffolding": "मचान कार्य",
+  "Lifting": "भार उठाना",
+  "Rigging": "रिगिंग",
+
+  // Hazards
+  "Hit by vehicle": "वाहन से टकराने का खतरा",
+  "Vehicle hit": "वाहन की टक्कर का खतरा",
+  "Hit by moving vehicle": "चलते वाहन से टक्कर का खतरा",
+  "Hit by forklift": "फोर्कलिफ्ट से टकराने का खतरा",
+  "Hit by crane": "क्रेन से टकराने का खतरा",
+  "Hit by falling object": "गिरती वस्तु से टकराने का खतरा",
+  "Hit by flying object": "उड़ती वस्तु से टकराने का खतरा",
+  "Hit by flying debris": "उड़ते मलबे से टकराने का खतरा",
+  "Hit by flying rock": "उड़ते पत्थर से टकराने का खतरा",
+  "Hit by falling load": "गिरते भार से टकराने का खतरा",
+  "Pedestrian hit": "पैदल व्यक्ति को टक्कर का खतरा",
+  "Slip/Trip": "फिसलने/ठोकर लगने का खतरा",
+  "Slip/Trip/Fall": "फिसलने/ठोकर लगने/गिरने का खतरा",
+  "Slip/trip": "फिसलने/ठोकर लगने का खतरा",
+  "Slip and fall": "फिसलने और गिरने का खतरा",
+  "Slip and trip": "फिसलने और ठोकर लगने का खतरा",
+  "Fall from height": "ऊंचाई से गिरने का खतरा",
+  "Fall from ladder": "सीढ़ी से गिरने का खतरा",
+  "Fall from scaffold": "मचान से गिरने का खतरा",
+  "Falling material": "गिरती सामग्री का खतरा",
+  "Falling object": "गिरती वस्तु का खतरा",
+  "Falling load": "गिरते भार का खतरा",
+  "Falling scrap": "गिरते स्क्रैप का खतरा",
+  "Falling tools": "गिरते औजारों का खतरा",
+  "Falling rocks": "गिरते पत्थरों का खतरा",
+  "Electric shock": "बिजली के झटके का खतरा",
+  "Arc flash": "आर्क फ्लैश का खतरा",
+  "Short circuit": "शॉर्ट सर्किट का खतरा",
+  "Electrocution": "करंट लगने का खतरा",
+  "Fire": "आग का खतरा",
+  "Fire risk": "आग का जोखिम",
+  "Fire and explosion": "आग और विस्फोट का खतरा",
+  "Explosion": "विस्फोट का खतरा",
+  "Gas leak": "गैस रिसाव का खतरा",
+  "Gas leakage": "गैस रिसाव का खतरा",
+  "Toxic gas": "जहरीली गैस का खतरा",
+  "Toxic gas leak": "जहरीली गैस रिसाव का खतरा",
+  "Toxic vapour": "जहरीली गैस/वाष्प का खतरा",
+  "Toxic fumes": "जहरीले धुएँ का खतरा",
+  "Chemical splash": "रासायनिक छींटों का खतरा",
+  "Chemical exposure": "रसायनों के संपर्क का खतरा",
+  "Chemical inhalation": "रसायन सांस में जाने का खतरा",
+  "Chemical burn": "रासायनिक जलन का खतरा",
+  "Acid splash": "एसिड के छींटों का खतरा",
+  "Skin burn": "त्वचा जलने का खतरा",
+  "Burns": "जलने का खतरा",
+  "Hot surfaces": "गर्म सतहों का खतरा",
+  "Sparks": "चिंगारी का खतरा",
+  "Flying sparks": "उड़ती चिंगारी का खतरा",
+  "UV radiation": "UV विकिरण का खतरा",
+  "Flash burn": "फ्लैश बर्न का खतरा",
+  "Dust": "धूल का खतरा",
+  "High dust": "अत्यधिक धूल का खतरा",
+  "Dust inhalation": "धूल सांस में जाने का खतरा",
+  "Noise": "शोर का खतरा",
+  "High noise": "अत्यधिक शोर का खतरा",
+  "Excessive noise": "बहुत तेज आवाज/शोर का खतरा",
+  "Ergonomic strain": "एर्गोनॉमिक तनाव",
+  "Ergonomic": "एर्गोनॉमिक",
+  "Heavy lifting": "भारी वजन उठाने का खतरा",
+  "Manual handling": "मैनुअल सामग्री उठाने का खतरा",
+  "Back injury": "कमर/पीठ में चोट का खतरा",
+  "Eye strain": "आंखों पर तनाव",
+  "Eye injury": "आंख में चोट का खतरा",
+  "Poor posture": "गलत मुद्रा",
+  "Pinch point": "चुटने का खतरा",
+  "Pinch points": "चुटने के स्थानों का खतरा",
+  "Sharp edges": "नुकीले किनारों का खतरा",
   "Sharp objects": "नुकीली वस्तुओं का खतरा",
+  "Entanglement": "फंसने का खतरा",
+  "Entanglement in rotating parts": "घूमते भागों में फंसने का खतरा",
+  "Caught between": "बीच में फंसने का खतरा",
+  "Crush injury": "कुचलने/दबने की चोट का खतरा",
+  "Crushing hazard": "कुचलने का खतरा",
+  "Cuts": "कट लगने का खतरा",
+  "Cuts and lacerations": "कट और घाव का खतरा",
+  "Vehicle movement": "वाहन की आवाजाही",
+  "Exhaust fume": "निकास धुएँ का खतरा",
+  "Fumes": "धुएँ का खतरा",
+  "Weather exposure": "मौसम के संपर्क में आने का खतरा",
+  "Heat stress": "अत्यधिक गर्मी का खतरा",
+  "Heat stroke": "लू/हीट स्ट्रोक का खतरा",
+  "Cold stress": "अत्यधिक ठंड का खतरा",
+  "Water splash": "पानी के छींटों का खतरा",
+  "Water spill": "पानी फैलने का खतरा",
+  "Contamination": "दूषित होने का खतरा",
+  "Hygiene risk": "स्वच्छता जोखिम",
+  "Uneven surface": "असमान सतह",
+  "Obstruction": "रुकावट का खतरा",
+  "Height": "ऊंचाई का खतरा",
+  "Structural collapse": "संरचना ढहने का खतरा",
+  "Confined space": "सीमित स्थान का खतरा",
+  "Oxygen deficiency": "ऑक्सीजन की कमी का खतरा",
+  "Suffocation": "दम घुटने का खतरा",
   "Grass flying": "उड़ती घास का खतरा",
   "Chemical spray": "रासायनिक स्प्रे का खतरा",
-  "Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.": "गीले फर्श का साइन अनिवार्य है। हाउसकीपिंग ड्रेस और ग्रास कटिंग एप्रन पहनें।",
+  "Mechanical injury": "यांत्रिक चोट का खतरा",
+  "Unauthorized access": "अनधिकृत प्रवेश का खतरा",
+  "Vibration": "कंपन का खतरा",
+
+  // SOPs
   "SOP-VEH-ENT Vehicle Entry": "SOP-VEH-ENT वाहन प्रवेश",
   "SOP-SEC-001 Security Monitoring": "SOP-SEC-001 सुरक्षा निगरानी",
   "SOP-TRF-001 Traffic Control": "SOP-TRF-001 यातायात नियंत्रण",
@@ -1170,17 +1458,443 @@ const HINDI_DATA_TRANSLATIONS = {
   "SOP-CHM-001 Chemical Spray": "SOP-CHM-001 रासायनिक स्प्रे",
   "SOP-HOT-001 Hot Work / Welding": "SOP-HOT-001 हॉट वर्क / वेल्डिंग",
   "SOP-HK-001 Housekeeping & Hygiene": "SOP-HK-001 हाउसकीपिंग एवं स्वच्छता",
-  "SOP-HK-002 Housekeeping": "SOP-HK-002 हाउसकीपिंग"
+  "SOP-HK-002 Housekeeping": "SOP-HK-002 हाउसकीपिंग",
+
+  // Common Remarks and Safety Rules
+  "Follow safety procedure.": "सुरक्षा प्रक्रिया का पालन करें।",
+  "Follow entry procedure & traffic rules.": "प्रवेश प्रक्रिया और यातायात नियमों का पालन करें।",
+  "Wear ID card & maintain log.": "आईडी कार्ड पहनें और लॉग बनाए रखें।",
+  "Use stop sign & follow traffic plan.": "स्टॉप साइन का उपयोग करें और यातायात योजना का पालन करें।",
+  "Cross-check challan before exit.": "निकास से पहले चालान की दोबारा जांच करें।",
+  "Stay outside weighbridge during weighing.": "वजन के दौरान वेट ब्रिज से बाहर रहें।",
+  "Park in designated slot, engine off.": "निर्धारित स्थान पर पार्क करें और इंजन बंद रखें।",
+  "Use reverse horn while parking.": "पार्किंग के समय रिवर्स हॉर्न का उपयोग करें।",
+  "100% PPE check before entry. Use checklist.": "प्रवेश से पहले 100% PPE जांच करें। चेकलिस्ट का उपयोग करें।",
+  "Use banksman & follow stacking SOP.": "बैंक्समैन का उपयोग करें और स्टैकिंग SOP का पालन करें।",
+  "Speed limit 20 km/h. Use zebra crossing.": "गति सीमा 20 किमी/घंटा रखें। ज़ेब्रा क्रॉसिंग का उपयोग करें।",
+  "FIFO method. Max stack height 1.5m.": "FIFO पद्धति अपनाएँ। स्टैक की अधिकतम ऊंचाई 1.5 मीटर रखें।",
+  "Maintain good posture & clean desk.": "सही मुद्रा बनाए रखें और डेस्क साफ रखें।",
+  "LOTO mandatory before maintenance. Use full body harness for overhead work above 2m.": "रखरखाव से पहले LOTO अनिवार्य है। 2 मीटर से अधिक ऊंचाई पर पूर्ण शरीर हार्नेस का उपयोग करें।",
+  "Park in reverse. Engine off before cleaning.": "रिवर्स में पार्क करें। सफाई से पहले इंजन बंद करें।",
+  "Use designated bins. No manual lifting > 25kg.": "निर्धारित डिब्बों का उपयोग करें। 25 किलोग्राम से अधिक भार मैन्युअल रूप से न उठाएँ।",
+  "Stay outside weighbridge during operation.": "संचालन के दौरान वेट ब्रिज से बाहर रहें।",
+  "Use designated walkway. No mobile use.": "निर्धारित रास्ते का उपयोग करें। मोबाइल का उपयोग न करें।",
+  "No jumping/leaning. Load limit strictly followed. Fire extinguisher kept ready.": "कूदें या झुकें नहीं। भार सीमा का सख्ती से पालन करें। अग्निशामक तैयार रखें।",
+  "Climb permit mandatory. Work in pair. LOTO required. Full body harness compulsory above 2m.": "चढ़ाई परमिट अनिवार्य है। दो लोगों की टीम में काम करें। LOTO आवश्यक है। 2 मीटर से अधिक ऊंचाई पर पूर्ण शरीर हार्नेस अनिवार्य है।",
+  "No smoking. Fuel transfer only by authorized person. Carry gas detector & fire extinguisher.": "धूम्रपान निषेध है। ईंधन स्थानांतरण केवल अधिकृत व्यक्ति करें। गैस डिटेक्टर और अग्निशामक साथ रखें।",
+  "Dry area before electrical work. LOTO mandatory. Use gas detector in confined space.": "विद्युत कार्य से पहले क्षेत्र सूखा रखें। LOTO अनिवार्य है। सीमित स्थान में गैस डिटेक्टर का उपयोग करें।",
+  "Keep area clean. Report leak immediately.": "क्षेत्र साफ रखें। रिसाव की तुरंत सूचना दें।",
+  "Authorized personnel only. Follow LOTO. Full FR suit (jacket + pant) compulsory for arc flash work.": "केवल अधिकृत कर्मचारी। LOTO का पालन करें। आर्क फ्लैश कार्य के लिए पूरा FR सूट (जैकेट और पैंट) अनिवार्य है।",
+  "SDS & SOP mandatory. Use chemical apron.": "SDS और SOP अनिवार्य हैं। रासायनिक एप्रन का उपयोग करें।",
+  "Hot work permit required. Fire watcher mandatory. Use gas cutting goggle for cutting work.": "हॉट वर्क परमिट आवश्यक है। फायर वॉचर अनिवार्य है। कटिंग कार्य के लिए गैस कटिंग गॉगल का उपयोग करें।",
+  "Wash hands after use. Daily cleaning log.": "उपयोग के बाद हाथ धोएँ। दैनिक सफाई लॉग बनाए रखें।",
+  "Wet floor sign mandatory. Wear housekeeping dress & grass cutting apron.": "गीले फर्श का साइन अनिवार्य है। हाउसकीपिंग ड्रेस और ग्रास कटिंग एप्रन पहनें।",
+  "Wear safety helmet and safety shoes at all times.": "हर समय सुरक्षा हेलमेट और सुरक्षा जूते पहनें।",
+  "Full body harness mandatory above 1.8m height.": "1.8 मीटर से अधिक ऊंचाई पर फुल बॉडी हार्नेस अनिवार्य है।",
+  "Work permit required before starting work.": "काम शुरू करने से पहले वर्क परमिट आवश्यक है।",
+  "Confined space entry permit required.": "सीमित स्थान प्रवेश परमिट आवश्यक है।"
 };
 
-function translateDataText(value) {
-  if (!value || currentLanguage !== 'hi') return value || '';
-  const text = String(value);
-  return HINDI_DATA_TRANSLATIONS[text] || text.split('\n').map(line => HINDI_DATA_TRANSLATIONS[line] || line).join('\n');
+const ENGLISH_DATA_TRANSLATIONS = {};
+for (const [en, hi] of Object.entries(HINDI_DATA_TRANSLATIONS)) {
+  ENGLISH_DATA_TRANSLATIONS[hi] = en;
 }
 
-function translateDataList(values) {
-  return (values || []).map(translateDataText);
+const SAFETY_PHRASES_EN_TO_HI = [
+  ["entanglement in conveyor belt", "कन्वेयर बेल्ट में फंसने का खतरा"],
+  ["entanglement in moving parts", "घूमते भागों में फंसने का खतरा"],
+  ["entanglement in", "में फंसने का खतरा"],
+  ["bone fracture", "हड्डी टूटना (फ्रैक्चर)"],
+  ["crush injury", "कुचलने/दबने की चोट"],
+  ["severe crush injury", "गंभीर कुचलने/दबने की चोट"],
+  ["at all times", "हर समय"],
+  ["speeding vehicle", "तेज रफ्तार वाहन"],
+  ["fire outbreak", "आग लगना"],
+  ["flammable area", "ज्वलनशील क्षेत्र"],
+  ["property damage", "संपत्ति का नुकसान"],
+  ["ground worker", "जमीनी कर्मचारी"],
+  ["due to exposed moving parts", "खुले घूमते भागों के कारण"],
+  ["due to moving parts", "घूमते भागों के कारण"],
+  ["due to slip and fall", "फिसलने और गिरने के कारण"],
+  ["due to fall from height", "ऊंचाई से गिरने के कारण"],
+  ["due to electric shock", "बिजली के झटके के कारण"],
+  ["due to short circuit", "शॉर्ट सर्किट के कारण"],
+  ["due to fire and explosion", "आग और विस्फोट के कारण"],
+  ["due to gas leakage", "गैस रिसाव के कारण"],
+  ["due to gas leak", "गैस रिसाव के कारण"],
+  ["due to chemical splash", "रासायनिक छींटों के कारण"],
+  ["due to flying sparks", "उड़ती चिंगारियों के कारण"],
+  ["due to flying debris", "उड़ते मलबे के कारण"],
+  ["due to falling objects", "गिरती वस्तुओं के कारण"],
+  ["due to high noise", "तेज आवाज/शोर के कारण"],
+  ["due to heavy lifting", "भारी भार उठाने के कारण"],
+  ["risk of severe injury or fatality", "गंभीर चोट या मृत्यु का जोखिम"],
+  ["risk of fatality or severe injury", "मृत्यु या गंभीर चोट का जोखिम"],
+  ["risk of permanent disability", "स्थायी विकलांगता का जोखिम"],
+  ["risk of fatal electrocution", "घातक करंट लगने का जोखिम"],
+  ["risk of electric shock", "बिजली के झटके का जोखिम"],
+  ["risk of burn injury", "जलने की चोट का जोखिम"],
+  ["risk of bone fracture", "हड्डी टूटने का जोखिम"],
+  ["risk of head injury", "सिर में चोट का जोखिम"],
+  ["risk of eye injury", "आंख में चोट का जोखिम"],
+  ["risk of blindness", "अंधेपन का जोखिम"],
+  ["risk of crush injury", "कुचलने/दबने की चोट का जोखिम"],
+  ["risk of toxic inhalation", "जहरीली गैस सांस में जाने का जोखिम"],
+  ["risk of hearing loss", "सुनने की क्षमता खोने का जोखिम"],
+  ["risk of deep cut and bleeding", "गहरे कट और रक्तस्राव का जोखिम"],
+  ["risk of slip and fall", "फिसलने और गिरने का जोखिम"],
+  ["risk of falling from height", "ऊंचाई से गिरने का जोखिम"],
+  ["risk of hit by vehicle", "वाहन से टक्कर का जोखिम"],
+  ["risk of collision", "टक्कर का जोखिम"],
+  ["risk of explosion", "विस्फोट का जोखिम"],
+  ["risk of fire", "आग का जोखिम"],
+  ["risk of suffocation", "दम घुटने का जोखिम"],
+  ["high probability of", "की उच्च संभावना"],
+  ["possibility of", "की संभावना"],
+  ["may cause", "का कारण बन सकता है"],
+  ["can lead to", "का कारण बन सकता है"],
+  ["severe consequence", "गंभीर परिणाम"],
+  ["fatal accident", "घातक दुर्घटना"],
+  ["near miss", "नियर मिस"],
+  ["loss of life", "जान का नुकसान"],
+  ["loss of property", "संपत्ति का नुकसान"],
+  ["moving parts", "घूमते पुर्जे"],
+  ["rotating machinery", "घूमती मशीनरी"],
+  ["conveyor belt", "कन्वेयर बेल्ट"],
+  ["overhead crane", "ओवरहेड क्रेन"],
+  ["forklift truck", "फोर्कलिफ्ट ट्रक"],
+  ["wet floor", "गीला फर्श"],
+  ["oily surface", "तेलीय सतह"],
+  ["slippery surface", "फिसलन भरी सतह"],
+  ["confined space", "सीमित स्थान"],
+  ["hot work permit", "हॉट वर्क परमिट"],
+  ["work permit", "वर्क परमिट"],
+  ["safety harness", "सुरक्षा हार्नेस"],
+  ["full body harness", "फुल बॉडी हार्नेस"],
+  ["safety helmet", "सुरक्षा हेलमेट"],
+  ["safety shoes", "सुरक्षा जूते"],
+  ["safety goggles", "सुरक्षा गॉगल्स"],
+  ["face shield", "फेस शील्ड"],
+  ["dust mask", "डस्ट मास्क"],
+  ["rubber gloves", "रबर ग्लव्स"],
+  ["hand gloves", "हैंड ग्लव्स"],
+  ["fire extinguisher", "फायर एक्सटिंग्विशर"],
+  ["gas detector", "गैस डिटेक्टर"],
+  ["emergency exit", "आपातकालीन निकास"],
+  ["first aid box", "प्राथमिक चिकित्सा बॉक्स"],
+  ["eye wash station", "आई वॉश स्टेशन"],
+  ["speed limit", "गति सीमा"],
+  ["zebra crossing", "ज़ेब्रा क्रॉसिंग"],
+  ["strictly prohibited", "सख्ती से मना"],
+  ["mandatory at all times", "हर समय अनिवार्य"],
+  ["mandatory before starting", "शुरू करने से पहले अनिवार्य"],
+  ["mandatory before work", "काम से पहले अनिवार्य"],
+  ["is mandatory", "अनिवार्य है"],
+  ["is required", "आवश्यक है"],
+  ["must be worn", "पहनना अनिवार्य है"],
+  ["must be used", "उपयोग करना अनिवार्य है"],
+  ["must follow", "पालन करना अनिवार्य है"],
+  ["do not enter", "प्रवेश न करें"],
+  ["do not touch", "न छुएं"],
+  ["do not operate", "संचालन न करें"],
+  ["no smoking", "धूम्रपान निषेध"],
+  ["keep clear", "साफ/खाली रखें"],
+  ["keep distance", "दूरी बनाए रखें"],
+  ["keep safe distance", "सुरक्षित दूरी बनाए रखें"],
+  ["maintain 100% PPE", "100% PPE बनाए रखें"],
+  ["follow SOP", "SOP का पालन करें"],
+  ["report immediately", "तुरंत सूचना दें"],
+  ["before maintenance", "रखरखाव से पहले"],
+  ["before operation", "संचालन से पहले"],
+  ["before starting", "शुरू करने से पहले"],
+  ["during operation", "संचालन के दौरान"],
+  ["during maintenance", "रखरखाव के दौरान"],
+  ["during cleaning", "सफाई के दौरान"],
+  ["during work", "कार्य के दौरान"],
+  ["at height", "ऊंचाई पर"],
+  ["in case of emergency", "आपात स्थिति में"],
+  ["due to", "के कारण"],
+  ["resulting in", "के परिणामस्वरूप"],
+  ["leading to", "की ओर ले जाने वाला"],
+  ["caused by", "के कारण उत्पन्न"],
+  ["and possible consequence", "और संभावित परिणाम"],
+  ["describe the risk", "जोखिम का विवरण दें"]
+];
+
+const SAFETY_WORDS_EN_TO_HI = {
+  "worker": "कर्मचारी", "workers": "कर्मचारियों", "operator": "ऑपरेटर", "driver": "ड्राइवर",
+  "pedestrian": "पैदल यात्री", "personnel": "कर्मचारी", "supervisor": "पर्यवेक्षक",
+  "contractor": "ठेकेदार", "hazard": "हैज़र्ड", "hazards": "हैज़र्ड", "risk": "जोखिम",
+  "risks": "जोखिम", "danger": "खतरा", "severe": "गंभीर", "fatal": "घातक",
+  "fatality": "मृत्यु", "injury": "चोट", "injuries": "चोटें", "fracture": "फ्रैक्चर",
+  "burn": "जलना", "burns": "जलने का घाव", "cut": "कट", "cuts": "कट लगना",
+  "shock": "झटका", "fall": "गिरना", "slip": "फिसलना", "trip": "ठोकर लगना",
+  "crush": "कुचलना", "explosion": "विस्फोट", "fire": "आग", "leak": "रिसाव",
+  "leakage": "रिसाव", "fume": "धुआँ", "fumes": "धुएँ", "dust": "धूल",
+  "noise": "शोर", "vibration": "कंपन", "vehicle": "वाहन", "vehicles": "वाहनों",
+  "forklift": "फोर्कलिफ्ट", "crane": "क्रेन", "truck": "ट्रक", "dumper": "डंपर",
+  "excavator": "खुदाई मशीन", "conveyor": "कन्वेयर", "boiler": "बॉयलर",
+  "turbine": "टरबाइन", "pump": "पंप", "panel": "पैनल", "switch": "स्विच",
+  "cable": "केबल", "cables": "केबल", "pipe": "पाइप", "tank": "टैंक",
+  "valve": "वाल्व", "ladder": "सीढ़ी", "scaffold": "मचान", "helmet": "हेलमेट",
+  "shoes": "जूते", "gloves": "ग्लव्स", "goggles": "गॉगल्स", "mask": "मास्क",
+  "harness": "हार्नेस", "mandatory": "अनिवार्य", "required": "आवश्यक",
+  "prohibited": "प्रतिबंधित", "caution": "सावधानी", "warning": "चेतावनी",
+  "wear": "पहनें", "use": "उपयोग करें", "follow": "पालन करें", "maintain": "बनाए रखें",
+  "ensure": "सुनिश्चित करें", "avoid": "बचें", "check": "जांचें", "inspect": "निरीक्षण करें",
+  "clean": "साफ करें", "stop": "रोकें", "wet": "गीला", "slippery": "फिसलन भरा",
+  "hot": "गर्म", "cold": "ठंडा", "heavy": "भारी", "sharp": "नुकीला",
+  "toxic": "जहरीला", "chemical": "रासायनिक", "electrical": "विद्युत",
+  "mechanical": "यांत्रिक", "physical": "भौतिक", "biological": "जैविक",
+  "ergonomic": "एर्गोनॉमिक", "high": "उच्च/तेज", "low": "कम", "speed": "गति",
+  "limit": "सीमा", "safe": "सुरक्षित", "safety": "सुरक्षा", "road": "मार्ग",
+  "area": "क्षेत्र", "zone": "ज़ोन", "floor": "फर्श", "wall": "दीवार",
+  "roof": "छत", "pit": "गड्ढा", "plant": "संयंत्र", "store": "स्टोर",
+  "gate": "गेट", "door": "दरवाजा", "permit": "परमिट", "procedure": "प्रक्रिया",
+  "rule": "नियम", "rules": "नियम", "always": "हमेशा", "never": "कभी नहीं",
+  "without": "के बिना", "with": "के साथ", "before": "से पहले", "after": "के बाद",
+  "during": "के दौरान", "while": "के दौरान"
+};
+
+let TRANSLATION_CACHE = {};
+try {
+  const storedCache = localStorage.getItem('hazardMapTranslationCache');
+  if (storedCache) TRANSLATION_CACHE = JSON.parse(storedCache);
+} catch (e) {}
+
+function saveTranslationCache() {
+  try {
+    localStorage.setItem('hazardMapTranslationCache', JSON.stringify(TRANSLATION_CACHE));
+  } catch (e) {}
+}
+
+function isHindiText(text) {
+  return /[\u0900-\u097F]/.test(text || '');
+}
+
+function smartTranslateEnToHi(text) {
+  if (!text) return '';
+  let str = String(text).trim();
+  if (!str || isHindiText(str)) return str;
+
+  if (HINDI_DATA_TRANSLATIONS[str]) return HINDI_DATA_TRANSLATIONS[str];
+
+  const lower = str.toLowerCase();
+  for (const [en, hi] of Object.entries(HINDI_DATA_TRANSLATIONS)) {
+    if (en.toLowerCase() === lower) return hi;
+  }
+
+  if (str.includes('\n')) {
+    return str.split('\n').map(smartTranslateEnToHi).join('\n');
+  }
+
+  let result = str;
+  for (const [enPhrase, hiPhrase] of SAFETY_PHRASES_EN_TO_HI) {
+    const re = new RegExp('\\b' + enPhrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
+    result = result.replace(re, hiPhrase);
+  }
+
+  for (const [wEn, wHi] of Object.entries(SAFETY_WORDS_EN_TO_HI)) {
+    const re = new RegExp('\\b' + wEn + '\\b', 'gi');
+    result = result.replace(re, wHi);
+  }
+
+  const connectors = [
+    ["\\bin case of emergency\\b", "आपात स्थिति में"],
+    ["\\bin case of\\b", "की स्थिति में"],
+    ["\\bdue to\\b", "के कारण"],
+    ["\\bcaused by\\b", "के कारण"],
+    ["\\bresulting in\\b", "के परिणामस्वरूप"],
+    ["\\bleading to\\b", "की वजह से"],
+    ["\\bin\\b", "में"],
+    ["\\bon\\b", "पर"],
+    ["\\bat\\b", "पर"],
+    ["\\bfrom\\b", "से"],
+    ["\\bto\\b", "को"],
+    ["\\band\\b", "और"],
+    ["\\bor\\b", "या"],
+    ["\\bwith\\b", "के साथ"],
+    ["\\bwithout\\b", "के बिना"],
+    ["\\bfor\\b", "के लिए"],
+    ["\\bduring\\b", "के दौरान"],
+    ["\\bwhile\\b", "के दौरान"],
+    ["\\bafter\\b", "के बाद"],
+    ["\\bbefore\\b", "से पहले"]
+  ];
+
+  for (const [cEn, cHi] of connectors) {
+    result = result.replace(new RegExp(cEn, 'gi'), cHi);
+  }
+
+  return result;
+}
+
+function smartTranslateHiToEn(text) {
+  if (!text) return '';
+  let str = String(text).trim();
+  if (!str || !isHindiText(str)) return str;
+
+  if (ENGLISH_DATA_TRANSLATIONS[str]) return ENGLISH_DATA_TRANSLATIONS[str];
+
+  if (str.includes('\n')) {
+    return str.split('\n').map(smartTranslateHiToEn).join('\n');
+  }
+
+  let result = str;
+  for (const [enPhrase, hiPhrase] of SAFETY_PHRASES_EN_TO_HI) {
+    if (result.includes(hiPhrase)) {
+      result = result.split(hiPhrase).join(enPhrase);
+    }
+  }
+
+  for (const [wEn, wHi] of Object.entries(SAFETY_WORDS_EN_TO_HI)) {
+    if (result.includes(wHi)) {
+      result = result.split(wHi).join(wEn);
+    }
+  }
+
+  const connectors = [
+    ["आपात स्थिति में", "in case of emergency"],
+    ["की स्थिति में", "in case of"],
+    ["के कारण", "due to"],
+    ["के परिणामस्वरूप", "resulting in"],
+    ["की वजह से", "leading to"],
+    ["के दौरान", "during"],
+    ["के बाद", "after"],
+    ["से पहले", "before"],
+    ["के साथ", "with"],
+    ["के बिना", "without"],
+    ["के लिए", "for"]
+  ];
+
+  for (const [cHi, cEn] of connectors) {
+    if (result.includes(cHi)) {
+      result = result.split(cHi).join(cEn);
+    }
+  }
+
+  return result;
+}
+
+const _pendingTranslations = new Set();
+let _asyncUpdateDebounce = null;
+
+function queueAsyncTranslation(text, src, tgt) {
+  if (typeof window === 'undefined' || !text || text.length > 500) return;
+  const key = `${src}:${tgt}:${text.trim()}`;
+  if (_pendingTranslations.has(key) || TRANSLATION_CACHE[key]) return;
+  _pendingTranslations.add(key);
+
+  fetchAsyncTranslation(text, src, tgt).then(res => {
+    if (res && res !== text && res.trim()) {
+      TRANSLATION_CACHE[key] = res;
+      saveTranslationCache();
+      if (_asyncUpdateDebounce) clearTimeout(_asyncUpdateDebounce);
+      _asyncUpdateDebounce = setTimeout(() => {
+        if (typeof updatePreview === 'function') {
+          const d = collectData();
+          const mapEl = document.getElementById('hazardMap');
+          if (mapEl) mapEl.innerHTML = buildMap(d);
+        }
+      }, 300);
+    }
+  }).catch(() => {});
+}
+
+async function fetchAsyncTranslation(text, src, tgt) {
+  if (!text || !text.trim()) return text;
+  const trimmed = text.trim();
+  const cacheKey = `${src}:${tgt}:${trimmed}`;
+  if (TRANSLATION_CACHE[cacheKey]) return TRANSLATION_CACHE[cacheKey];
+
+  if (src === 'en' && tgt === 'hi' && HINDI_DATA_TRANSLATIONS[trimmed]) {
+    TRANSLATION_CACHE[cacheKey] = HINDI_DATA_TRANSLATIONS[trimmed];
+    return HINDI_DATA_TRANSLATIONS[trimmed];
+  }
+  if (src === 'hi' && tgt === 'en' && ENGLISH_DATA_TRANSLATIONS[trimmed]) {
+    TRANSLATION_CACHE[cacheKey] = ENGLISH_DATA_TRANSLATIONS[trimmed];
+    return ENGLISH_DATA_TRANSLATIONS[trimmed];
+  }
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(src)}&tl=${encodeURIComponent(tgt)}&dt=t&q=${encodeURIComponent(trimmed)}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json();
+      if (Array.isArray(json) && Array.isArray(json[0])) {
+        const translated = json[0].map(c => c[0]).filter(Boolean).join('');
+        if (translated && translated.trim()) {
+          TRANSLATION_CACHE[cacheKey] = translated;
+          saveTranslationCache();
+          return translated;
+        }
+      }
+    }
+  } catch (e) {}
+
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(trimmed)}&langpair=${encodeURIComponent(src)}|${encodeURIComponent(tgt)}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.responseData && json.responseData.translatedText) {
+        const translated = json.responseData.translatedText;
+        if (translated && translated.trim() && !translated.startsWith('MYMEMORY WARNING')) {
+          TRANSLATION_CACHE[cacheKey] = translated;
+          saveTranslationCache();
+          return translated;
+        }
+      }
+    }
+  } catch (e) {}
+
+  const fallback = (src === 'en' && tgt === 'hi') ? smartTranslateEnToHi(trimmed) : smartTranslateHiToEn(trimmed);
+  TRANSLATION_CACHE[cacheKey] = fallback;
+  saveTranslationCache();
+  return fallback;
+}
+
+function translateDataText(value, targetLang) {
+  if (!value) return '';
+  const lang = targetLang || currentLanguage;
+  const str = String(value).trim();
+  if (!str) return '';
+
+  if (lang === 'hi') {
+    if (isHindiText(str)) return str;
+    const cacheKey = 'en:hi:' + str;
+    if (TRANSLATION_CACHE[cacheKey]) return TRANSLATION_CACHE[cacheKey];
+    if (HINDI_DATA_TRANSLATIONS[str]) {
+      TRANSLATION_CACHE[cacheKey] = HINDI_DATA_TRANSLATIONS[str];
+      return HINDI_DATA_TRANSLATIONS[str];
+    }
+    if (str.includes('\n')) {
+      return str.split('\n').map(l => translateDataText(l, 'hi')).join('\n');
+    }
+    const smart = smartTranslateEnToHi(str);
+    TRANSLATION_CACHE[cacheKey] = smart;
+    queueAsyncTranslation(str, 'en', 'hi');
+    return smart;
+  } else {
+    if (!isHindiText(str)) return str;
+    const cacheKey = 'hi:en:' + str;
+    if (TRANSLATION_CACHE[cacheKey]) return TRANSLATION_CACHE[cacheKey];
+    if (ENGLISH_DATA_TRANSLATIONS[str]) {
+      TRANSLATION_CACHE[cacheKey] = ENGLISH_DATA_TRANSLATIONS[str];
+      return ENGLISH_DATA_TRANSLATIONS[str];
+    }
+    if (str.includes('\n')) {
+      return str.split('\n').map(l => translateDataText(l, 'en')).join('\n');
+    }
+    const smart = smartTranslateHiToEn(str);
+    TRANSLATION_CACHE[cacheKey] = smart;
+    queueAsyncTranslation(str, 'hi', 'en');
+    return smart;
+  }
+}
+
+function translateDataList(values, targetLang) {
+  return (values || []).map(v => translateDataText(v, targetLang));
 }
 
 function displayLocation(r) {
@@ -1237,6 +1951,132 @@ function ppeLabelFor(ppe) {
   return t('ppe.' + ppe.id) || ppe.label;
 }
 
+// ============== IN-PLACE FORM TRANSLATE ACTIONS ==============
+async function translateField(btn, fieldSelector) {
+  const section = btn.closest('.form-section') || btn.closest('.meta-form') || btn.closest('.form-row');
+  if (!section) return;
+  const input = section.querySelector(fieldSelector);
+  if (!input) return;
+  const val = (input.value || '').trim();
+  if (!val) return;
+
+  const origBtnText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ ' + t('translate.translating');
+
+  try {
+    const isHi = isHindiText(val);
+    const src = isHi ? 'hi' : 'en';
+    const tgt = isHi ? 'en' : 'hi';
+
+    let translated = '';
+    if (val.includes('\n')) {
+      const lines = val.split('\n');
+      const transLines = [];
+      for (const line of lines) {
+        if (!line.trim()) { transLines.push(''); continue; }
+        const tLine = await fetchAsyncTranslation(line, src, tgt);
+        transLines.push(tLine || line);
+      }
+      translated = transLines.join('\n');
+    } else {
+      translated = await fetchAsyncTranslation(val, src, tgt);
+    }
+
+    if (translated) {
+      input.value = translated;
+      updatePreview();
+      saveState();
+      toast(tgt === 'hi' ? t('toast.translatedHi') : t('toast.translatedEn'));
+    }
+  } catch (err) {
+    console.error('Translation error:', err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origBtnText;
+  }
+}
+
+async function translateRow(idx) {
+  const section = document.querySelector(`[data-row="${idx}"]`);
+  if (!section) return;
+  const fields = ['.f-loc', '.f-subloc', '.f-sop', '.f-act', '.f-hzt', '.f-hz', '.f-risk-desc', '.f-rem'];
+  
+  let textSample = '';
+  fields.forEach(sel => {
+    const el = section.querySelector(sel);
+    if (el && el.value) textSample += el.value + ' ';
+  });
+  if (!textSample.trim()) return;
+
+  const isHi = isHindiText(textSample);
+  const src = isHi ? 'hi' : 'en';
+  const tgt = isHi ? 'en' : 'hi';
+
+  const btn = section.querySelector('.btn-row-translate');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ ' + t('translate.translating'); }
+  toast(t('toast.translating'));
+
+  for (const sel of fields) {
+    const el = section.querySelector(sel);
+    if (!el || !el.value.trim()) continue;
+    const val = el.value.trim();
+    if (val.includes('\n')) {
+      const lines = val.split('\n');
+      const transLines = [];
+      for (const line of lines) {
+        if (!line.trim()) { transLines.push(''); continue; }
+        const tLine = await fetchAsyncTranslation(line, src, tgt);
+        transLines.push(tLine || line);
+      }
+      el.value = transLines.join('\n');
+    } else {
+      el.value = await fetchAsyncTranslation(val, src, tgt);
+    }
+  }
+
+  updatePreview();
+  saveState();
+  if (btn) { btn.disabled = false; btn.innerHTML = `🌐 ${t('translate.row')}`; }
+  toast(tgt === 'hi' ? t('toast.translatedHi') : t('toast.translatedEn'));
+}
+
+async function translateAllRows(targetLang) {
+  const tgt = targetLang || (currentLanguage === 'hi' ? 'hi' : 'en');
+  const src = tgt === 'hi' ? 'en' : 'hi';
+
+  const sections = document.querySelectorAll('#rowsContainer .form-section');
+  if (sections.length === 0) return;
+
+  toast(t('toast.translating'));
+  const fields = ['.f-loc', '.f-subloc', '.f-sop', '.f-act', '.f-hzt', '.f-hz', '.f-risk-desc', '.f-rem'];
+
+  for (const sec of sections) {
+    for (const sel of fields) {
+      const el = sec.querySelector(sel);
+      if (!el || !el.value.trim()) continue;
+      const val = el.value.trim();
+      if ((tgt === 'hi' && isHindiText(val)) || (tgt === 'en' && !isHindiText(val))) continue;
+      if (val.includes('\n')) {
+        const lines = val.split('\n');
+        const transLines = [];
+        for (const line of lines) {
+          if (!line.trim()) { transLines.push(''); continue; }
+          const tLine = await fetchAsyncTranslation(line, src, tgt);
+          transLines.push(tLine || line);
+        }
+        el.value = transLines.join('\n');
+      } else {
+        el.value = await fetchAsyncTranslation(val, src, tgt);
+      }
+    }
+  }
+
+  updatePreview();
+  saveState();
+  toast(t('toast.translateAllDone'));
+}
+
 // ============== PPE OPTIONS (Tata Steel Plant) ==============
 const PPE_OPTIONS = [
   { id: 'helmet',     label: 'Safety Helmet',       icon: '⛑️' },
@@ -1262,9 +2102,6 @@ const PPE_OPTIONS = [
   { id: 'extinguisher', label: 'Fire Extinguisher', icon: '🧯' }
 ];
 
-// ============== LOCATIONS (free-text; no fixed list) ==============
-// Locations and sub-locations are now free-text inputs in the form.
-// Below is just a small suggestion list used as datalist hints.
 const LOCATION_SOP = {
   'Entry Gate': 'SOP-VEH-ENT Vehicle Entry',
   'Security Post': 'SOP-SEC-001 Security Monitoring',
@@ -1296,17 +2133,6 @@ const LOCATION_SOP = {
   'Housekeeping': 'SOP-HK-002 Housekeeping'
 };
 
-const LOCATION_SUGGESTIONS = [
-  'Weighment Area', 'Weigh Bridge Area', 'Office Area', 'Store',
-  'Vehicle Load Parking', 'Empty Vehicle Parking', 'Transport Park',
-  'Safety Check Area', 'Entry Gate', 'Out Gate', 'Security Post',
-  'Traffic Guard Post', 'Pathway Area', 'FOB (Foot Over Bridge)',
-  'High Mast Area', 'DG Area', 'Pump House', 'Drinking Water Area',
-  'Electrical Panel', 'Scrap Yard', 'Chemical Spray Area', 'Utility',
-  'Toilet', 'Housekeeping', 'Transporting Road', 'Loading Unloading',
-  'Equipment Maintenance'
-];
-
 const RISK_LEVELS = [
   { value: 'safe',     label: 'SAFE',          cls: 'risk-safe',     desc: '(Low Risk)' },
   { value: 'moderate', label: 'MODERATE',      cls: 'risk-moderate', desc: '(Medium Risk)' },
@@ -1321,37 +2147,62 @@ let currentZoom = 100;
 function rowTemplate(idx) {
   return `
   <div class="form-section" data-row="${idx}">
-    <h3>${t('row.area')} #<span class="row-num">${idx + 1}</span>
-      <button class="del-row" onclick="deleteRow(${idx})">${t('row.delete')}</button>
+    <h3>
+      <span>${t('row.area')} #<span class="row-num">${idx + 1}</span></span>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button type="button" class="btn-row-translate" onclick="translateRow(${idx})" title="Translate all fields in this area">🌐 ${t('translate.row')}</button>
+        <button type="button" class="del-row" onclick="deleteRow(${idx})">${t('row.delete')}</button>
+      </div>
     </h3>
     <div class="form-row-half">
       <div class="form-row">
-        <label>${t('form.location')}</label>
+        <div class="form-label-row">
+          <label>${t('form.location')}</label>
+          <button type="button" class="btn-field-translate" title="Translate Location" onclick="translateField(this, '.f-loc')">🌐 ${t('translate.btn')}</button>
+        </div>
         <input type="text" class="f-loc" list="loc-suggestions" placeholder="${t('form.locationPlaceholder')}" oninput="updatePreview()">
       </div>
       <div class="form-row">
-        <label>${t('form.subLocation')}</label>
+        <div class="form-label-row">
+          <label>${t('form.subLocation')}</label>
+          <button type="button" class="btn-field-translate" title="Translate Sub-Location" onclick="translateField(this, '.f-subloc')">🌐 ${t('translate.btn')}</button>
+        </div>
         <input type="text" class="f-subloc" placeholder="${t('form.subLocationPlaceholder')}" oninput="updatePreview()">
       </div>
     </div>
     <div class="form-row">
-      <label>${t('form.sop')}</label>
+      <div class="form-label-row">
+        <label>${t('form.sop')}</label>
+        <button type="button" class="btn-field-translate" title="Translate SOP" onclick="translateField(this, '.f-sop')">🌐 ${t('translate.btn')}</button>
+      </div>
       <input type="text" class="f-sop" list="sop-suggestions" placeholder="${t('form.sopPlaceholder')}" oninput="updatePreview()">
     </div>
     <div class="form-row">
-      <label>${t('form.activity')}</label>
+      <div class="form-label-row">
+        <label>${t('form.activity')}</label>
+        <button type="button" class="btn-field-translate" title="Translate Activity" onclick="translateField(this, '.f-act')">🌐 ${t('translate.btn')}</button>
+      </div>
       <textarea class="f-act" placeholder="${t('form.activityPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>${t('form.hazardTypes')}</label>
+      <div class="form-label-row">
+        <label>${t('form.hazardTypes')}</label>
+        <button type="button" class="btn-field-translate" title="Translate Hazard Types" onclick="translateField(this, '.f-hzt')">🌐 ${t('translate.btn')}</button>
+      </div>
       <textarea class="f-hzt" placeholder="${t('form.hazardTypesPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>${t('form.hazards')}</label>
+      <div class="form-label-row">
+        <label>${t('form.hazards')}</label>
+        <button type="button" class="btn-field-translate" title="Translate Hazards" onclick="translateField(this, '.f-hz')">🌐 ${t('translate.btn')}</button>
+      </div>
       <textarea class="f-hz" placeholder="${t('form.hazardsPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
-      <label>${t('form.riskDescribe')}</label>
+      <div class="form-label-row">
+        <label>${t('form.riskDescribe')}</label>
+        <button type="button" class="btn-field-translate" title="Translate Risk Description" onclick="translateField(this, '.f-risk-desc')">🌐 ${t('translate.btn')}</button>
+      </div>
       <textarea class="f-risk-desc" placeholder="${t('form.riskDescribePlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
@@ -1364,7 +2215,10 @@ function rowTemplate(idx) {
       </select>
     </div>
     <div class="form-row">
-      <label>${t('form.remarks')}</label>
+      <div class="form-label-row">
+        <label>${t('form.remarks')}</label>
+        <button type="button" class="btn-field-translate" title="Translate Remarks" onclick="translateField(this, '.f-rem')">🌐 ${t('translate.btn')}</button>
+      </div>
       <textarea class="f-rem" placeholder="${t('form.remarksPlaceholder')}" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
@@ -1380,6 +2234,7 @@ function rowTemplate(idx) {
     </div>
   </div>`;
 }
+
 function rerenderRowsForLanguage() {
   const container = document.getElementById('rowsContainer');
   if (!container) return;
@@ -1453,10 +2308,15 @@ function pickFilledArea(rowIdxStr) {
   filterMode = idx;
   filterInfo = displayLocation(src);
   sopFilter = null;
+  riskFilter = null;
   const sopSel = document.getElementById('pickSop');
   if (sopSel) sopSel.value = '';
   const qsop = document.getElementById('quickSopFilter');
   if (qsop) qsop.value = '';
+  const rkSel = document.getElementById('pickRisk');
+  if (rkSel) rkSel.value = '';
+  const qrk = document.getElementById('quickRiskFilter');
+  if (qrk) qrk.value = '';
   // Sync the quick filter dropdown
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = rowIdxStr;
@@ -1473,11 +2333,13 @@ function pickFilledArea(rowIdxStr) {
 let filterMode = null;   // row index being filtered, or null = show all
 let filterInfo = null;   // display name of the filter
 let sopFilter = null;    // SOP name being filtered, or null = show all
+let riskFilter = null;   // Risk level being filtered ('safe'|'moderate'|'critical'|'vhigh'), or null = show all
 
 function clearFilter() {
   filterMode = null;
   filterInfo = null;
   sopFilter = null;
+  riskFilter = null;
   const sel = document.getElementById('pickFilled');
   if (sel) sel.value = '';
   const qsel = document.getElementById('quickFilter');
@@ -1486,6 +2348,10 @@ function clearFilter() {
   if (sopSel) sopSel.value = '';
   const qsop = document.getElementById('quickSopFilter');
   if (qsop) qsop.value = '';
+  const rkSel = document.getElementById('pickRisk');
+  if (rkSel) rkSel.value = '';
+  const qrk = document.getElementById('quickRiskFilter');
+  if (qrk) qrk.value = '';
   updatePreview();
   toast(t('toast.filterCleared'));
 }
@@ -1529,10 +2395,15 @@ function applySopFilter(sopValue, showToast) {
   // SOP filter is independent of location filter: clear location so print is SOP-only
   filterMode = null;
   filterInfo = null;
+  riskFilter = null;
   const locSel = document.getElementById('pickFilled');
   if (locSel) locSel.value = '';
   const qsel = document.getElementById('quickFilter');
   if (qsel) qsel.value = '';
+  const rkSel = document.getElementById('pickRisk');
+  if (rkSel) rkSel.value = '';
+  const qrk = document.getElementById('quickRiskFilter');
+  if (qrk) qrk.value = '';
   sopFilter = sopValue;
   refreshSopFilters();
   updatePreview();
@@ -1549,6 +2420,61 @@ function pickSopFilter(sopValue) {
 
 function quickSopFilterChange(sopValue) {
   applySopFilter(sopValue);
+}
+
+function refreshRiskFilters() {
+  const current = riskFilter || '';
+  const opts = `
+    <option value="">${t('filter.riskShowAll')}</option>
+    <option value="safe" ${current==='safe'?'selected':''}>🟢 ${t('risk.safe.label')} ${t('risk.safe.desc')}</option>
+    <option value="moderate" ${current==='moderate'?'selected':''}>🟡 ${t('risk.moderate.label')} ${t('risk.moderate.desc')}</option>
+    <option value="critical" ${current==='critical'?'selected':''}>🟠 ${t('risk.critical.label')} ${t('risk.critical.desc')}</option>
+    <option value="vhigh" ${current==='vhigh'?'selected':''}>🔴 ${t('risk.vhigh.label')} ${t('risk.vhigh.desc')}</option>
+  `;
+  ['pickRisk', 'quickRiskFilter'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    sel.innerHTML = opts;
+    sel.value = current;
+  });
+}
+
+function applyRiskFilter(riskValue, showToast) {
+  if (!riskValue) {
+    riskFilter = null;
+    refreshRiskFilters();
+    updatePreview();
+    return;
+  }
+  filterMode = null;
+  filterInfo = null;
+  sopFilter = null;
+  const locSel = document.getElementById('pickFilled');
+  if (locSel) locSel.value = '';
+  const qsel = document.getElementById('quickFilter');
+  if (qsel) qsel.value = '';
+  const sopSel = document.getElementById('pickSop');
+  if (sopSel) sopSel.value = '';
+  const qsop = document.getElementById('quickSopFilter');
+  if (qsop) qsop.value = '';
+
+  riskFilter = riskValue;
+  refreshRiskFilters();
+  updatePreview();
+  const label = t('risk.' + riskValue + '.label') + ' ' + t('risk.' + riskValue + '.desc');
+  if (showToast !== false) toast(t('toast.riskFiltered', { name: label }));
+  setTimeout(() => {
+    const wrap = document.getElementById('previewWrap');
+    if (wrap) wrap.scrollTop = 0;
+  }, 50);
+}
+
+function pickRiskFilter(riskValue) {
+  applyRiskFilter(riskValue);
+}
+
+function quickRiskFilterChange(riskValue) {
+  applyRiskFilter(riskValue);
 }
 
 function deleteRow(idx) {
@@ -1609,6 +2535,7 @@ function updatePreview() {
   refreshPickFilled();
   refreshQuickFilter();
   refreshSopFilters();
+  refreshRiskFilters();
   saveState();
 }
 
@@ -1623,6 +2550,9 @@ function buildMap(d) {
     : allRows;
   if (sopFilter) {
     displayRows = displayRows.filter(r => (r.sop || '').trim() === sopFilter);
+  }
+  if (riskFilter) {
+    displayRows = displayRows.filter(r => (r.risk || 'critical') === riskFilter);
   }
   const displayRowsIndexed = displayRows.map((r, i) => ({ r, origIdx: allRows.indexOf(r) }));
 
@@ -1660,7 +2590,17 @@ function buildMap(d) {
   `;
 
   let filterBanner = '';
-  if (sopFilter) {
+  if (riskFilter) {
+    const riskLabel = t('risk.' + riskFilter + '.label') + ' ' + t('risk.' + riskFilter + '.desc');
+    const bannerBg = riskFilter === 'safe' ? 'linear-gradient(90deg,#2e7d32,#4caf50)'
+      : riskFilter === 'moderate' ? 'linear-gradient(90deg,#f57f17,#fbc02d)'
+      : riskFilter === 'critical' ? 'linear-gradient(90deg,#e65100,#ff9800)'
+      : 'linear-gradient(90deg,#b71c1c,#f44336)';
+    filterBanner = `<div class="filter-banner" style="background:${bannerBg};">
+         <div class="fb-info">${t('table.filteredRiskView', { name: escape(riskLabel), count: displayRows.length })}</div>
+         <button class="fb-clear" onclick="clearFilter()">${t('table.clearShowAll', { count: allRows.length })}</button>
+       </div>`;
+  } else if (sopFilter) {
     filterBanner = `<div class="filter-banner" style="background:linear-gradient(90deg,#1b5e20,#43a047);">
          <div class="fb-info">${t('table.filteredSopView', { name: escape(translateDataText(sopFilter)) })}</div>
          <button class="fb-clear" onclick="clearFilter()">${t('table.clearShowAll', { count: allRows.length })}</button>
@@ -1695,7 +2635,7 @@ function buildMap(d) {
           <th class="col-action">${t('table.action')}</th>
         </tr>
       </thead>
-      <tbody>${rowsHTML || (sopFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noSopData')}</td></tr>` : (filterMode !== null ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`))}</tbody>
+      <tbody>${rowsHTML || (riskFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noRiskData')}</td></tr>` : (sopFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noSopData')}</td></tr>` : (filterMode !== null ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`)))}</tbody>
     </table>
     ${sopFilter ? '' : `<div class="hm-legend">
       <div>
@@ -1719,32 +2659,159 @@ function escape(s) {
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
 
-// ============== PASSWORD PROTECTION ==============
-const APP_PASSWORD = "Musahid#123";
-let _pendingAction = null;
+// ============== AUTHENTICATION & SECURITY ==============
+// SHA-256 Hashes of Authorized Credentials
+// Username: musahid12  |  Password: Aaru#123
+const AUTH_USER_HASH = "ce2b5636c9d6fcdfd67f65ff09d4957d3663674debb05254e731665821668533";
+const AUTH_PASS_HASH = "f6b6df6da37e144eeceafa09c2c9a9a68f1745fb0498efba22f6cff6745c86a1";
 
-function askPassword(action) {
-  _pendingAction = action;
-  const labels = { sample: t('password.sample'), reset: t('password.reset'), builder: t('password.builder') };
-  const actionLabel = labels[action] || action;
-  const pwd = window.prompt(
-    `${t('password.title')}\n\n${t('password.action')} ${actionLabel}\n\n${t('password.protected')}\n${t('password.enter')}`,
-    ''
-  );
-  if (pwd === null) {
-    _pendingAction = null;
-    return;  // user cancelled
+let _pendingAuthAction = null;
+
+// Standalone pure-JS SHA-256 implementation
+function jsSHA256(ascii) {
+  function rightRotate(value, amount) {
+    return (value >>> amount) | (value << (32 - amount));
   }
-  if (pwd === APP_PASSWORD) {
-    if (action === 'sample') loadSample();
+  const mathPow = Math.pow;
+  const maxWord = mathPow(2, 32);
+  let lengthProperty = 'length';
+  let i, j;
+  let result = '';
+  const words = [];
+  const asciiBitLength = ascii[lengthProperty] * 8;
+  let hash = [];
+  const k = [];
+  let primeCounter = 0;
+  const isComposite = {};
+  for (let candidate = 2; primeCounter < 64; candidate++) {
+    if (!isComposite[candidate]) {
+      for (i = 0; i < 313; i += candidate) {
+        isComposite[i] = candidate;
+      }
+      hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+      k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+    }
+  }
+  hash = hash.slice(0, 8);
+  ascii += '\x80';
+  while ((ascii[lengthProperty] % 64) - 56) ascii += '\x00';
+  for (i = 0; i < ascii[lengthProperty]; i++) {
+    j = ascii.charCodeAt(i);
+    if (j >> 8) return '';
+    words[i >> 2] |= j << (((3 - i) % 4) * 8);
+  }
+  words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;
+  words[words[lengthProperty]] = asciiBitLength;
+  for (j = 0; j < words[lengthProperty]; ) {
+    const w = words.slice(j, (j += 16));
+    const oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      const w15 = w[i - 15], w2 = w[i - 2];
+      const s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
+      const s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
+      const ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
+      const temp1 = (hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + s0 + w[i - 7] + s1) | 0)) | 0;
+      const maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
+      const temp2 = ((rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22)) + maj) | 0;
+      hash = [(temp1 + temp2) | 0, hash[0], hash[1], hash[2], (hash[3] + temp1) | 0, hash[4], hash[5], hash[6]];
+    }
+    for (i = 0; i < 8; i++) {
+      hash[i] = (hash[i] + oldHash[i]) | 0;
+    }
+  }
+  for (i = 0; i < 8; i++) {
+    for (let i2 = 3; i2 >= 0; i2--) {
+      const b = (hash[i] >> (i2 * 8)) & 255;
+      result += (b < 16 ? '0' : '') + b.toString(16);
+    }
+  }
+  return result;
+}
+
+function openAuthModal(action) {
+  _pendingAuthAction = action;
+  const actionText = document.getElementById('authActionText');
+  const errorMsg = document.getElementById('authErrorMsg');
+  if (errorMsg) { errorMsg.style.display = 'none'; errorMsg.textContent = ''; }
+  
+  if (actionText) {
+    if (action === 'builder') actionText.textContent = t('auth.actionBuilder');
+    else if (action === 'reset') actionText.textContent = t('auth.actionReset');
+    else actionText.textContent = action;
+  }
+  
+  const userIn = document.getElementById('authUsername');
+  const passIn = document.getElementById('authPassword');
+  if (userIn) userIn.value = '';
+  if (passIn) passIn.value = '';
+  const overlay = document.getElementById('authOverlay');
+  if (overlay) overlay.classList.add('show');
+  
+  setTimeout(() => {
+    if (userIn) userIn.focus();
+  }, 60);
+}
+
+function closeAuthModal() {
+  const overlay = document.getElementById('authOverlay');
+  if (overlay) overlay.classList.remove('show');
+  _pendingAuthAction = null;
+}
+
+function toggleAuthPasswordVisibility() {
+  const pwd = document.getElementById('authPassword');
+  if (!pwd) return;
+  pwd.type = pwd.type === 'password' ? 'text' : 'password';
+}
+
+function submitAuthModal() {
+  const user = (document.getElementById('authUsername').value || '').trim();
+  const pass = (document.getElementById('authPassword').value || '');
+  const errorMsg = document.getElementById('authErrorMsg');
+  
+  const userHash = jsSHA256(user);
+  const passHash = jsSHA256(pass);
+  
+  if (userHash === AUTH_USER_HASH && passHash === AUTH_PASS_HASH) {
+    const action = _pendingAuthAction;
+    closeAuthModal();
+    if (action === 'builder') unlockBuilder();
     else if (action === 'reset') resetAll();
-    else if (action === 'builder') unlockBuilder();
-    _pendingAction = null;
+    _pendingAuthAction = null;
   } else {
-    toast(currentLanguage === 'hi' ? '✗ गलत पासवर्ड — अनुमति अस्वीकृत' : '✗ Wrong password — access denied');
-    _pendingAction = null;
+    if (errorMsg) {
+      errorMsg.style.display = 'block';
+      errorMsg.textContent = t('auth.invalid');
+    }
+    const pwdInput = document.getElementById('authPassword');
+    if (pwdInput) { pwdInput.value = ''; pwdInput.focus(); }
+    toast(t('auth.invalid'));
   }
 }
+
+// Backward compatibility alias
+function askPassword(action) {
+  openAuthModal(action);
+}
+
+// Front-end Security Protections: Right-Click & DevTools Key Blockers
+document.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  toast(currentLanguage === 'hi' ? '🔒 सुरक्षा कारणों से राइट-क्लिक अक्षम है' : '🔒 Right-click is disabled for security');
+  return false;
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.keyCode === 123) { // F12
+    e.preventDefault();
+    return false;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c') || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+    e.preventDefault();
+    return false;
+  }
+});
 
 // ============== QUICK FILTER (in preview tip banner) ==============
 function refreshQuickFilter() {
@@ -1798,10 +2865,6 @@ function quickFilterChange(idxStr) {
 
 function quickFilterClear() {
   clearFilter();
-  const sel = document.getElementById('quickFilter');
-  if (sel) sel.value = '';
-  const formSel = document.getElementById('pickFilled');
-  if (formSel) formSel.value = '';
 }
 
 // ============== BUILDER UNLOCK ==============
@@ -1983,7 +3046,7 @@ function downloadHTML() {
   const d = collectData();
   const mapHTML = buildMap(d);
   const css = document.querySelector('style').textContent;
-  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${escape(d.title)}</title><style>${css}</style></head><body><div style="padding:20px"><div class="hazard-map">${mapHTML}</div></div></body></html>`;
+  const html = `<!DOCTYPE html><html lang="${currentLanguage}"><head><meta charset="UTF-8"><title>${escape(d.title)}</title><style>${css}</style></head><body><div style="padding:20px"><div class="hazard-map">${mapHTML}</div></div></body></html>`;
   const blob = new Blob([html], {type: 'text/html'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2279,8 +3342,8 @@ function downloadPPT() {
 
       // remarks band
       s.addShape(pres.ShapeType.rect, { x:0, y:6.6, w:13.33, h:0.9, fill:{color:'FFFBEA'}, line:{color:'FBC02D', width:0.5} });
-      s.addText('REMARKS:', { x:0.3, y:6.65, w:2.0, h:0.8, fontSize:11, bold:true, color:'C0392B', valign:'middle' });
-      s.addText(translateDataText(r.remarks) || '—', { x:2.0, y:6.65, w:11, h:0.8, fontSize:11, color:'333333', valign:'middle' });
+      s.addText('REMARKS / RISK DESC:', { x:0.3, y:6.65, w:2.2, h:0.8, fontSize:10, bold:true, color:'C0392B', valign:'middle' });
+      s.addText((translateDataText(r.riskDescription) ? translateDataText(r.riskDescription) + '  |  ' : '') + (translateDataText(r.remarks) || '—'), { x:2.5, y:6.65, w:10.5, h:0.8, fontSize:10.5, color:'333333', valign:'middle' });
     });
 
     // ---------- Summary slide ----------
