@@ -6,7 +6,8 @@
   "supabase": {
     "enabled": true,
     "table": "hazard_data",
-    "url": "https://YOUR_PROJECT_ID.supabase.co"
+    "url": "https://YOUR_PROJECT_ID.supabase.co",
+    "anonKey": "YOUR_SUPABASE_ANON_KEY"
   },
   "apiEndpoints": {
     "data": "/api/data",

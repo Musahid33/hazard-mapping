@@ -79,18 +79,24 @@ We include `vercel.json`. Set env vars in Vercel dashboard and deploy. Note: ser
 
 ---
 
-## 3) GitHub Pages (Static Frontend + Sync to Live Server)
+## 3) GitHub Pages (Static Frontend + Direct Supabase Sync)
 
-`deploy.yml` already auto-deploys to Pages on every push to `main`.
+`deploy.yml` auto-deploys the static site to Pages and preserves the checked-in `live-config.json`.
 
 - **Static URL**: `https://Musahid33.github.io/hazard-mapping/`
-- **How to make it live-sync**:
-  1. Open Pages URL
-  2. Unlock builder (username: `musahid12`, password: `Aaru#123`)
-  3. Settings → **Shared Data Server URL** → paste `https://your-service.onrender.com` → Save → Sync Now
-  4. Now Pages frontend syncs to your Supabase-backed server
+- Before pushing, edit `live-config.json`:
+  ```json
+  "supabase": {
+    "enabled": true,
+    "table": "hazard_data",
+    "url": "https://YOUR_PROJECT.supabase.co",
+    "anonKey": "YOUR_SUPABASE_ANON_KEY"
+  }
+  ```
+- Run `supabase/schema.sql` in the Supabase SQL editor, then reload the Pages URL.
+- The browser discovers the keys and syncs directly through Supabase REST. No Render URL or manual Settings entry is required.
 
-The workflow also generates `live-config.json` with all live URLs for frontend discovery.
+Use only the `anon` public key in this static file. Keep `service_role` in the server environment.
 
 ---
 
@@ -99,11 +105,11 @@ The workflow also generates `live-config.json` with all live URLs for frontend d
 We updated URLs in all places:
 
 - **server.js**: new `/api/config` and `/api/health` return `liveUrl`, `githubRepo`, `supabase` status
-- **live-config.json**: static JSON with all live URLs (auto-updated by GitHub Action)
+- **live-config.json**: static JSON with all live URLs plus the Supabase URL and anon public key used for direct Pages sync
 - **.env.example**: template with `LIVE_URL`, `GITHUB_REPO_URL`, `SUPABASE_URL`, etc.
 - **render.yaml**: includes Supabase env vars + `LIVE_URL` auto from Render host
 - **Dockerfile**: includes healthcheck + env docs for Supabase
-- **deploy.yml**: injects live-config.json on deploy to Pages
+- **deploy.yml**: validates and preserves live-config.json on deploy to Pages
 - **index.html**: new **Live Deployment** panel in Settings shows:
   - Live App URL (Render)
   - GitHub Pages URL
@@ -141,8 +147,8 @@ We updated URLs in all places:
 |---|---|
 | Data resets after deploy | You used file backend. Set SUPABASE_URL + SERVICE_ROLE_KEY env vars |
 | Supabase 401 / read fails | Check table exists, RLS policies allow read/write, keys correct |
-| "No shared server found" in app | You're on file:// or GitHub Pages without server URL. Paste live server URL in Settings |
-| Devices don't sync | Must open SAME live server URL. Check Settings → Sync Now shows ✓ Connected |
+| "Supabase is not configured" in app | Replace the placeholders in live-config.json with the Supabase URL and anon public key |
+| Devices don't sync | Run supabase/schema.sql, verify RLS policies and the browser's Supabase key, then use Settings → Sync Now |
 | Render sleeps | Free tier sleeps. First request after idle slow. Use paid or Railway |
 | Excel/PPT not working | Ensure xlsx.full.min.js / pptxgen.bundle.js next to index.html |
 | Old version showing | Hard refresh Ctrl+Shift+R |
@@ -153,7 +159,7 @@ We updated URLs in all places:
 
 - [ ] Supabase table has RLS enabled with policies (see schema.sql)
 - [ ] Server uses SERVICE_ROLE_KEY (bypasses RLS) — keep secret
-- [ ] Optional: set SYNC_TOKEN on server + Access Token in app Settings to protect writes
+- [ ] Optional: set `SYNC_TOKEN` on the server to protect the server-backed API; Pages direct sync is protected by Supabase RLS
 - [ ] Builder auth: username `musahid12`, password `Aaru#123` (hashed in frontend)
 
 ---
@@ -163,7 +169,8 @@ We updated URLs in all places:
 1. Create Supabase project and run `supabase/schema.sql`
 2. Set env vars on Render (or your host)
 3. Push to GitHub main → auto-deploys to Pages + Render (if connected)
-4. Open `https://Musahid33.github.io/hazard-mapping/` → set Shared Data Server URL to your Render URL
-5. Share live URL with team — everyone now sees same global data via Supabase
+4. Put the Supabase URL and anon public key in `live-config.json`
+5. Open `https://Musahid33.github.io/hazard-mapping/` — direct Supabase sync is automatic, with no Render URL entry
+6. Share the Pages URL with the team — everyone now sees the same global data via Supabase
 
 All code updated — just add your Supabase keys and deploy!

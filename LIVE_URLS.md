@@ -7,7 +7,7 @@ Central document for all live deployment URLs. Updated for v2.0-supabase.
 | Label | URL | Type |
 |---|---|---|
 | **Live App (Render)** | `https://hazard-mapping.onrender.com` | Node + Supabase API + Frontend |
-| **GitHub Pages (Static)** | `https://Musahid33.github.io/hazard-mapping/` | Static frontend, syncs to live server |
+| **GitHub Pages (Static)** | `https://Musahid33.github.io/hazard-mapping/` | Static frontend with direct Supabase sync |
 | **GitHub Repo** | `https://github.com/Musahid33/hazard-mapping` | Source code |
 | **Supabase Dashboard** | `https://supabase.com/dashboard` → select project | DB admin |
 | **API Health** | `https://hazard-mapping.onrender.com/api/health` | Backend status |
@@ -31,7 +31,7 @@ GET  /live-config.json → static file with same info (for GitHub Pages)
 - **Table**: `public.hazard_data` (id=1 row)
 - **Schema**: `supabase/schema.sql`
 - **Setup Guide**: `supabase/README.md`
-- **Keys**: Project Settings → API → `anon` + `service_role`
+- **Keys**: Project Settings → API → put only the `anon` public key in `live-config.json`; keep `service_role` on the server
 
 Env vars to set on host:
 ```
@@ -49,14 +49,14 @@ SUPABASE_TABLE=hazard_data
 | **Fly.io** | `fly launch` → Dockerfile | Same |
 | **Docker (VPS)** | `docker build -t hazard-map . && docker run -p 8080:8080 --env-file .env hazard-map` | Use `.env` file |
 | **Vercel** | `vercel --prod` with `vercel.json` | Set env in Vercel dashboard |
-| **GitHub Pages** | Auto on push to `main` via `deploy.yml` | Static only, set Shared Server URL in UI to point to live API |
+| **GitHub Pages** | Auto on push to `main` via `deploy.yml` | Set Supabase URL + anon public key in `live-config.json`; sync is direct |
 
 ## 🔄 How URLs Auto-Update
 
 1. **server.js** reads `LIVE_URL` + `GITHUB_REPO_URL` env vars and returns them in `/api/health` + `/api/config`
-2. **deploy.yml** (GitHub Action) generates `live-config.json` on each push to `main` with current URLs + timestamp
-3. **index.html** fetches `live-config.json` + `/api/config` on load and renders in **Settings → Live Deployment** panel
-4. So updating env var `LIVE_URL` on Render automatically propagates to frontend
+2. **live-config.json** is checked in with the Supabase URL and anon public key needed by the static Pages client
+3. **deploy.yml** validates and preserves that file on each Pages deployment
+4. **index.html** loads `live-config.json` first, then syncs directly through Supabase REST; the server API remains the Docker/Render fallback
 
 ## 📋 Copy-Paste for Team
 
@@ -70,16 +70,20 @@ Share this with your team:
 🔍 Health: https://hazard-mapping.onrender.com/api/health
 ```
 
-## 🛠️ To Change Live URL
+## 🛠️ To Configure Supabase for GitHub Pages
 
-1. Deploy to new host (e.g. `https://your-custom-domain.com`)
-2. Set env var `LIVE_URL=https://your-custom-domain.com` on that host
-3. Update `live-config.json` in repo:
+1. Create the project and run `supabase/schema.sql`
+2. Update `live-config.json` with the project URL and `anonKey` public key:
    ```json
-   { "liveUrl": "https://your-custom-domain.com", ... }
+   "supabase": {
+     "enabled": true,
+     "table": "hazard_data",
+     "url": "https://YOUR_PROJECT.supabase.co",
+     "anonKey": "YOUR_SUPABASE_ANON_KEY"
+   }
    ```
-4. Push to main → GitHub Pages auto-updates
-5. Frontend Settings panel will show new URL after next load
+3. Push to `main` → GitHub Pages deploys with direct Supabase sync
+4. No Render URL entry is needed. Keep `service_role` out of this static file.
 
 ## ✅ Verification
 

@@ -697,22 +697,15 @@
         <input type="text" id="footerNote" value="Note: All PPE must be Tata Steel Approved Make Only." oninput="updatePreview()">
       </div>
       <div class="form-row">
-        <label data-i18n="settings.syncUrl">Shared Data Server URL (optional)</label>
-        <input type="text" id="syncUrl" placeholder="Leave blank to auto-detect the server hosting this page">
-      </div>
-      <div class="form-row">
-        <label data-i18n="settings.syncToken">Access Token (optional)</label>
-        <input type="text" id="syncToken" placeholder="Only if your shared server requires one">
+        <div style="font-size:11px; color:#555; line-height:1.4; background:#eef2f7; padding:8px 10px; border-radius:4px; border-left:3px solid #1a3a6c; margin-top:4px;">
+          💡 <b>Automatic shared data:</b> GitHub Pages reads the Supabase URL and public anon key from <code>live-config.json</code> and syncs directly — no Render URL or manual server entry is needed. The public key is safe for browser use when the Supabase RLS policies from <code>supabase/schema.sql</code> are enabled.
+        </div>
       </div>
       <div class="form-row">
         <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-          <button type="button" onclick="applySyncSettings()" style="flex:1; background:#1a3a6c; color:#fff; border:none; padding:7px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">💾 Save Sync Settings</button>
           <button type="button" onclick="resyncNow()" style="flex:1; background:#00838f; color:#fff; border:none; padding:7px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">🔄 Sync Now</button>
         </div>
         <div id="syncStatus" style="font-size:11px; color:#555; margin-top:6px;"></div>
-      </div>
-      <div style="font-size:11px; color:#555; line-height:1.4; background:#eef2f7; padding:8px 10px; border-radius:4px; border-left:3px solid #1a3a6c; margin-top:4px;">
-        💡 <b>Shared data:</b> changes are saved on a shared server so they appear on <b>every device / computer</b> (not just this one). Leave the URL blank to auto-detect the server hosting this page. If no server is found, data is still kept safely in this browser until you press <b>Reset</b>.
       </div>
     </div>
 
@@ -942,8 +935,8 @@ const TRANSLATIONS = {
     'settings.mapTitle': 'Map Title',
     'settings.company': 'Company / Logo Text',
     'settings.footer': 'Footer Note',
-    'settings.syncUrl': 'Shared Data Server URL (optional)',
-    'settings.syncToken': 'Access Token (optional)',
+    'settings.syncUrl': 'Automatic Supabase sync',
+    'settings.syncToken': 'Supabase public key',
     'preview.title': '👁️ Live Preview',
     'preview.tip': '<b>Tip:</b> Filter by <b>location</b> or by <b>SOP</b>. SOP filter prints Activity, Hazard Type, Hazard, Risk Description and Required PPE. Use <b>Clear Filter</b> to show all.',
     'preview.quickFilter': '🔍 Quick Filter:',
@@ -1183,8 +1176,8 @@ const TRANSLATIONS = {
     'settings.mapTitle': 'मैप शीर्षक',
     'settings.company': 'कंपनी / लोगो टेक्स्ट',
     'settings.footer': 'फुटर नोट',
-    'settings.syncUrl': 'साझा डेटा सर्वर URL (वैकल्पिक)',
-    'settings.syncToken': 'एक्सेस टोकन (वैकल्पिक)',
+    'settings.syncUrl': 'स्वचालित Supabase सिंक',
+    'settings.syncToken': 'Supabase सार्वजनिक कुंजी',
     'preview.title': '👁️ लाइव प्रिव्यू',
     'preview.tip': '<b>टिप:</b> <b>स्थान</b> या <b>SOP</b> से फ़िल्टर करें। SOP फ़िल्टर में गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE प्रिंट होगी।',
     'preview.quickFilter': '🔍 त्वरित फ़िल्टर:',
@@ -3075,21 +3068,24 @@ function loadSample() {
 }
 
 // ============== CLOUD SYNC (cross-device shared data) ==============
-// Data is cached in localStorage (so it never vanishes until Reset) AND is
-// synced to a small backend at "/api/data" so every device / computer sees the
-// same data. Run `node server.js` (included in this repo) to host the app + the
-// shared data store, or enter a "Shared Data Server URL" in ⚙️ Settings.
-let SYNC_CONFIG = { url: '', token: '' };
+// Data is cached in localStorage (so it never vanishes until Reset) and is
+// synced directly to Supabase when live-config.json contains a project URL and
+// anon public key. A same-origin /api/data server remains a useful fallback for
+// the Docker/Render deployment, but GitHub Pages needs no manually entered URL.
+let SYNC_CONFIG = { url: '', token: '' }; // legacy server override, if previously saved
+let _liveConfigCache = null;
 let _cloudReachable = null; // null = unknown, true = reachable, false = gave up
 let _cloudFailStreak = 0;
 let _dirty = false;         // user is mid-edit → don't overwrite with remote data
 let _editVersion = 0;       // bumped on every local change
-let _lastSyncedAt = 0;      // server updatedAt of the last data we wrote/applied
+let _lastSyncedAt = 0;      // backend updatedAt of the last data we wrote/applied
 let _applyingRemote = false;// guard: applying remote/local data should not re-save
 let _cloudSaveTimer = null;
 let _cloudPollTimer = null;
 
 function loadSyncConfig() {
+  // Keep reading the old setting so existing installations are not broken, but
+  // new deployments never require this value.
   try {
     const raw = localStorage.getItem('hazardMapSyncConfig');
     if (raw) SYNC_CONFIG = Object.assign({ url: '', token: '' }, JSON.parse(raw));
@@ -3114,8 +3110,99 @@ function syncHeaders() {
   return h;
 }
 
+function configuredValue(value) {
+  const text = String(value || '').trim();
+  if (!text || /^YOUR[_ -]/i.test(text) || /^REPLACE[_ -]/i.test(text) || /YOUR_PROJECT/i.test(text)) return '';
+  return text;
+}
+
+function directSupabaseConfig() {
+  const config = _liveConfigCache || {};
+  const supabase = config.supabase || {};
+  const url = configuredValue(supabase.url || config.supabaseUrl)
+    .replace(/\/+$/, '');
+  // Only anon/public keys are accepted here. Never put a service_role key in a
+  // static site: every visitor can read it from the downloaded JSON.
+  const anonKey = configuredValue(
+    supabase.anonKey || supabase.anon_key || supabase.publicAnonKey ||
+    config.supabaseAnonKey
+  );
+  if (!url || !anonKey) return null;
+  return {
+    url,
+    key: anonKey,
+    table: configuredValue(supabase.table || config.supabaseTable) || 'hazard_data'
+  };
+}
+
+function supabaseHeaders(key) {
+  return {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'apikey': key,
+    'Authorization': 'Bearer ' + key,
+    'Cache-Control': 'no-store'
+  };
+}
+
+async function supabaseLoad(config) {
+  try {
+    const query = encodeURIComponent(config.table);
+    const res = await fetch(`${config.url}/rest/v1/${query}?id=eq.1&select=id,data,updated_at`, {
+      method: 'GET',
+      headers: supabaseHeaders(config.key),
+      cache: 'no-store'
+    });
+    if (!res.ok) return { ok: false };
+    const rows = await res.json();
+    const row = Array.isArray(rows) ? rows[0] : null;
+    return {
+      ok: true,
+      data: row ? (row.data || null) : null,
+      updatedAt: row ? (row.updated_at || row.updatedAt || 0) : 0
+    };
+  } catch (e) {
+    return { ok: false };
+  }
+}
+
+async function supabaseSave(config, data) {
+  const record = { id: 1, data, updated_at: Date.now() };
+  try {
+    const query = encodeURIComponent(config.table) + '?on_conflict=id';
+    const res = await fetch(`${config.url}/rest/v1/${query}`, {
+      method: 'POST',
+      headers: Object.assign({}, supabaseHeaders(config.key), {
+        'Prefer': 'resolution=merge-duplicates,return=representation'
+      }),
+      body: JSON.stringify(record)
+    });
+    if (!res.ok) return false;
+    const rows = await res.json().catch(() => null);
+    const saved = Array.isArray(rows) ? rows[0] : null;
+    if (saved && (saved.updated_at || saved.updatedAt)) {
+      _lastSyncedAt = saved.updated_at || saved.updatedAt;
+    } else {
+      _lastSyncedAt = record.updated_at;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function cloudLoad() {
-  // Returns { ok:true, data, updatedAt } or { ok:false }
+  // Returns { ok:true, data, updatedAt } or { ok:false }.
+  // Direct Supabase is attempted first so Pages never probes its own static URL.
+  const direct = directSupabaseConfig();
+  if (direct) {
+    const result = await supabaseLoad(direct);
+    if (result.ok) {
+      _cloudReachable = true;
+      _cloudFailStreak = 0;
+      return result;
+    }
+  }
   if (!apiBase()) return { ok: false };
   try {
     const res = await fetch(apiBase() + '/api/data', { method: 'GET', headers: syncHeaders() });
@@ -3129,6 +3216,15 @@ async function cloudLoad() {
 }
 
 async function cloudSave(data) {
+  const direct = directSupabaseConfig();
+  if (direct) {
+    const saved = await supabaseSave(direct, data);
+    if (saved) {
+      _cloudReachable = true;
+      _cloudFailStreak = 0;
+      return true;
+    }
+  }
   if (!apiBase()) return false;
   try {
     const res = await fetch(apiBase() + '/api/data', {
@@ -3202,17 +3298,6 @@ function updateSyncStatus(msg) {
   if (el) el.textContent = msg;
 }
 
-function applySyncSettings() {
-  const url = (document.getElementById('syncUrl').value || '').trim();
-  const token = (document.getElementById('syncToken').value || '').trim();
-  SYNC_CONFIG = { url, token };
-  saveSyncConfig();
-  _cloudReachable = null;
-  _cloudFailStreak = 0;
-  updateSyncStatus(url ? 'Saved. Will sync to ' + url + ' …' : 'Saved. Auto-detecting shared server…');
-  resyncNow();
-}
-
 async function resyncNow() {
   _cloudReachable = null;
   _cloudFailStreak = 0;
@@ -3228,15 +3313,13 @@ async function resyncNow() {
     const ok = await cloudSave(collectData());
     updateSyncStatus(ok ? '✓ Connected — local data pushed to the shared server' : '⚠ Connected but could not save — retry Sync Now');
   } else {
-    updateSyncStatus('⚠ No shared server found — data stays on this device until you Reset');
+    updateSyncStatus('⚠ Supabase is not reachable — data stays on this device until you Reset');
   }
   // Also refresh live health after sync
   checkLiveHealth();
 }
 
 // ============== LIVE DEPLOYMENT — SUPABASE + GITHUB URLS (v2.0) ==============
-let _liveConfigCache = null;
-
 async function loadLiveConfig() {
   // Try multiple sources for live config
   const sources = [
@@ -3247,7 +3330,7 @@ async function loadLiveConfig() {
   for (const src of sources) {
     if (!src || src.includes('null') || src === '/api/config' && !apiBase()) continue;
     try {
-      const res = await fetch(src, { headers: syncHeaders() });
+      const res = await fetch(src, { headers: syncHeaders(), cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         if (json) {
@@ -3277,6 +3360,8 @@ function renderLiveUrls(config) {
   const githubRepo = config.githubRepo || 'https://github.com/Musahid33/hazard-mapping';
   const githubPages = config.githubPages || config.deployment?.githubPages || 'https://musahid33.github.io/hazard-mapping/';
   const version = config.version || '2.0-supabase';
+  const direct = directSupabaseConfig();
+  const supabaseReady = !!direct;
   panel.innerHTML = `
     <div style="display:grid; gap:4px;">
       <div>🚀 <b>Live App (Render/Docker):</b><br><a href="${escapeHtml(liveUrl)}" target="_blank" style="color:#1b5e20; word-break:break-all;">${escapeHtml(liveUrl)}</a></div>
@@ -3284,7 +3369,7 @@ function renderLiveUrls(config) {
       <div>💻 <b>GitHub Repo:</b><br><a href="${escapeHtml(githubRepo)}" target="_blank" style="color:#333; word-break:break-all;">${escapeHtml(githubRepo)}</a></div>
       <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #a5d6a7;">
         <span style="background:#e8f5e9; padding:2px 6px; border-radius:3px; border:1px solid #66bb6a;">v${escapeHtml(version)}</span>
-        <span style="background:#e3f2fd; padding:2px 6px; border-radius:3px; border:1px solid #64b5f6; margin-left:4px;">Supabase: ${config.supabaseEnabled || config.supabase?.enabled ? '✅ Enabled' : '⚠ File fallback'}</span>
+        <span style="background:#e3f2fd; padding:2px 6px; border-radius:3px; border:1px solid #64b5f6; margin-left:4px;">Supabase: ${supabaseReady ? '✅ Direct sync ready' : '⚠ Configure live-config.json'}</span>
       </div>
     </div>
   `;
@@ -3297,15 +3382,32 @@ async function checkLiveHealth() {
     const config = await loadLiveConfig();
     if (urlsPanel) renderLiveUrls(config);
 
-    // Check health endpoint
+    // Check Supabase directly first. This is what makes the static GitHub Pages
+    // deployment work without a Render URL or another API server.
     let health = null;
-    try {
-      const base = apiBase();
-      if (base) {
-        const res = await fetch(base + '/api/health', { headers: syncHeaders() });
-        if (res.ok) health = await res.json();
+    const direct = directSupabaseConfig();
+    if (direct) {
+      const directData = await supabaseLoad(direct);
+      if (directData.ok) {
+        health = {
+          backend: 'supabase-direct',
+          supabase: { connected: true, url: direct.url, table: direct.table },
+          updatedAt: directData.updatedAt,
+          liveUrl: config.githubPages || window.location.origin
+        };
       }
-    } catch (e) {}
+    }
+    // Docker/Render still exposes a health endpoint for deployments that use
+    // the bundled server (and for setups whose static config has no key yet).
+    if (!health) {
+      try {
+        const base = apiBase();
+        if (base) {
+          const res = await fetch(base + '/api/health', { headers: syncHeaders() });
+          if (res.ok) health = await res.json();
+        }
+      } catch (e) {}
+    }
 
     if (statusEl) {
       if (health) {
@@ -3314,7 +3416,7 @@ async function checkLiveHealth() {
         const updatedAt = health.updatedAt ? new Date(health.updatedAt).toLocaleString() : 'never';
         statusEl.innerHTML = `
           <div style="display:grid; gap:4px;">
-            <div>✅ <b>API:</b> Connected (${escapeHtml(backend)})</div>
+            <div>✅ <b>Sync:</b> Connected (${escapeHtml(backend)})</div>
             <div>☁️ <b>Supabase:</b> ${supa.connected ? '✅ Connected' : '⚠ Not configured — using file'}${supa.url ? '<br><small style="color:#555; word-break:break-all;">' + escapeHtml(supa.url) + '</small>' : ''}</div>
             <div>🕒 <b>Last Update:</b> ${escapeHtml(updatedAt)}</div>
             <div>🔗 <b>Live:</b> ${health.liveUrl ? '<a href="' + escapeHtml(health.liveUrl) + '" target="_blank">' + escapeHtml(health.liveUrl) + '</a>' : escapeHtml(apiBase() || window.location.origin)}</div>
@@ -3323,9 +3425,9 @@ async function checkLiveHealth() {
       } else {
         statusEl.innerHTML = `
           <div style="display:grid; gap:4px;">
-            <div>⚠ <b>API:</b> No shared server found — data is local only</div>
-            <div>💡 Set <b>Shared Data Server URL</b> to your live server (e.g. https://hazard-mapping.onrender.com) to enable global sync</div>
-            <div>☁️ <b>Supabase:</b> Configure SUPABASE_URL + SUPABASE_KEY on server for persistent storage</div>
+            <div>⚠ <b>Sync:</b> Supabase is not configured or could not be reached</div>
+            <div>💡 Add the Supabase project URL and public anon key to <b>live-config.json</b>, then reload this page.</div>
+            <div>🔒 Never put a Supabase service_role key in this static file.</div>
             <div>📄 <b>GitHub Pages:</b> <a href="https://musahid33.github.io/hazard-mapping/" target="_blank">https://musahid33.github.io/hazard-mapping/</a></div>
           </div>
         `;
@@ -4273,13 +4375,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   loadSyncConfig();
 
-  const urlInput = document.getElementById('syncUrl');
-  const tokenInput = document.getElementById('syncToken');
-  if (urlInput) urlInput.value = SYNC_CONFIG.url || '';
-  if (tokenInput) tokenInput.value = SYNC_CONFIG.token || '';
+  // Load the checked-in config before the first sync attempt. On GitHub Pages
+  // this is the only discovery step needed: the browser can talk to Supabase
+  // directly with its public anon key.
+  try { await loadLiveConfig(); } catch (e) {}
 
-  // The shared server is the source of truth when it is reachable and has data;
-  // otherwise fall back to this browser's cache (which never vanishes until Reset).
+  // The shared backend is the source of truth when it is reachable and has
+  // data; otherwise fall back to this browser's cache (which never vanishes
+  // until Reset).
   let remote = { ok: false };
   try { remote = await cloudLoad(); } catch (e) { remote = { ok: false }; }
 

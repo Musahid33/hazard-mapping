@@ -7,7 +7,7 @@ A **Hazard Map Dashboard** web app — HTML/CSS/JavaScript with a Node server th
 | Service | URL | Purpose |
 |---|---|---|
 | **🚀 Live App (Render)** | `https://hazard-mapping.onrender.com` | Main live site + API (Supabase-backed) |
-| **📄 GitHub Pages** | `https://Musahid33.github.io/hazard-mapping/` | Static frontend (can sync to live server) |
+| **📄 GitHub Pages** | `https://Musahid33.github.io/hazard-mapping/` | Static frontend with direct Supabase sync |
 | **💻 GitHub Repo** | `https://github.com/Musahid33/hazard-mapping` | Source code, issues, PRs |
 | **☁️ Supabase Dashboard** | `https://supabase.com/dashboard` | Database, SQL editor, auth |
 | **🔍 Health Check** | `https://hazard-mapping.onrender.com/api/health` | Server + Supabase status |
@@ -44,7 +44,7 @@ hazard-mapping/
 ├── supabase/
 │   ├── schema.sql        # SQL to create hazard_data table
 │   └── README.md         # Supabase setup guide
-├── live-config.json      # Live URLs (auto-updated by GitHub Action)
+├── live-config.json      # Live URLs + Supabase public anon key for Pages sync
 ├── .env.example          # Env template for Supabase + live URLs
 ├── Dockerfile            # Updated for Supabase
 ├── render.yaml           # Render blueprint with Supabase env vars
@@ -125,17 +125,21 @@ insert into public.hazard_data (id, data, updated_at) values (1, null, 0) on con
 Already auto-deploys on push to `main` via `deploy.yml`:
 
 - Live static site: `https://Musahid33.github.io/hazard-mapping/`
-- To make it sync to your Supabase server:
-  - Open site → Unlock builder → Settings → Shared Data Server URL → paste `https://your-service.onrender.com` → Save → Sync Now
+- In `live-config.json`, set `supabase.url` to your project URL and `supabase.anonKey` to the **anon public** key.
+- Run `supabase/schema.sql` first so the public key is restricted by the intended RLS policies.
+- Reload the Pages site. It discovers Supabase automatically and syncs directly; no Render URL or Settings entry is needed.
+
+Never put `SUPABASE_SERVICE_ROLE_KEY` in `live-config.json` — that key belongs only in the server environment.
 
 ---
 
 ## 🔁 How Sync Works (Supabase)
 
 - **Backend detection**: server checks `SUPABASE_URL + SUPABASE_KEY` env. If present → Supabase, else file.
-- **API**: Frontend talks to `/api/data` (GET/PUT/DELETE) — same endpoint works for both backends.
-- **Auto-save**: every edit saved to Supabase ~700ms after typing + localStorage backup.
-- **Auto-refresh**: every device polls server every 6s; if another device changed, it updates automatically.
+- **Direct Pages sync**: when `live-config.json` contains `supabase.url` + `supabase.anonKey`, the browser reads and writes `hazard_data` through Supabase REST (GET/POST) without a Render URL.
+- **Server fallback**: the Docker/Render deployment exposes `/api/data` (GET/PUT/DELETE), backed by Supabase when its environment variables are present.
+- **Auto-save**: every edit is saved to the configured backend ~700ms after typing + localStorage backup.
+- **Auto-refresh**: every device polls the configured backend every 6s; if another device changed, it updates automatically.
 - **Reset**: password-protected Reset clears Supabase row too — resets for everyone.
 - **Health**: `/api/health` shows backend type, Supabase URL, updatedAt, liveUrl.
 
@@ -144,8 +148,8 @@ Already auto-deploys on push to `main` via `deploy.yml`:
 ## 🔐 Security
 
 - Builder unlock: username `musahid12`, password `Aaru#123` (SHA-256 hashed in frontend)
-- Optional server write protection: set `SYNC_TOKEN` env var, then enter same token in Settings → Access Token
-- Supabase: server uses `SERVICE_ROLE_KEY` which bypasses RLS. For stricter control, remove public write policy and only allow service_role.
+- Optional server write protection: set `SYNC_TOKEN` in the server environment. The static Pages client uses the Supabase anon key and must be protected with Supabase RLS.
+- Supabase: keep `SERVICE_ROLE_KEY` only on the server; never commit it to `live-config.json`. For stricter control, do not enable public write policies and use the server deployment instead.
 
 ---
 

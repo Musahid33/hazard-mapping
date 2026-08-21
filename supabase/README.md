@@ -62,34 +62,50 @@ docker run -p 8080:8080 \
   hazard-map
 ```
 
-## 5) How It Works
+## 5) Configure GitHub Pages (no Render URL needed)
+
+The static Pages client can sync directly to Supabase. In the repository's `live-config.json`, set:
+
+```json
+"supabase": {
+  "enabled": true,
+  "table": "hazard_data",
+  "url": "https://YOUR_PROJECT.supabase.co",
+  "anonKey": "YOUR_SUPABASE_ANON_KEY"
+}
+```
+
+Use the `anon` **public** key here. The existing RLS policies in `schema.sql` allow the browser client to read and write the single shared row. Never put `service_role` in a static file because every visitor can inspect it.
+
+## 6) How It Works
 
 - Server (`server.js`) auto-detects `SUPABASE_URL + SUPABASE_KEY`
 - If present → uses Supabase as primary storage (persistent, global)
 - If missing → falls back to file `data/hazard-data.json` (local dev)
-- Frontend (`index.html`) still talks to `/api/data` — no change needed
+- GitHub Pages loads `live-config.json` and uses Supabase REST directly; no manual server URL is required
+- Docker/Render still uses `/api/data` and remains the server-backed fallback
 - Every device that opens the live URL sees the SAME data
 
-## 6) Live URLs
+## 7) Live URLs
 
 After deploy, you will have:
 
 - **Live App (Render/Railway)**: `https://your-service.onrender.com` → global shared data
-- **GitHub Pages (static)**: `https://Musahid33.github.io/hazard-mapping/` → can point to your server via Settings → Shared Data Server URL
+- **GitHub Pages (static)**: `https://Musahid33.github.io/hazard-mapping/` → direct Supabase sync from `live-config.json`
 - **GitHub Repo**: `https://github.com/Musahid33/hazard-mapping`
 - **Supabase Dashboard**: `https://supabase.com/dashboard/project/YOUR_PROJECT`
 
-## 7) Troubleshooting
+## 8) Troubleshooting
 
 | Issue | Fix |
 |---|---|
 | Data resets after deploy | You were using file backend. Set Supabase env vars to persist |
 | 401 Unauthorized | Check SYNC_TOKEN matches Settings → Access Token |
 | Supabase read fails | Verify table exists, RLS policies allow read, URL/key correct |
-| No sync across devices | Ensure all devices open same LIVE_URL |
+| No sync across devices | Run `schema.sql`, verify RLS and the `live-config.json` URL/anon key, then reload Pages |
 
-## 8) Security
+## 9) Security
 
 - Server uses `SERVICE_ROLE_KEY` which bypasses RLS (full access)
-- If you want to protect writes, set `SYNC_TOKEN` on server and enter same token in app Settings → Access Token
+- If you want to protect writes, use the server deployment with `SYNC_TOKEN`; the static Pages client uses the public anon key and Supabase RLS
 - For stricter control, remove public write policy and only allow service_role
