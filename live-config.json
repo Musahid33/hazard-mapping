@@ -1,0 +1,33 @@
+{
+  "liveUrl": "https://hazard-mapping.onrender.com",
+  "githubRepo": "https://github.com/Musahid33/hazard-mapping",
+  "githubPages": "https://musahid33.github.io/hazard-mapping/",
+  "supabaseEnabled": true,
+  "supabase": {
+    "enabled": true,
+    "table": "hazard_data",
+    "url": "https://YOUR_PROJECT_ID.supabase.co"
+  },
+  "apiEndpoints": {
+    "data": "/api/data",
+    "health": "/api/health",
+    "config": "/api/config"
+  },
+  "deployment": {
+    "render": "https://hazard-mapping.onrender.com",
+    "githubPages": "https://musahid33.github.io/hazard-mapping/",
+    "supabase": "https://supabase.com/dashboard",
+    "docker": "docker build -t hazard-map . && docker run -p 8080:8080 --env-file .env hazard-map"
+  },
+  "version": "2.0-supabase",
+  "features": [
+    "Supabase persistent storage (global sync)",
+    "GitHub Pages static hosting",
+    "Render/Railway Docker live API",
+    "Cross-device real-time sync",
+    "English-only data entry + auto Hindi display",
+    "Risk filter, SOP filter, column toggles",
+    "Listen (TTS) + Fullscreen + Excel/PPT export"
+  ],
+  "updatedAt": "2026-08-21"
+}

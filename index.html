@@ -715,6 +715,30 @@
         💡 <b>Shared data:</b> changes are saved on a shared server so they appear on <b>every device / computer</b> (not just this one). Leave the URL blank to auto-detect the server hosting this page. If no server is found, data is still kept safely in this browser until you press <b>Reset</b>.
       </div>
     </div>
+
+    <div class="form-section" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 2px solid #2e7d32; border-left: 6px solid #1b5e20;">
+      <h3 style="color:#1b5e20;">🌐 Live Deployment — Supabase + GitHub</h3>
+      <div class="form-row">
+        <label style="color:#1b5e20; font-weight:700;">🔗 Live URLs (Auto-updated)</label>
+        <div id="liveUrlsPanel" style="background:#fff; padding:8px 10px; border-radius:4px; border:1px solid #a5d6a7; font-size:11px; line-height:1.5;">
+          <div>⏳ Loading live config…</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label style="color:#1b5e20;">☁️ Supabase Status</label>
+        <div id="supabaseStatus" style="background:#fff; padding:8px 10px; border-radius:4px; border:1px solid #a5d6a7; font-size:11px;">
+          <div>⏳ Checking Supabase connection…</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button type="button" onclick="checkLiveHealth()" style="flex:1; background:#2e7d32; color:#fff; border:none; padding:6px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:11px;">🔍 Check Live Health</button>
+        <button type="button" onclick="copyLiveUrls()" style="flex:1; background:#1565c0; color:#fff; border:none; padding:6px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:11px;">📋 Copy URLs</button>
+        <button type="button" onclick="openLiveUrl()" style="flex:1; background:#ef6c00; color:#fff; border:none; padding:6px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:11px;">🚀 Open Live</button>
+      </div>
+      <div style="font-size:10px; color:#2e7d32; margin-top:6px; background:#e8f5e9; padding:6px 8px; border-radius:3px;">
+        💡 <b>Supabase</b> = persistent global storage. Data never vanishes on redeploy. <b>GitHub Pages</b> = static frontend. <b>Render/Docker</b> = live API server. All auto-sync.
+      </div>
+    </div>
     </div><!-- /builderContent -->
   </div>
 
@@ -3206,6 +3230,137 @@ async function resyncNow() {
   } else {
     updateSyncStatus('⚠ No shared server found — data stays on this device until you Reset');
   }
+  // Also refresh live health after sync
+  checkLiveHealth();
+}
+
+// ============== LIVE DEPLOYMENT — SUPABASE + GITHUB URLS (v2.0) ==============
+let _liveConfigCache = null;
+
+async function loadLiveConfig() {
+  // Try multiple sources for live config
+  const sources = [
+    './live-config.json',
+    '/api/config',
+    apiBase() + '/api/config'
+  ];
+  for (const src of sources) {
+    if (!src || src.includes('null') || src === '/api/config' && !apiBase()) continue;
+    try {
+      const res = await fetch(src, { headers: syncHeaders() });
+      if (res.ok) {
+        const json = await res.json();
+        if (json) {
+          _liveConfigCache = json;
+          return json;
+        }
+      }
+    } catch (e) {}
+  }
+  // Fallback static config
+  return {
+    liveUrl: window.location.origin,
+    githubRepo: 'https://github.com/Musahid33/hazard-mapping',
+    githubPages: 'https://musahid33.github.io/hazard-mapping/',
+    supabaseEnabled: false,
+    deployment: {
+      render: 'https://hazard-mapping.onrender.com',
+      githubPages: 'https://musahid33.github.io/hazard-mapping/'
+    }
+  };
+}
+
+function renderLiveUrls(config) {
+  const panel = document.getElementById('liveUrlsPanel');
+  if (!panel) return;
+  const liveUrl = config.liveUrl || config.deployment?.render || window.location.origin;
+  const githubRepo = config.githubRepo || 'https://github.com/Musahid33/hazard-mapping';
+  const githubPages = config.githubPages || config.deployment?.githubPages || 'https://musahid33.github.io/hazard-mapping/';
+  const version = config.version || '2.0-supabase';
+  panel.innerHTML = `
+    <div style="display:grid; gap:4px;">
+      <div>🚀 <b>Live App (Render/Docker):</b><br><a href="${escapeHtml(liveUrl)}" target="_blank" style="color:#1b5e20; word-break:break-all;">${escapeHtml(liveUrl)}</a></div>
+      <div>📄 <b>GitHub Pages:</b><br><a href="${escapeHtml(githubPages)}" target="_blank" style="color:#1565c0; word-break:break-all;">${escapeHtml(githubPages)}</a></div>
+      <div>💻 <b>GitHub Repo:</b><br><a href="${escapeHtml(githubRepo)}" target="_blank" style="color:#333; word-break:break-all;">${escapeHtml(githubRepo)}</a></div>
+      <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #a5d6a7;">
+        <span style="background:#e8f5e9; padding:2px 6px; border-radius:3px; border:1px solid #66bb6a;">v${escapeHtml(version)}</span>
+        <span style="background:#e3f2fd; padding:2px 6px; border-radius:3px; border:1px solid #64b5f6; margin-left:4px;">Supabase: ${config.supabaseEnabled || config.supabase?.enabled ? '✅ Enabled' : '⚠ File fallback'}</span>
+      </div>
+    </div>
+  `;
+}
+
+async function checkLiveHealth() {
+  const statusEl = document.getElementById('supabaseStatus');
+  const urlsPanel = document.getElementById('liveUrlsPanel');
+  try {
+    const config = await loadLiveConfig();
+    if (urlsPanel) renderLiveUrls(config);
+
+    // Check health endpoint
+    let health = null;
+    try {
+      const base = apiBase();
+      if (base) {
+        const res = await fetch(base + '/api/health', { headers: syncHeaders() });
+        if (res.ok) health = await res.json();
+      }
+    } catch (e) {}
+
+    if (statusEl) {
+      if (health) {
+        const backend = health.backend || 'unknown';
+        const supa = health.supabase || {};
+        const updatedAt = health.updatedAt ? new Date(health.updatedAt).toLocaleString() : 'never';
+        statusEl.innerHTML = `
+          <div style="display:grid; gap:4px;">
+            <div>✅ <b>API:</b> Connected (${escapeHtml(backend)})</div>
+            <div>☁️ <b>Supabase:</b> ${supa.connected ? '✅ Connected' : '⚠ Not configured — using file'}${supa.url ? '<br><small style="color:#555; word-break:break-all;">' + escapeHtml(supa.url) + '</small>' : ''}</div>
+            <div>🕒 <b>Last Update:</b> ${escapeHtml(updatedAt)}</div>
+            <div>🔗 <b>Live:</b> ${health.liveUrl ? '<a href="' + escapeHtml(health.liveUrl) + '" target="_blank">' + escapeHtml(health.liveUrl) + '</a>' : escapeHtml(apiBase() || window.location.origin)}</div>
+          </div>
+        `;
+      } else {
+        statusEl.innerHTML = `
+          <div style="display:grid; gap:4px;">
+            <div>⚠ <b>API:</b> No shared server found — data is local only</div>
+            <div>💡 Set <b>Shared Data Server URL</b> to your live server (e.g. https://hazard-mapping.onrender.com) to enable global sync</div>
+            <div>☁️ <b>Supabase:</b> Configure SUPABASE_URL + SUPABASE_KEY on server for persistent storage</div>
+            <div>📄 <b>GitHub Pages:</b> <a href="https://musahid33.github.io/hazard-mapping/" target="_blank">https://musahid33.github.io/hazard-mapping/</a></div>
+          </div>
+        `;
+      }
+    }
+  } catch (e) {
+    if (statusEl) statusEl.innerHTML = `<div style="color:#c62828;">✗ Error checking health: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function copyLiveUrls() {
+  const config = _liveConfigCache || {};
+  const urls = [
+    `Live App: ${config.liveUrl || config.deployment?.render || window.location.origin}`,
+    `GitHub Pages: ${config.githubPages || 'https://musahid33.github.io/hazard-mapping/'}`,
+    `GitHub Repo: ${config.githubRepo || 'https://github.com/Musahid33/hazard-mapping'}`,
+    `Supabase: ${config.supabase?.url || 'Configure SUPABASE_URL in env'}`,
+    `API Data: ${(config.liveUrl || window.location.origin)}/api/data`,
+    `Health: ${(config.liveUrl || window.location.origin)}/api/health`
+  ].join('\n');
+  navigator.clipboard.writeText(urls).then(() => toast('📋 Live URLs copied!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = urls;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    toast('📋 Live URLs copied!');
+  });
+}
+
+function openLiveUrl() {
+  const config = _liveConfigCache || {};
+  const url = config.liveUrl || config.deployment?.render || 'https://hazard-mapping.onrender.com';
+  window.open(url, '_blank');
 }
 
 function saveState() {
@@ -4139,6 +4294,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
   applyTranslations();
   startCloudPolling();
+  // Load live config + Supabase health for the new Live Deployment panel
+  try {
+    await loadLiveConfig().then(cfg => {
+      const panel = document.getElementById('liveUrlsPanel');
+      if (panel) renderLiveUrls(cfg);
+    });
+  } catch (e) {}
+  try { await checkLiveHealth(); } catch (e) {}
 });
 </script>
 </body>

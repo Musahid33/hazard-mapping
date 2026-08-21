@@ -1,115 +1,154 @@
-# Hazard Map Dashboard – Emvess Infraventures Pvt Ltd
+# Hazard Map Dashboard – Emvess Infraventures Pvt Ltd (Live + Supabase)
 
-A **Hazard Map Dashboard** web app — HTML/CSS/JavaScript with an optional
-zero-dependency Node server for **shared, cross-device data**.
+A **Hazard Map Dashboard** web app — HTML/CSS/JavaScript with a Node server that now uses **Supabase** for persistent, global, cross-device data.
+
+## 🌐 Live URLs (Updated)
+
+| Service | URL | Purpose |
+|---|---|---|
+| **🚀 Live App (Render)** | `https://hazard-mapping.onrender.com` | Main live site + API (Supabase-backed) |
+| **📄 GitHub Pages** | `https://Musahid33.github.io/hazard-mapping/` | Static frontend (can sync to live server) |
+| **💻 GitHub Repo** | `https://github.com/Musahid33/hazard-mapping` | Source code, issues, PRs |
+| **☁️ Supabase Dashboard** | `https://supabase.com/dashboard` | Database, SQL editor, auth |
+| **🔍 Health Check** | `https://hazard-mapping.onrender.com/api/health` | Server + Supabase status |
+| **⚙️ Config** | `https://hazard-mapping.onrender.com/api/config` | Live URLs + backend info |
+| **📦 API Data** | `https://hazard-mapping.onrender.com/api/data` | Shared hazard data JSON |
+
+> All URLs are also available in `live-config.json` and via `/api/config` endpoint. Frontend auto-loads them in **Settings → Live Deployment** panel.
 
 ---
 
-## ✨ Features
+## ✨ Features v2.0-supabase
 
 - 🗺️ Hazard map table builder with live preview
-- 📄 **Document header** shows **Document No.** (`EIPL/SMP/HM/01`) and a
-  **Rev. No.** that you can change on every edit (select 00–20)
-- ☁️ **Shared data** — every entry/edit is saved on a shared server, so any
-  device / computer that opens the site sees the **same data** (not local).
-  Data **never vanishes** unless someone presses **Reset**.
-- 🔄 Auto-refresh from the server every few seconds + a **Sync Now** button
-- 🖨️ Print / Save as PDF
-- 📊 Export to Excel (`.xlsx` via [SheetJS](https://sheetjs.com))
-- 📽️ Export to PowerPoint (`.pptx` via [PptxGenJS](https://github.com/gitbrent/PptxGenJS))
-- 🔍 Filter view by location + column show/hide controls
-- ➕ Add / 🗑 delete hazard areas
-- 🔒 Password-protected builder, reset & unlock actions
-- ⛶ Zoom controls and risk-level legend
+- ☁️ **Supabase** persistent storage — data survives redeploys, works on Render/Railway/Vercel
+- 🔄 **Cross-device sync** — every device hitting the live URL shares SAME data (Supabase table `hazard_data`)
+- 📄 Document header with **Document No.** (`EIPL/SMP/HM/01`) + editable **Rev. No.** (00–20)
+- 🔍 Filters: Location, SOP, Risk Level + column show/hide
+- 🖨️ Print / PDF, 📊 Excel, 📽️ PowerPoint export
+- 🔊 Listen (TTS) natural voice summary + per-row listen
+- ⛶ Fullscreen preview (filter bar stays visible)
+- 🔒 Password-protected builder (SHA-256 auth)
+- 🌐 English-only data entry + auto Hindi display conversion
+- 📝 Hazard change request (anonymous option) to `emvssafetyteam@gmail.com`
 
 ---
 
-## 📁 Project structure
+## 📁 Project Structure (Updated)
 
 ```
 hazard-mapping/
-├── index.html            # The entire app (HTML + CSS + JS, inline)
-├── server.js             # Shared-data server (Node, zero dependencies)
-├── package.json          # "npm start" → node server.js
-├── xlsx.full.min.js      # SheetJS – Excel export library
-├── pptxgen.bundle.js     # PptxGenJS – PowerPoint export library
-├── data/                 # created at runtime — holds the shared data JSON
+├── index.html            # Entire app (HTML + CSS + JS)
+├── server.js             # Server v2.0 — Supabase + file fallback
+├── package.json          # Includes @supabase/supabase-js
+├── supabase/
+│   ├── schema.sql        # SQL to create hazard_data table
+│   └── README.md         # Supabase setup guide
+├── live-config.json      # Live URLs (auto-updated by GitHub Action)
+├── .env.example          # Env template for Supabase + live URLs
+├── Dockerfile            # Updated for Supabase
+├── render.yaml           # Render blueprint with Supabase env vars
+├── Procfile              # For Heroku/Railway: web: node server.js
+├── vercel.json           # Optional Vercel deployment
+├── deploy.yml            # GitHub Pages deploy + live-config injection
+├── xlsx.full.min.js      # Excel library
+├── pptxgen.bundle.js     # PPT library
+├── data/                 # Created at runtime (file fallback only)
 ├── README.md
-└── DEPLOY-GUIDE.md
+├── DEPLOY-GUIDE.md       # Updated for Supabase live deploy
+└── LIVE_URLS.md          # All live URLs documented
 ```
 
 ---
 
-## 🚀 Run with shared data (recommended)
+## 🚀 Run Locally (with Supabase)
 
-This makes the **same data appear on every device/computer** — changes from one
-device are saved on the server and picked up everywhere else.
+### Option 1: With Supabase (recommended for live-like behavior)
 
-You need [Node.js](https://nodejs.org) (v14 or newer):
+1. Create Supabase project at https://supabase.com
+2. Run `supabase/schema.sql` in SQL Editor
+3. Get `SUPABASE_URL` + `SERVICE_ROLE_KEY` from Project Settings → API
+4. Create `.env` from `.env.example` and fill keys
+5. Install + run:
+
+```bash
+npm install
+npm start
+# open http://localhost:8080
+```
+
+Server will log:
+```
+Backend: Supabase
+Supabase URL: https://xxx.supabase.co
+```
+
+### Option 2: Without Supabase (file fallback, local only)
 
 ```bash
 node server.js
 # open http://localhost:8080
-```
-
-Any device on the same network (or, once deployed, any device in the world)
-opens the same URL and sees the same data. The data is stored in
-`data/hazard-data.json` on the server and is only cleared when someone presses
-**Reset** (which clears it everywhere).
-
-To protect writes, optionally start the server with a token and paste the same
-token in the app's **⚙️ Settings → Access Token**:
-
-```bash
-SYNC_TOKEN=my-secret node server.js
-# Windows (PowerShell): $env:SYNC_TOKEN="my-secret"; node server.js
+# Data stored in data/hazard-data.json (not persistent on free hosts)
 ```
 
 ---
 
-## ☁️ Deploy the shared-data server
+## ☁️ Deploy Live (Supabase + Render)
 
-Host `server.js` on any Node host (Render, Railway, Fly.io, a VPS, etc.):
+### 1) Supabase Setup (5 min)
 
-1. Push this folder to a repository.
-2. Create a **Web Service** with:
-   - Build command: *(none)*
-   - Start command: `npm start` (or `node server.js`)
-   - Env var `PORT` (most hosts set this automatically)
-   - Optional env var `SYNC_TOKEN` to protect writes
-3. Open the service URL — every device hitting that URL shares the same data.
+See `supabase/README.md` or run:
 
-> The app auto-detects the server it is hosted on. If you host `index.html`
-> somewhere else (e.g. GitHub Pages) and the data server separately, open the
-> app's **⚙️ Settings → Shared Data Server URL** and enter your server URL
-> (e.g. `https://your-service.onrender.com`). The server sends CORS headers, so
-> cross-origin syncing works out of the box.
+```sql
+-- In Supabase SQL Editor:
+create table public.hazard_data (id int primary key, data jsonb, updated_at bigint);
+insert into public.hazard_data (id, data, updated_at) values (1, null, 0) on conflict do nothing;
+-- Enable RLS + public read/write policies (see schema.sql for full version)
+```
 
----
+### 2) Render Deploy (One-Click)
 
-## 🧪 Static-only usage (no server)
+1. Push this repo to your GitHub (`Musahid33/hazard-mapping`)
+2. Go to https://render.com → **New +** → **Blueprint**
+3. Connect repo — Render auto-detects `render.yaml`
+4. In Environment, set:
+   ```
+   SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   LIVE_URL=https://your-service.onrender.com
+   ```
+5. Deploy → you get live URL like `https://hazard-map-dashboard.onrender.com`
+6. Open live URL on any device — everyone shares same Supabase data
 
-If you just open `index.html` directly (or host it on GitHub Pages) **without**
-the server, the app still works — data is kept safely in that browser
-(`localStorage`) and does **not** vanish until you press **Reset**. It just
-won't sync across devices. Running `server.js` adds the cross-device sync.
+### 3) GitHub Pages (Static Frontend)
 
----
+Already auto-deploys on push to `main` via `deploy.yml`:
 
-## 🔁 How shared sync behaves
-
-- **Auto-save:** every change is written to the server ~1 second after you stop
-  typing (plus an instant local copy).
-- **Auto-refresh:** the app checks the server every 6 seconds; if another
-  device changed something, this device updates automatically. It never
-  overwrites while you are actively typing.
-- **Reset:** the **↺ Reset** action (password-protected) clears the data on the
-  shared server too — so it resets for everyone.
-- **First run:** if the server has no data yet, the first device to open the
-  app seeds it with the built-in sample areas.
+- Live static site: `https://Musahid33.github.io/hazard-mapping/`
+- To make it sync to your Supabase server:
+  - Open site → Unlock builder → Settings → Shared Data Server URL → paste `https://your-service.onrender.com` → Save → Sync Now
 
 ---
 
-## 📄 License / Ownership
+## 🔁 How Sync Works (Supabase)
 
-All source files in this repository belong to **Emvess Infraventures Pvt Ltd**.
+- **Backend detection**: server checks `SUPABASE_URL + SUPABASE_KEY` env. If present → Supabase, else file.
+- **API**: Frontend talks to `/api/data` (GET/PUT/DELETE) — same endpoint works for both backends.
+- **Auto-save**: every edit saved to Supabase ~700ms after typing + localStorage backup.
+- **Auto-refresh**: every device polls server every 6s; if another device changed, it updates automatically.
+- **Reset**: password-protected Reset clears Supabase row too — resets for everyone.
+- **Health**: `/api/health` shows backend type, Supabase URL, updatedAt, liveUrl.
+
+---
+
+## 🔐 Security
+
+- Builder unlock: username `musahid12`, password `Aaru#123` (SHA-256 hashed in frontend)
+- Optional server write protection: set `SYNC_TOKEN` env var, then enter same token in Settings → Access Token
+- Supabase: server uses `SERVICE_ROLE_KEY` which bypasses RLS. For stricter control, remove public write policy and only allow service_role.
+
+---
+
+## 📄 License
+
+All source files belong to **Emvess Infraventures Pvt Ltd**.
