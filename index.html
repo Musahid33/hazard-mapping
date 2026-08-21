@@ -147,7 +147,7 @@
   .preview-wrap { padding: 14px; overflow: auto; max-height: 90vh; }
 
   .hazard-map {
-    background: #fff; width: 100%; min-width: 1100px;
+    background: #fff; width: 100%; min-width: 1250px;
     border: 1px solid #999; font-size: 11px;
   }
 
@@ -195,6 +195,7 @@
   .hm-table .col-act { width: 100px; }
   .hm-table .col-hzt { width: 85px; }
   .hm-table .col-hz  { width: 110px; }
+  .hm-table .col-rdesc { width: 155px; }
   .hm-table .col-rsk { width: 70px; }
   .hm-table .col-ppe { width: auto; }
   .hm-table .col-rem { width: 110px; }
@@ -225,6 +226,10 @@
   .ppe-cell .ppe-item .icon { font-size: 22px; line-height: 1; }
   .ppe-cell .ppe-item .lbl { font-size: 9px; margin-top: 2px; font-weight: 600; }
 
+  .risk-description-cell {
+    text-align: left; padding: 6px 8px; font-size: 10.5px;
+    white-space: pre-wrap; line-height: 1.35;
+  }
   .remarks-cell { text-align: left; padding-left: 8px; font-size: 10.5px; }
 
   .hm-legend {
@@ -519,6 +524,10 @@ function rowTemplate(idx) {
       <textarea class="f-hz" placeholder="Hit by vehicle&#10;Falling material" oninput="updatePreview()"></textarea>
     </div>
     <div class="form-row">
+      <label>Risk Describe</label>
+      <textarea class="f-risk-desc" placeholder="Describe the risk and possible consequence." oninput="updatePreview()"></textarea>
+    </div>
+    <div class="form-row">
       <label>Risk Level</label>
       <select class="f-risk" onchange="updatePreview()">
         <option value="safe">SAFE (Low Risk)</option>
@@ -642,6 +651,7 @@ function populateRow(idx, d) {
   root.querySelector('.f-act').value    = (d.activity || []).join('\n');
   root.querySelector('.f-hzt').value    = (d.hazardType || []).join('\n');
   root.querySelector('.f-hz').value     = (d.hazard || []).join('\n');
+  root.querySelector('.f-risk-desc').value = d.riskDescription || '';
   root.querySelector('.f-risk').value   = d.risk || 'critical';
   root.querySelector('.f-rem').value    = d.remarks || '';
   root.querySelectorAll('.f-ppe').forEach(cb => {
@@ -668,6 +678,7 @@ function collectData() {
       activity: sec.querySelector('.f-act').value.split('\n').filter(s => s.trim()),
       hazardType: sec.querySelector('.f-hzt').value.split('\n').filter(s => s.trim()),
       hazard: sec.querySelector('.f-hz').value.split('\n').filter(s => s.trim()),
+      riskDescription: sec.querySelector('.f-risk-desc').value.trim(),
       risk: sec.querySelector('.f-risk').value,
       remarks: sec.querySelector('.f-rem').value,
       ppe: ppe
@@ -708,6 +719,7 @@ function buildMap(d) {
       <td ${isColumnVisible('col-act')?'':'style="display:none"'}><div class="list-cell"><ul>${r.activity.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hzt')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazardType.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hz')?'':'style="display:none"'}><div class="list-cell"><ul>${r.hazard.map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
+      <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}>${escape(r.riskDescription) || '—'}</td>
       <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${risk.label}</div></td>
       <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
       <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(r.remarks) || ''}</td>
@@ -746,12 +758,13 @@ function buildMap(d) {
           <th class="col-act" ${isColumnVisible('col-act')?'':'style="display:none"'}    >ACTIVITY</th>
           <th class="col-hzt" ${isColumnVisible('col-hzt')?'':'style="display:none"'}    >HAZARD TYPES</th>
           <th class="col-hz" ${isColumnVisible('col-hz')?'':'style="display:none"'}      >HAZARD</th>
+          <th class="col-rdesc" ${isColumnVisible('col-rdesc')?'':'style="display:none"'} >RISK DESCRIBE</th>
           <th class="col-rsk" ${isColumnVisible('col-rsk')?'':'style="display:none"'}    >RISK LEVEL</th>
           <th class="col-ppe" ${isColumnVisible('col-ppe')?'':'style="display:none"'}    >REQ PPE (${escape(d.company) || 'Emvess Infraventures Pvt Ltd'} APPROVED)</th>
           <th class="col-rem" ${isColumnVisible('col-rem')?'':'style="display:none"'}    >REMARKS</th>
         </tr>
       </thead>
-      <tbody>${rowsHTML || (filterMode !== null ? '<tr><td colspan="9" style="padding:30px;color:#999">No data for filtered area. Click "Clear Filter" above to show all areas.</td></tr>' : '<tr><td colspan="9" style="padding:30px;color:#999">Add at least one hazard area to see preview</td></tr>')}</tbody>
+      <tbody>${rowsHTML || (filterMode !== null ? '<tr><td colspan="10" style="padding:30px;color:#999">No data for filtered area. Click "Clear Filter" above to show all areas.</td></tr>' : '<tr><td colspan="10" style="padding:30px;color:#999">Add at least one hazard area to see preview</td></tr>')}</tbody>
     </table>
     <div class="hm-legend">
       <div>
@@ -878,6 +891,7 @@ function buildColumnToggles() {
     { id: 'col-act',     label: 'Activity' },
     { id: 'col-hzt',     label: 'Hazard Types' },
     { id: 'col-hz',      label: 'Hazard' },
+    { id: 'col-rdesc',   label: 'Risk Describe' },
     { id: 'col-rsk',     label: 'Risk Level' },
     { id: 'col-ppe',     label: 'Req PPE' },
     { id: 'col-rem',     label: 'Remarks' }
@@ -911,7 +925,7 @@ function toggleColumn(colId, visible) {
 }
 
 function setAllColumns(visible) {
-  const cols = ['col-sr','col-loc','col-subloc','col-act','col-hzt','col-hz','col-rsk','col-ppe','col-rem'];
+  const cols = ['col-sr','col-loc','col-subloc','col-act','col-hzt','col-hz','col-rdesc','col-rsk','col-ppe','col-rem'];
   const map = {};
   cols.forEach(c => map[c] = visible);
   localStorage.setItem('hazardMapColumnVisibility', JSON.stringify(map));
@@ -966,6 +980,7 @@ function loadSample() {
       activity: d.activity,
       hazardType: d.hazardType,
       hazard: d.hazard,
+      riskDescription: d.riskDescription || '',
       risk: d.risk,
       remarks: d.remarks,
       ppe: d.ppe
@@ -1055,7 +1070,7 @@ function downloadExcel() {
     aoa.push([d.title || 'HAZARD MAP']);
     aoa.push([`${d.company || 'Emvess Infraventures Pvt Ltd'}  |  Date: ${d.date || '-'}  |  Prepared By: ${d.prepared || '-'}  |  Reviewed By: ${d.reviewed || '-'}`]);
     aoa.push([]);
-    aoa.push(['Sr.', 'LOCATION', 'SUB LOCATION', 'ACTIVITY', 'HAZARD TYPES', 'HAZARD', 'RISK LEVEL', 'PPE REQUIRED', 'PPE COUNT', 'REMARKS']);
+    aoa.push(['Sr.', 'LOCATION', 'SUB LOCATION', 'ACTIVITY', 'HAZARD TYPES', 'HAZARD', 'RISK DESCRIBE', 'RISK LEVEL', 'PPE REQUIRED', 'PPE COUNT', 'REMARKS']);
     (d.rows || []).forEach((r, i) => {
       const ppeList = (r.ppe || []).map(p => ppeLabel[p] || p);
       aoa.push([
@@ -1065,6 +1080,7 @@ function downloadExcel() {
         (r.activity || []).join('\n'),
         (r.hazardType || []).join('\n'),
         (r.hazard || []).join('\n'),
+        r.riskDescription || '',
         riskText[r.risk] || (r.risk || '').toUpperCase(),
         ppeList.join(', '),
         ppeList.length,
@@ -1084,6 +1100,7 @@ function downloadExcel() {
       { wch: 20 },  // Activity
       { wch: 16 },  // Hazard Types
       { wch: 22 },  // Hazard
+      { wch: 32 },  // Risk Describe
       { wch: 16 },  // Risk
       { wch: 55 },  // PPE
       { wch: 10 },  // PPE count
@@ -1093,9 +1110,9 @@ function downloadExcel() {
     // Merge cells
     const lastRow = aoa.length;
     ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } }, // title
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } }, // subtitle
-      { s: { r: lastRow - 1, c: 0 }, e: { r: lastRow - 1, c: 9 } } // footer
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // title
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // subtitle
+      { s: { r: lastRow - 1, c: 0 }, e: { r: lastRow - 1, c: 10 } } // footer
     ];
 
     // Apply formatting via cell-level styles
@@ -1114,7 +1131,7 @@ function downloadExcel() {
            alignment: { horizontal: 'center' } }
     });
     // Header row (row 4)
-    for (let c = 0; c < 10; c++) {
+    for (let c = 0; c < 11; c++) {
       const addr = XLSX.utils.encode_cell({ r: 3, c });
       setCellStyle(addr, {
         s: { font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
@@ -1129,13 +1146,13 @@ function downloadExcel() {
     const riskFontColor = { critical: 'FFFFFF', vhigh: 'FFFFFF' };
     (d.rows || []).forEach((r, i) => {
       const row = 5 + i;
-      for (let c = 0; c < 10; c++) {
+      for (let c = 0; c < 11; c++) {
         const addr = XLSX.utils.encode_cell({ r: row - 1, c });
-        const isRisk = c === 6;
+        const isRisk = c === 7;
         const isLoc = c === 1;
         const isSub = c === 2;
         const style = {
-          s: { alignment: { vertical: 'center', wrapText: true, horizontal: c === 0 || c === 8 || c === 6 ? 'center' : 'left' },
+          s: { alignment: { vertical: 'center', wrapText: true, horizontal: c === 0 || c === 9 || c === 7 ? 'center' : 'left' },
                font: { sz: 10, bold: isRisk || isLoc || c === 0 },
                border: { top:{style:'thin',color:{rgb:'CCCCCC'}}, bottom:{style:'thin',color:{rgb:'CCCCCC'}},
                          left:{style:'thin',color:{rgb:'CCCCCC'}}, right:{style:'thin',color:{rgb:'CCCCCC'}} } }
@@ -1165,7 +1182,7 @@ function downloadExcel() {
     ws['!rows'][3] = { hpt: 32 };
     (d.rows || []).forEach((r, i) => {
       const ppeCount = (r.ppe || []).length;
-      const maxLines = Math.max(ppeCount > 0 ? 1 : 0, (r.hazard || []).length, (r.activity || []).length, 2);
+      const maxLines = Math.max(ppeCount > 0 ? 1 : 0, (r.hazard || []).length, (r.activity || []).length, (r.riskDescription || '').split('\n').length, 2);
       ws['!rows'][4 + i] = { hpt: 16 * maxLines + 10 };
     });
 
