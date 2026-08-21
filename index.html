@@ -169,7 +169,7 @@
   }
   .add-row:hover { background: #388e3c; }
 
-  .meta-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .meta-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
   .meta-form .form-row label { font-size: 10px; }
 
   .preview-panel {
@@ -229,7 +229,13 @@
     background: #1a3a6c; color: #fff; padding: 10px 14px;
     display: flex; justify-content: space-between; align-items: center;
   }
+  .hm-header-left { display: flex; flex-direction: column; gap: 5px; }
   .hm-header h1 { font-size: 22px; font-weight: 900; letter-spacing: 0.5px; }
+  .hm-docmeta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+  .hm-docmeta span {
+    background: rgba(255,255,255,0.12); padding: 3px 10px;
+    border-radius: 3px; border: 1px solid rgba(255,255,255,0.28);
+  }
   .hm-header .logo {
     background: #fff; color: #1a3a6c; padding: 4px 12px;
     border-radius: 3px; font-weight: 800; font-size: 14px;
@@ -521,16 +527,46 @@
       <h3 data-i18n="document.info">📌 Document Info</h3>
       <div class="meta-form">
         <div class="form-row">
+          <label data-i18n="form.docNo">Document No.</label>
+          <input type="text" id="metaDocNo" value="EIPL/SMP/HM/01" oninput="updatePreview()">
+        </div>
+        <div class="form-row">
+          <label data-i18n="form.revNo">Rev. No.</label>
+          <select id="metaRevNo" onchange="updatePreview()">
+            <option value="00" selected>00</option>
+            <option value="01">01</option>
+            <option value="02">02</option>
+            <option value="03">03</option>
+            <option value="04">04</option>
+            <option value="05">05</option>
+            <option value="06">06</option>
+            <option value="07">07</option>
+            <option value="08">08</option>
+            <option value="09">09</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <div class="form-row">
           <label data-i18n="form.date">Date</label>
-          <input type="date" id="metaDate">
+          <input type="date" id="metaDate" onchange="updatePreview()">
         </div>
         <div class="form-row">
           <label data-i18n="form.preparedBy">Prepared By</label>
-          <input type="text" id="metaPrepared" data-i18n-placeholder="form.name" placeholder="Name">
+          <input type="text" id="metaPrepared" data-i18n-placeholder="form.name" placeholder="Name" oninput="updatePreview()">
         </div>
         <div class="form-row">
           <label data-i18n="form.reviewedBy">Reviewed By</label>
-          <input type="text" id="metaReviewed" data-i18n-placeholder="form.name" placeholder="Name">
+          <input type="text" id="metaReviewed" data-i18n-placeholder="form.name" placeholder="Name" oninput="updatePreview()">
         </div>
       </div>
     </div>
@@ -649,15 +685,33 @@
       <h3 data-i18n="settings.title">⚙️ Settings</h3>
       <div class="form-row">
         <label data-i18n="settings.mapTitle">Map Title</label>
-        <input type="text" id="mapTitle" value="HAZARD MAP – WORK AREA & PPE REQUIREMENT">
+        <input type="text" id="mapTitle" value="HAZARD MAP – WORK AREA & PPE REQUIREMENT" oninput="updatePreview()">
       </div>
       <div class="form-row">
         <label data-i18n="settings.company">Company / Logo Text</label>
-        <input type="text" id="companyName" value="Emvess Infraventures Pvt Ltd">
+        <input type="text" id="companyName" value="Emvess Infraventures Pvt Ltd" oninput="updatePreview()">
       </div>
       <div class="form-row">
         <label data-i18n="settings.footer">Footer Note</label>
-        <input type="text" id="footerNote" value="Note: All PPE must be Tata Steel Approved Make Only.">
+        <input type="text" id="footerNote" value="Note: All PPE must be Tata Steel Approved Make Only." oninput="updatePreview()">
+      </div>
+      <div class="form-row">
+        <label data-i18n="settings.syncUrl">Shared Data Server URL (optional)</label>
+        <input type="text" id="syncUrl" placeholder="Leave blank to auto-detect the server hosting this page">
+      </div>
+      <div class="form-row">
+        <label data-i18n="settings.syncToken">Access Token (optional)</label>
+        <input type="text" id="syncToken" placeholder="Only if your shared server requires one">
+      </div>
+      <div class="form-row">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <button type="button" onclick="applySyncSettings()" style="flex:1; background:#1a3a6c; color:#fff; border:none; padding:7px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">💾 Save Sync Settings</button>
+          <button type="button" onclick="resyncNow()" style="flex:1; background:#00838f; color:#fff; border:none; padding:7px 10px; border-radius:4px; font-weight:700; cursor:pointer; font-size:12px;">🔄 Sync Now</button>
+        </div>
+        <div id="syncStatus" style="font-size:11px; color:#555; margin-top:6px;"></div>
+      </div>
+      <div style="font-size:11px; color:#555; line-height:1.4; background:#eef2f7; padding:8px 10px; border-radius:4px; border-left:3px solid #1a3a6c; margin-top:4px;">
+        💡 <b>Shared data:</b> changes are saved on a shared server so they appear on <b>every device / computer</b> (not just this one). Leave the URL blank to auto-detect the server hosting this page. If no server is found, data is still kept safely in this browser until you press <b>Reset</b>.
       </div>
     </div>
     </div><!-- /builderContent -->
@@ -833,6 +887,8 @@ const TRANSLATIONS = {
     'columns.showAll': '✓ Show All',
     'columns.hideAll': '✗ Hide All',
     'document.info': '📌 Document Info',
+    'form.docNo': 'Document No.',
+    'form.revNo': 'Rev. No.',
     'form.date': 'Date',
     'form.preparedBy': 'Prepared By',
     'form.reviewedBy': 'Reviewed By',
@@ -861,6 +917,8 @@ const TRANSLATIONS = {
     'settings.mapTitle': 'Map Title',
     'settings.company': 'Company / Logo Text',
     'settings.footer': 'Footer Note',
+    'settings.syncUrl': 'Shared Data Server URL (optional)',
+    'settings.syncToken': 'Access Token (optional)',
     'preview.title': '👁️ Live Preview',
     'preview.tip': '<b>Tip:</b> Filter by <b>location</b> or by <b>SOP</b>. SOP filter prints Activity, Hazard Type, Hazard, Risk Description and Required PPE. Use <b>Clear Filter</b> to show all.',
     'preview.quickFilter': '🔍 Quick Filter:',
@@ -908,6 +966,8 @@ const TRANSLATIONS = {
     'table.date': 'Date:',
     'table.preparedBy': 'Prepared By:',
     'table.reviewedBy': 'Reviewed By:',
+    'table.docNo': 'Document No.',
+    'table.revNo': 'Rev. No.',
     'risk.safe.label': 'SAFE',
     'risk.safe.desc': '(Low Risk)',
     'risk.moderate.label': 'MODERATE',
@@ -1068,6 +1128,8 @@ const TRANSLATIONS = {
     'columns.showAll': '✓ सभी दिखाएँ',
     'columns.hideAll': '✗ सभी छिपाएँ',
     'document.info': '📌 दस्तावेज़ जानकारी',
+    'form.docNo': 'दस्तावेज़ संख्या',
+    'form.revNo': 'संशोधन संख्या',
     'form.date': 'तारीख',
     'form.preparedBy': 'तैयार किया',
     'form.reviewedBy': 'समीक्षा की',
@@ -1096,6 +1158,8 @@ const TRANSLATIONS = {
     'settings.mapTitle': 'मैप शीर्षक',
     'settings.company': 'कंपनी / लोगो टेक्स्ट',
     'settings.footer': 'फुटर नोट',
+    'settings.syncUrl': 'साझा डेटा सर्वर URL (वैकल्पिक)',
+    'settings.syncToken': 'एक्सेस टोकन (वैकल्पिक)',
     'preview.title': '👁️ लाइव प्रिव्यू',
     'preview.tip': '<b>टिप:</b> <b>स्थान</b> या <b>SOP</b> से फ़िल्टर करें। SOP फ़िल्टर में गतिविधि, हैज़र्ड प्रकार, हैज़र्ड, जोखिम विवरण और आवश्यक PPE प्रिंट होगी।',
     'preview.quickFilter': '🔍 त्वरित फ़िल्टर:',
@@ -1143,6 +1207,8 @@ const TRANSLATIONS = {
     'table.date': 'तारीख:',
     'table.preparedBy': 'तैयार किया:',
     'table.reviewedBy': 'समीक्षा की:',
+    'table.docNo': 'दस्तावेज़ संख्या',
+    'table.revNo': 'संशोधन संख्या',
     'risk.safe.label': 'सुरक्षित',
     'risk.safe.desc': '(कम जोखिम)',
     'risk.moderate.label': 'मध्यम',
@@ -2481,6 +2547,8 @@ function collectData() {
     date: document.getElementById('metaDate').value,
     prepared: document.getElementById('metaPrepared').value,
     reviewed: document.getElementById('metaReviewed').value,
+    docNo: document.getElementById('metaDocNo') ? document.getElementById('metaDocNo').value : 'EIPL/SMP/HM/01',
+    revNo: document.getElementById('metaRevNo') ? document.getElementById('metaRevNo').value : '00',
     rows: []
   };
   document.querySelectorAll('#rowsContainer .form-section').forEach(sec => {
@@ -2502,13 +2570,17 @@ function collectData() {
   return data;
 }
 
-function updatePreview() {
+function renderPreview() {
   const d = collectData();
   document.getElementById('hazardMap').innerHTML = buildMap(d);
   refreshPickFilled();
   refreshQuickFilter();
   refreshSopFilters();
   refreshRiskFilters();
+}
+
+function updatePreview() {
+  renderPreview();
   saveState();
 }
 
@@ -2587,7 +2659,13 @@ function buildMap(d) {
 
   return `
     <div class="hm-header">
-      <h1>${escape(translateDataText(d.title)) || 'HAZARD MAP'}</h1>
+      <div class="hm-header-left">
+        <h1>${escape(translateDataText(d.title)) || 'HAZARD MAP'}</h1>
+        <div class="hm-docmeta">
+          <span>${t('table.docNo')}: ${escape(d.docNo) || 'EIPL/SMP/HM/01'}</span>
+          <span>${t('table.revNo')}: ${escape(d.revNo) || '00'}</span>
+        </div>
+      </div>
       <div class="logo">${escape(translateDataText(d.company)) || 'Emvess Infraventures Pvt Ltd'}</div>
     </div>
     ${filterBanner}
@@ -2920,6 +2998,8 @@ function loadSample() {
   document.getElementById('metaDate').value = new Date().toISOString().slice(0,10);
   document.getElementById('metaPrepared').value = 'Safety Officer';
   document.getElementById('metaReviewed').value = 'Plant Head';
+  document.getElementById('metaDocNo').value = 'EIPL/SMP/HM/01';
+  document.getElementById('metaRevNo').value = '00';
 
   const sample = [
     { loc:'Entry Gate', sop:'SOP-VEH-ENT Vehicle Entry',           sub:'Main Gate Cabin',                                activity:['Vehicle Entry','ID Check','Documentation'],         hazardType:['Physical','Traffic'],         hazard:['Hit by vehicle','Slip/Trip','Unauthorized access'],                  risk:'moderate', ppe:['helmet','reflective','shoes'],                                              remarks:'Follow entry procedure & traffic rules.' },
@@ -2969,8 +3049,187 @@ function loadSample() {
   toast(t('toast.sampleLoaded'));
 }
 
+// ============== CLOUD SYNC (cross-device shared data) ==============
+// Data is cached in localStorage (so it never vanishes until Reset) AND is
+// synced to a small backend at "/api/data" so every device / computer sees the
+// same data. Run `node server.js` (included in this repo) to host the app + the
+// shared data store, or enter a "Shared Data Server URL" in ⚙️ Settings.
+let SYNC_CONFIG = { url: '', token: '' };
+let _cloudReachable = null; // null = unknown, true = reachable, false = gave up
+let _cloudFailStreak = 0;
+let _dirty = false;         // user is mid-edit → don't overwrite with remote data
+let _editVersion = 0;       // bumped on every local change
+let _lastSyncedAt = 0;      // server updatedAt of the last data we wrote/applied
+let _applyingRemote = false;// guard: applying remote/local data should not re-save
+let _cloudSaveTimer = null;
+let _cloudPollTimer = null;
+
+function loadSyncConfig() {
+  try {
+    const raw = localStorage.getItem('hazardMapSyncConfig');
+    if (raw) SYNC_CONFIG = Object.assign({ url: '', token: '' }, JSON.parse(raw));
+  } catch (e) { SYNC_CONFIG = { url: '', token: '' }; }
+}
+
+function saveSyncConfig() {
+  try { localStorage.setItem('hazardMapSyncConfig', JSON.stringify(SYNC_CONFIG)); } catch (e) {}
+}
+
+function apiBase() {
+  if (SYNC_CONFIG.url) return SYNC_CONFIG.url.replace(/\/+$/, '');
+  let origin = '';
+  try { origin = window.location.origin; } catch (e) {}
+  if (!origin || origin === 'null' || origin.indexOf('file:') === 0) return '';
+  return origin;
+}
+
+function syncHeaders() {
+  const h = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+  if (SYNC_CONFIG.token) h['Authorization'] = 'Bearer ' + SYNC_CONFIG.token;
+  return h;
+}
+
+async function cloudLoad() {
+  // Returns { ok:true, data, updatedAt } or { ok:false }
+  if (!apiBase()) return { ok: false };
+  try {
+    const res = await fetch(apiBase() + '/api/data', { method: 'GET', headers: syncHeaders() });
+    if (!res.ok) return { ok: false };
+    const json = await res.json();
+    if (!json || typeof json !== 'object') return { ok: false };
+    return { ok: true, data: json.data || null, updatedAt: json.updatedAt || 0 };
+  } catch (e) {
+    return { ok: false };
+  }
+}
+
+async function cloudSave(data) {
+  if (!apiBase()) return false;
+  try {
+    const res = await fetch(apiBase() + '/api/data', {
+      method: 'PUT',
+      headers: syncHeaders(),
+      body: JSON.stringify({ updatedAt: Date.now(), data })
+    });
+    if (!res.ok) return false;
+    const json = await res.json().catch(() => null);
+    if (json && json.updatedAt) _lastSyncedAt = json.updatedAt;
+    _cloudReachable = true;
+    _cloudFailStreak = 0;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function setMetaFromData(d) {
+  document.getElementById('mapTitle').value = d.title || '';
+  document.getElementById('companyName').value = d.company || '';
+  document.getElementById('footerNote').value = d.footer || '';
+  document.getElementById('metaDate').value = d.date || '';
+  document.getElementById('metaPrepared').value = d.prepared || '';
+  document.getElementById('metaReviewed').value = d.reviewed || '';
+  const docEl = document.getElementById('metaDocNo');
+  if (docEl) docEl.value = d.docNo || 'EIPL/SMP/HM/01';
+  const revEl = document.getElementById('metaRevNo');
+  const revVal = d.revNo || '00';
+  if (revEl) {
+    if (!Array.from(revEl.options).some(o => o.value === revVal)) {
+      const opt = document.createElement('option');
+      opt.value = revVal; opt.textContent = revVal;
+      revEl.appendChild(opt);
+    }
+    revEl.value = revVal;
+  }
+}
+
+function applyRemoteData(d) {
+  _applyingRemote = true;
+  try {
+    setMetaFromData(d);
+    document.getElementById('rowsContainer').innerHTML = '';
+    rowCount = 0;
+    (d.rows || []).forEach(r => addRow(r));
+    try { localStorage.setItem('hazardDashboard', JSON.stringify(d)); } catch (e) {}
+  } finally {
+    _applyingRemote = false;
+  }
+  renderPreview();
+  if (typeof builderUnlocked !== 'undefined' && builderUnlocked && typeof buildColumnToggles === 'function') buildColumnToggles();
+  toast('🔄 Updated from shared data');
+}
+
+async function pollCloud() {
+  if (_cloudReachable === false) return; // already gave up — press "Sync Now" to retry
+  if (_dirty) return;                    // user is typing — never clobber their edits
+  const remote = await cloudLoad();
+  if (remote.ok) {
+    _cloudFailStreak = 0;
+    if (remote.data && (remote.updatedAt || 0) > _lastSyncedAt) {
+      _lastSyncedAt = remote.updatedAt || 0;
+      applyRemoteData(remote.data);
+    }
+  } else {
+    _cloudFailStreak++;
+    if (_cloudFailStreak >= 3) _cloudReachable = false;
+  }
+}
+
+function startCloudPolling() {
+  if (_cloudPollTimer) clearInterval(_cloudPollTimer);
+  _cloudPollTimer = setInterval(pollCloud, 6000);
+}
+
+function updateSyncStatus(msg) {
+  const el = document.getElementById('syncStatus');
+  if (el) el.textContent = msg;
+}
+
+function applySyncSettings() {
+  const url = (document.getElementById('syncUrl').value || '').trim();
+  const token = (document.getElementById('syncToken').value || '').trim();
+  SYNC_CONFIG = { url, token };
+  saveSyncConfig();
+  _cloudReachable = null;
+  _cloudFailStreak = 0;
+  updateSyncStatus(url ? 'Saved. Will sync to ' + url + ' …' : 'Saved. Auto-detecting shared server…');
+  resyncNow();
+}
+
+async function resyncNow() {
+  _cloudReachable = null;
+  _cloudFailStreak = 0;
+  updateSyncStatus('Connecting to shared server…');
+  const remote = await cloudLoad();
+  if (remote.ok && remote.data) {
+    _lastSyncedAt = remote.updatedAt || 0;
+    _dirty = false;
+    applyRemoteData(remote.data);
+    updateSyncStatus('✓ Connected — latest data loaded from the shared server');
+  } else if (remote.ok) {
+    // Server is up but has no data yet → push whatever we have locally.
+    const ok = await cloudSave(collectData());
+    updateSyncStatus(ok ? '✓ Connected — local data pushed to the shared server' : '⚠ Connected but could not save — retry Sync Now');
+  } else {
+    updateSyncStatus('⚠ No shared server found — data stays on this device until you Reset');
+  }
+}
+
 function saveState() {
-  try { localStorage.setItem('hazardDashboard', JSON.stringify(collectData())); } catch(e) {}
+  const data = collectData();
+  try { localStorage.setItem('hazardDashboard', JSON.stringify(data)); } catch(e) {}
+  if (_applyingRemote) return;
+  _dirty = true;
+  _editVersion++;
+  if (_cloudSaveTimer) clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer = setTimeout(async () => {
+    _cloudSaveTimer = null;
+    const versionAtStart = _editVersion;
+    const ok = await cloudSave(data);
+    if (_editVersion === versionAtStart && ok) {
+      _dirty = false;
+    }
+  }, 700);
 }
 
 function loadState() {
@@ -2978,15 +3237,15 @@ function loadState() {
     const raw = localStorage.getItem('hazardDashboard');
     if (!raw) return false;
     const d = JSON.parse(raw);
-    document.getElementById('mapTitle').value = d.title || '';
-    document.getElementById('companyName').value = d.company || '';
-    document.getElementById('footerNote').value = d.footer || '';
-    document.getElementById('metaDate').value = d.date || '';
-    document.getElementById('metaPrepared').value = d.prepared || '';
-    document.getElementById('metaReviewed').value = d.reviewed || '';
-    document.getElementById('rowsContainer').innerHTML = '';
-    rowCount = 0;
-    (d.rows || []).forEach(r => addRow(r));
+    _applyingRemote = true;
+    try {
+      setMetaFromData(d);
+      document.getElementById('rowsContainer').innerHTML = '';
+      rowCount = 0;
+      (d.rows || []).forEach(r => addRow(r));
+    } finally {
+      _applyingRemote = false;
+    }
     return true;
   } catch(e) { return false; }
 }
@@ -2994,15 +3253,26 @@ function loadState() {
 function resetAll() {
   if (confirm(t('confirm.reset'))) {
     localStorage.removeItem('hazardDashboard');
-    document.getElementById('rowsContainer').innerHTML = '';
-    rowCount = 0;
-    document.getElementById('mapTitle').value = 'HAZARD MAP – WORK AREA & PPE REQUIREMENT';
-    document.getElementById('companyName').value = 'Emvess Infraventures Pvt Ltd';
-    document.getElementById('footerNote').value = 'Note: All PPE must be Tata Steel Approved Make Only.';
-    document.getElementById('metaDate').value = '';
-    document.getElementById('metaPrepared').value = '';
-    document.getElementById('metaReviewed').value = '';
-    addRow();
+    _applyingRemote = true;
+    try {
+      document.getElementById('rowsContainer').innerHTML = '';
+      rowCount = 0;
+      document.getElementById('mapTitle').value = 'HAZARD MAP – WORK AREA & PPE REQUIREMENT';
+      document.getElementById('companyName').value = 'Emvess Infraventures Pvt Ltd';
+      document.getElementById('footerNote').value = 'Note: All PPE must be Tata Steel Approved Make Only.';
+      document.getElementById('metaDate').value = '';
+      document.getElementById('metaPrepared').value = '';
+      document.getElementById('metaReviewed').value = '';
+      document.getElementById('metaDocNo').value = 'EIPL/SMP/HM/01';
+      document.getElementById('metaRevNo').value = '00';
+      addRow();
+    } finally {
+      _applyingRemote = false;
+    }
+    _dirty = false;
+    _editVersion = 0;
+    _lastSyncedAt = 0;
+    saveState(); // push the reset (blank) document to the shared store as well
     toast(t('toast.reset'));
   }
 }
@@ -3102,7 +3372,7 @@ async function downloadExcel() {
     // --- Sheet 1: Hazard Map ---
     const aoa = [];
     aoa.push([translateDataText(d.title) || 'HAZARD MAP']);
-    aoa.push([`${translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd'}  |  ${t('table.date')} ${d.date || '-'}  |  ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}  |  ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`]);
+    aoa.push([`${t('table.docNo')}: ${d.docNo || 'EIPL/SMP/HM/01'}   |   ${t('table.revNo')}: ${d.revNo || '00'}   |   ${translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd'}  |  ${t('table.date')} ${d.date || '-'}  |  ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}  |  ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`]);
     aoa.push([]);
     aoa.push([
       t('table.sr').replace('<br>', ' '), t('table.location'), t('table.subLocation'), t('table.sop'),
@@ -3300,7 +3570,7 @@ async function downloadPPT() {
       { x:1, y:2.7, w:11.3, h:0.8, fontSize:32, bold:true, color:'1A3A6C', align:'center' });
     s.addText(t('ppt.plantLayout'),
       { x:1, y:3.5, w:11.3, h:0.5, fontSize:18, color:'C0392B', align:'center' });
-    s.addText(`${t('table.date')} ${d.date || '-'}   |   ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}   |   ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`,
+    s.addText(`${t('table.docNo')}: ${d.docNo || 'EIPL/SMP/HM/01'}   |   ${t('table.revNo')}: ${d.revNo || '00'}   |   ${t('table.date')} ${d.date || '-'}   |   ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}   |   ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`,
       { x:1, y:4.1, w:11.3, h:0.4, fontSize:12, italic:true, color:'555555', align:'center' });
     s.addText(translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd',
       { x:1, y:6.7, w:11.3, h:0.4, fontSize:16, bold:true, color:'FFFFFF', align:'center' });
@@ -3847,18 +4117,35 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeHazardRequest();
 });
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
   try {
     currentLanguage = localStorage.getItem('hazardMapLanguage') === 'hi' ? 'hi' : 'en';
   } catch (e) {
     currentLanguage = 'en';
   }
-  if (!loadState()) {
-    loadSample();
-  } else {
+  loadSyncConfig();
+
+  const urlInput = document.getElementById('syncUrl');
+  const tokenInput = document.getElementById('syncToken');
+  if (urlInput) urlInput.value = SYNC_CONFIG.url || '';
+  if (tokenInput) tokenInput.value = SYNC_CONFIG.token || '';
+
+  // The shared server is the source of truth when it is reachable and has data;
+  // otherwise fall back to this browser's cache (which never vanishes until Reset).
+  let remote = { ok: false };
+  try { remote = await cloudLoad(); } catch (e) { remote = { ok: false }; }
+
+  if (remote.ok && remote.data) {
+    _lastSyncedAt = remote.updatedAt || 0;
+    _dirty = false;
+    applyRemoteData(remote.data);
+  } else if (loadState()) {
     updatePreview();
+  } else {
+    loadSample();
   }
   applyTranslations();
+  startCloudPolling();
 });
 </script>
 </body>
