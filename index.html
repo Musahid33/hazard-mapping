@@ -29,10 +29,51 @@
   .topbar button.pptx  { background: #d24726; color: #fff; }
   .topbar button.reset { background: #9e9e9e; color: #fff; }
   .topbar button.lang-toggle { background: #7b1fa2; color: #fff; }
+  .topbar button.listen-all { background: #00838f; color: #fff; }
+  .topbar button.fullscreen { background: #3949ab; color: #fff; }
   .topbar button.locked {
     border: 2px solid #ff9800 !important;
     box-shadow: 0 0 0 2px rgba(255,152,0,0.2);
   }
+
+  /* Fullscreen preview styling */
+  .preview-wrap:fullscreen,
+  .preview-wrap:-webkit-full-screen {
+    background: #eef2f7;
+    padding: 24px;
+    overflow-y: auto;
+    width: 100vw;
+    height: 100vh;
+  }
+  .preview-wrap:fullscreen .preview-header,
+  .preview-wrap:-webkit-full-screen .preview-header {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #eef2f7;
+    padding: 8px 0 10px;
+  }
+  .preview-wrap:fullscreen .hm-table,
+  .preview-wrap:-webkit-full-screen .hm-table { font-size: 15px; }
+  .fs-exit {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 9999;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    display: none;
+  }
+  .fs-exit:hover { background: #b71c1c; }
+  .preview-wrap:fullscreen ~ .fs-exit,
+  .preview-wrap:-webkit-full-screen ~ .fs-exit { display: block; }
 
   .layout { display: grid; grid-template-columns: 380px 1fr; gap: 18px; }
   @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
@@ -341,7 +382,7 @@
   @media print {
     @page { size: A3 landscape; margin: 8mm; }
     body { background: #fff; padding: 0; }
-    .topbar, .form-panel, .preview-header, .preview-tip, .col-action, .action-req-btn, .req-overlay { display: none !important; }
+    .topbar, .form-panel, .preview-header, .preview-tip, .col-action, .action-req-btn, .req-overlay, .fs-exit, .listen-row-btn { display: none !important; }
     .layout { display: block; }
     .preview-panel { box-shadow: none; border-radius: 0; }
     .preview-wrap { padding: 0; max-height: none; overflow: visible; }
@@ -432,6 +473,8 @@
     <button class="print" data-i18n="toolbar.print" onclick="window.print()">🖨️ Print / PDF</button>
     <button class="xlsx" data-i18n="toolbar.excel"  onclick="downloadExcel()">📊 Download Excel</button>
     <button class="pptx" data-i18n="toolbar.ppt"  onclick="downloadPPT()">📽️ Download PPT</button>
+    <button class="listen-all" id="listenAllBtn" data-i18n="toolbar.listenAll" onclick="toggleListenAll()">🔊 Listen Summary</button>
+    <button class="fullscreen" id="fullscreenBtn" data-i18n="toolbar.fullscreen" onclick="toggleFullscreen()">⛶ Fullscreen</button>
     <button class="reset locked" data-i18n="toolbar.reset" onclick="openAuthModal('reset')">↺ Reset 🔒</button>
     <button class="lang-toggle" id="languageToggle" onclick="toggleLanguage()">हिन्दी</button>
   </div>
@@ -655,6 +698,8 @@
   </div>
 </div>
 
+<button class="fs-exit" id="fsExitBtn" data-i18n="toolbar.exitFullscreen" onclick="exitFullscreen()">✕ Exit Fullscreen</button>
+
 <div class="toast" id="toast"></div>
 
 
@@ -747,6 +792,9 @@ const TRANSLATIONS = {
     'toolbar.ppt': '📽️ Download PPT',
     'toolbar.listen': '🔊 Listen',
     'toolbar.stop': '⏹️ Stop',
+    'toolbar.listenAll': '🔊 Listen Summary',
+    'toolbar.fullscreen': '⛶ Fullscreen',
+    'toolbar.exitFullscreen': '✕ Exit Fullscreen',
     'listen.listen': 'Listen',
     'listen.introAll': 'Reading all hazard areas.',
     'listen.areaNumber': 'Area {{n}}',
@@ -754,6 +802,15 @@ const TRANSLATIONS = {
     'listen.noAreas': 'No hazard areas to read aloud.',
     'listen.stopped': '🔇 Stopped',
     'listen.notSupported': '🔇 Voice reading is not supported in this browser.',
+    'listen.summary.intro': 'Welcome to the hazard map briefing for {{company}}. This map covers {{count}} work areas across the site.',
+    'listen.summary.totals': 'Out of these, {{safe}} areas are marked safe, {{moderate}} are moderate risk, {{critical}} are critical, and {{vhigh}} are very critical and require immediate attention.',
+    'listen.summary.noAreas': 'No hazard areas are currently loaded. Please add areas or load sample data.',
+    'listen.summary.highIntro': 'Pay special attention to the following high-risk areas.',
+    'listen.summary.areaLine': 'Area {{n}}: {{location}}. Risk level: {{risk}}. Main hazards: {{hazards}}. Required PPE: {{ppe}}.',
+    'listen.summary.outro': 'Always wear the required PPE and follow standard operating procedures. Safety first. Thank you.',
+    'fullscreen.on': '⛶ Fullscreen enabled — press Esc or click Exit to return',
+    'fullscreen.off': 'Exited fullscreen',
+    'fullscreen.notSupported': 'Fullscreen is not supported in this browser.',
     'toolbar.sample': '📋 Sample 🔒',
     'toolbar.reset': '↺ Reset 🔒',
     'builder.title': '📝 Hazard Map Builder 🔒',
@@ -970,6 +1027,9 @@ const TRANSLATIONS = {
     'toolbar.ppt': '📽️ PPT डाउनलोड करें',
     'toolbar.listen': '🔊 सुनें',
     'toolbar.stop': '⏹️ रोकें',
+    'toolbar.listenAll': '🔊 सारांश सुनें',
+    'toolbar.fullscreen': '⛶ फुलस्क्रीन',
+    'toolbar.exitFullscreen': '✕ फुलस्क्रीन बंद करें',
     'listen.listen': 'सुनें',
     'listen.introAll': 'सभी हैज़र्ड एरिया पढ़ी जा रही हैं।',
     'listen.areaNumber': 'एरिया {{n}}',
@@ -977,6 +1037,15 @@ const TRANSLATIONS = {
     'listen.noAreas': 'पढ़ने के लिए कोई हैज़र्ड एरिया नहीं है।',
     'listen.stopped': '🔇 रोका गया',
     'listen.notSupported': '🔇 इस ब्राउज़र में आवाज़ पढ़ने की सुविधा उपलब्ध नहीं है।',
+    'listen.summary.intro': '{{company}} के हैज़र्ड मैप ब्रीफिंग में आपका स्वागत है। इस मैप में साइट के कुल {{count}} कार्य क्षेत्र शामिल हैं।',
+    'listen.summary.totals': 'इनमें से {{safe}} क्षेत्र सुरक्षित चिह्नित हैं, {{moderate}} मध्यम जोखिम, {{critical}} गंभीर, और {{vhigh}} अति गंभीर हैं जिन पर तुरंत ध्यान देने की आवश्यकता है।',
+    'listen.summary.noAreas': 'वर्तमान में कोई हैज़र्ड एरिया लोड नहीं है। कृपया एरिया जोड़ें या सैंपल डेटा लोड करें।',
+    'listen.summary.highIntro': 'निम्न उच्च जोखिम वाले क्षेत्रों पर विशेष ध्यान दें।',
+    'listen.summary.areaLine': 'एरिया {{n}}: {{location}}. जोखिम स्तर: {{risk}}. मुख्य खतरे: {{hazards}}. आवश्यक PPE: {{ppe}}.',
+    'listen.summary.outro': 'हमेशा आवश्यक PPE पहनें और मानक संचालन प्रक्रियाओं का पालन करें। सुरक्षा पहले। धन्यवाद।',
+    'fullscreen.on': '⛶ फुलस्क्रीन चालू — वापस आने के लिए Esc दबाएँ या Exit पर क्लिक करें',
+    'fullscreen.off': 'फुलस्क्रीन बंद हुई',
+    'fullscreen.notSupported': 'इस ब्राउज़र में फुलस्क्रीन समर्थित नहीं है।',
     'toolbar.sample': '📋 सैंपल 🔒',
     'toolbar.reset': '↺ रीसेट 🔒',
     'builder.title': '📝 हैज़र्ड मैप बिल्डर 🔒',
@@ -1965,6 +2034,8 @@ function applyTranslations() {
   const languageButton = document.getElementById('languageToggle');
   if (languageButton) languageButton.textContent = currentLanguage === 'en' ? 'हिन्दी' : 'English';
   if (typeof applyRequestFormI18n === 'function') applyRequestFormI18n();
+  if (typeof updateListenButtons === 'function') updateListenButtons();
+  if (typeof syncFullscreenButton === 'function') syncFullscreenButton();
 }
 
 function ppeLabelFor(ppe) {
@@ -3513,6 +3584,7 @@ function openMailtoRequest(mail) {
 
 // ============== LISTEN (Text-to-Speech / Read Aloud) ==============
 let _speechActive = false;
+let _speechMode = null; // 'row' | 'summary'
 
 function speechSupported() {
   return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
@@ -3520,13 +3592,34 @@ function speechSupported() {
 
 function pickSpeechVoice(lang) {
   if (!speechSupported()) return null;
-  const voices = window.speechSynthesis.getVoices();
+  // Voices load async on some browsers — try to prime them first.
+  let voices = window.speechSynthesis.getVoices();
+  if (!voices || !voices.length) {
+    // Kick the engine to load voices
+    try {
+      const u = new SpeechSynthesisUtterance('');
+      window.speechSynthesis.speak(u);
+      window.speechSynthesis.cancel();
+    } catch(e) {}
+    voices = window.speechSynthesis.getVoices();
+  }
   if (!voices || !voices.length) return null;
   const target = lang === 'hi' ? 'hi' : 'en';
   const exact = lang === 'hi' ? 'hi-in' : 'en-in';
-  let v = voices.find(x => (x.lang || '').toLowerCase() === exact);
-  if (!v) v = voices.find(x => (x.lang || '').toLowerCase().startsWith(target));
-  return v || null;
+  // Prefer natural/higher-quality voices when available
+  const quality = v => {
+    const n = (v.name || '').toLowerCase();
+    if (n.includes('natural')) return 4;
+    if (n.includes('wavenet') || n.includes('neural') || n.includes('enhanced')) return 3;
+    if (n.includes('google')) return 2;
+    if (n.includes('microsoft') || n.includes('siri') || n.includes('samantha')) return 1;
+    return 0;
+  };
+  let candidates = voices.filter(x => (x.lang || '').toLowerCase() === exact);
+  if (!candidates.length) candidates = voices.filter(x => (x.lang || '').toLowerCase().startsWith(target));
+  if (!candidates.length) return null;
+  candidates.sort((a,b) => quality(b) - quality(a));
+  return candidates[0] || null;
 }
 
 function speakChunk(text, lang) {
@@ -3536,45 +3629,107 @@ function speakChunk(text, lang) {
     const voice = pickSpeechVoice(lang);
     if (voice) u.voice = voice;
     u.lang = lang === 'hi' ? 'hi-IN' : 'en-IN';
-    u.rate = 0.95;
-    u.pitch = 1;
-    u.onend = () => resolve();
-    u.onerror = () => resolve();
+    // Slightly slower + natural pitch for briefings
+    u.rate = lang === 'hi' ? 0.95 : 1.0;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolve(); } };
+    u.onend = finish;
+    u.onerror = finish;
+    // Safety timeout so a stuck utterance doesn't hang the queue
+    const safetyMs = Math.max(4000, text.length * 90);
+    setTimeout(finish, safetyMs);
     window.speechSynthesis.speak(u);
   });
 }
 
-// Build the spoken text (translated to the current language) for either
-// one row (rowIdx is a number) or the whole map (rowIdx is null).
-// Only speaks: Activity, Hazard, Risk Describe, Required PPE, Remarks.
+// Build the spoken text (translated to the current language) for one row.
 function buildSpeechChunks(d, rowIdx) {
   const chunks = [];
   const listText = arr => (arr || []).map(x => translateDataText(x)).filter(Boolean).join(', ');
   const ppeText = r => (r.ppe || []).map(p => t('ppe.' + p) || p).filter(Boolean).join(', ');
 
-  const single = (rowIdx !== null && rowIdx !== undefined);
-  const rows = single ? [d.rows[rowIdx]] : (d.rows || []);
-
-  rows.forEach(r => {
-    if (!r) return;
-    const parts = [];
-    const act = listText(r.activity);
-    if (act) parts.push(t('table.activity') + ': ' + act);
-    const hz = listText(r.hazard);
-    if (hz) parts.push(t('table.hazard') + ': ' + hz);
-    if (r.riskDescription) parts.push(t('table.riskDescribe') + ': ' + translateDataText(r.riskDescription));
-    const ppe = ppeText(r);
-    if (ppe) parts.push(t('listen.requiredPpe') + ': ' + ppe);
-    if (r.remarks) parts.push(t('table.remarks') + ': ' + translateDataText(r.remarks));
-    if (parts.length) chunks.push(parts.join('. '));
-  });
-
+  const r = d.rows[rowIdx];
+  if (!r) return chunks;
+  const parts = [];
+  const loc = [translateDataText(r.location), translateDataText(r.subLocation)].filter(Boolean).join(' - ');
+  if (loc) parts.push(loc);
+  const act = listText(r.activity);
+  if (act) parts.push(t('table.activity') + ': ' + act);
+  const hz = listText(r.hazard);
+  if (hz) parts.push(t('table.hazard') + ': ' + hz);
+  if (r.riskDescription) parts.push(t('table.riskDescribe') + ': ' + translateDataText(r.riskDescription));
+  const ppe = ppeText(r);
+  if (ppe) parts.push(t('listen.requiredPpe') + ': ' + ppe);
+  if (r.remarks) parts.push(t('table.remarks') + ': ' + translateDataText(r.remarks));
+  if (parts.length) chunks.push(parts.join('. '));
   return chunks;
 }
 
-async function runSpeech(chunks) {
+// Build a natural-language briefing that summarizes the whole map.
+// Covers: intro, totals by risk level, high-risk area walkthrough, outro.
+function buildSummaryChunks(d) {
+  const chunks = [];
+  const rows = (d.rows || []).filter(Boolean);
+  const listText = arr => (arr || []).map(x => translateDataText(x)).filter(Boolean).join(', ');
+  const ppeText = r => (r.ppe || []).map(p => t('ppe.' + p) || p).filter(Boolean).slice(0, 5).join(', ');
+  const fill = (key, vars) => {
+    let s = t(key, vars);
+    return s.replace(/\{\{(\w+)\}\}/g, (_, k) => (vars[k] !== undefined && vars[k] !== null) ? vars[k] : '');
+  };
+  const riskLabel = rk => {
+    const key = 'risk.' + (rk || 'safe') + '.label';
+    const lbl = t(key);
+    return lbl && lbl !== key ? lbl : (rk || 'SAFE').toUpperCase();
+  };
+
+  if (!rows.length) {
+    chunks.push(t('listen.summary.noAreas'));
+    return chunks;
+  }
+
+  const company = translateDataText(d.company) || 'Emvess Infraventures';
+  const counts = { safe: 0, moderate: 0, critical: 0, vhigh: 0 };
+  rows.forEach(r => {
+    const lvl = (r.risk || 'safe').toLowerCase();
+    if (counts[lvl] !== undefined) counts[lvl]++;
+    else counts.moderate++;
+  });
+
+  // Intro
+  chunks.push(fill('listen.summary.intro', { company, count: rows.length }));
+  chunks.push(fill('listen.summary.totals', counts));
+
+  // Highlight critical + vhigh areas
+  const highRisk = rows
+    .map((r, i) => ({ r, i }))
+    .filter(x => x.r.risk === 'critical' || x.r.risk === 'vhigh');
+  if (highRisk.length) {
+    chunks.push(t('listen.summary.highIntro'));
+    highRisk.forEach(({ r, i }) => {
+      const loc = [translateDataText(r.location), translateDataText(r.subLocation)].filter(Boolean).join(' - ');
+      const hazards = listText(r.hazard) || listText(r.hazardType) || t('empty');
+      const ppe = ppeText(r) || t('empty');
+      chunks.push(fill('listen.summary.areaLine', {
+        n: i + 1,
+        location: loc || (t('row.area') + ' ' + (i + 1)),
+        risk: riskLabel(r.risk),
+        hazards,
+        ppe
+      }));
+    });
+  }
+
+  chunks.push(t('listen.summary.outro'));
+  return chunks;
+}
+
+async function runSpeech(chunks, mode) {
   _speechActive = true;
-  window.speechSynthesis.cancel();
+  _speechMode = mode || 'row';
+  if (speechSupported()) window.speechSynthesis.cancel();
+  updateListenButtons();
   try {
     for (const chunk of chunks) {
       if (!_speechActive) break;
@@ -3582,6 +3737,8 @@ async function runSpeech(chunks) {
     }
   } finally {
     _speechActive = false;
+    _speechMode = null;
+    updateListenButtons();
   }
 }
 
@@ -3591,14 +3748,79 @@ async function listenRow(idx) {
   const d = collectData();
   const r = d.rows && d.rows[idx];
   if (!r) return;
-  await runSpeech(buildSpeechChunks(d, idx));
+  await runSpeech(buildSpeechChunks(d, idx), 'row');
+}
+
+async function toggleListenAll() {
+  if (_speechActive) { stopListening(); return; }
+  if (!speechSupported()) { toast(t('listen.notSupported')); return; }
+  const d = collectData();
+  const chunks = buildSummaryChunks(d);
+  if (!chunks.length) { toast(t('listen.noAreas')); return; }
+  await runSpeech(chunks, 'summary');
+}
+
+function updateListenButtons() {
+  const allBtn = document.getElementById('listenAllBtn');
+  if (allBtn) {
+    if (_speechActive && _speechMode === 'summary') {
+      allBtn.textContent = '⏹ ' + t('toolbar.stop');
+      allBtn.classList.add('speaking');
+    } else {
+      allBtn.textContent = t('toolbar.listenAll');
+      allBtn.classList.remove('speaking');
+    }
+    // Keep data-i18n attr in sync for language toggles
+    allBtn.setAttribute('data-i18n', _speechActive && _speechMode === 'summary' ? 'toolbar.stop' : 'toolbar.listenAll');
+  }
+  // Also adjust fullscreen button label for current state
+  syncFullscreenButton();
 }
 
 function stopListening() {
   _speechActive = false;
+  _speechMode = null;
   if (speechSupported()) window.speechSynthesis.cancel();
+  updateListenButtons();
   toast(t('listen.stopped'));
 }
+
+// ============== FULLSCREEN ==============
+function toggleFullscreen() {
+  const el = document.getElementById('previewWrap');
+  if (!el) return;
+  const isFs = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+  if (isFs) {
+    exitFullscreen();
+    return;
+  }
+  if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+    toast(t('fullscreen.notSupported'));
+    return;
+  }
+  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+  if (req) {
+    try { req.call(el); } catch(e) { toast(t('fullscreen.notSupported')); return; }
+    toast(t('fullscreen.on'));
+  } else {
+    toast(t('fullscreen.notSupported'));
+  }
+}
+
+function exitFullscreen() {
+  if (document.exitFullscreen) { document.exitFullscreen().catch(()=>{}); }
+  else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+  else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+}
+
+function syncFullscreenButton() {
+  const btn = document.getElementById('fullscreenBtn');
+  if (!btn) return;
+  const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  btn.textContent = isFs ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen');
+}
+document.addEventListener('fullscreenchange', syncFullscreenButton);
+document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -3625,5 +3847,5 @@ window.addEventListener('DOMContentLoaded', () => {
   applyTranslations();
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2e7784cdb73d97b',t:'MTc4NzI5MjU3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
