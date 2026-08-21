@@ -1,102 +1,110 @@
-# 🚀 Deploy Guide — Put This Site on GitHub Pages (Free, Your Ownership)
+# 🚀 Deploy Guide — Go Live (Real, Global, Cross-Device Data)
 
-GitHub Pages gives you **free hosting** for static sites, fully under **your** GitHub
-account. Once deployed your site lives at:
+There are two ways to put this online. Choose based on what you need:
 
-```
-https://<your-username>.github.io/tata-hazard-map/
-```
+| | **Option A — Shared-data server** ✅ | Option B — GitHub Pages |
+|---|---|---|
+| Data shared across **every device/computer** | ✅ Yes (real server) | ❌ No (static, per-browser) |
+| Data survives until **Reset** | ✅ Yes (saved in `data/hazard-data.json`) | ✅ Yes (per browser) |
+| Edits from one device appear on others | ✅ Yes (auto-sync) | ❌ No |
+| Cost | Free tier hosts available | Free |
 
-You only do the setup **once** — after that, updating the site is one drag-and-drop
-or one `git push`.
-
----
-
-## ✅ Before you start
-
-You need these **3 files/folder** (already prepared):
-
-```
-index.html
-libs/  (contains xlsx.full.min.js and pptxgen.bundle.js)
-```
-
-> ⚠️ Keep `index.html` and the `libs/` folder **as-is** — `index.html` loads the
-> two libraries with relative paths (`libs/...`), so the folder structure must stay the same.
+> 🎯 **You asked for "real & update global" → use Option A.** One server URL,
+> open it from any phone / laptop / desktop, and everyone sees and edits the
+> same live document.
 
 ---
 
-## 🅰️ Option A — Upload through the browser (easiest, no tools needed)
+## ✅ Option A — Deploy the shared-data server (real & global)
 
-### Step 1 — Create the repository
-1. Log in to [github.com](https://github.com) (create a free account if needed).
-2. Click the **+** (top-right) → **New repository**.
-3. Repository name: `tata-hazard-map`
-4. Choose **Public** (required for free GitHub Pages on old free accounts;
-   Private also works on the current free tier).
-5. **Do NOT** tick "Add a README" — you already have one.
-6. Click **Create repository**.
+The repo includes `server.js` (zero dependencies), a `Dockerfile`, a
+`render.yaml` blueprint and a `Procfile`, so it deploys anywhere in minutes.
 
-### Step 2 — Upload the files
-1. On the new empty repo page, click the link **"uploading an existing file"**.
-2. Open the `tata-hazard-map` folder on your computer and **drag all of its
-   contents** (`index.html`, `libs/`, `README.md`, `DEPLOY-GUIDE.md`, `.gitignore`)
-   into the browser window.
-   - Make sure `libs/` uploads **as a folder** with both `.js` files inside it.
-3. Click **Commit changes**.
+### A1. Easiest — Render (free)
 
-### Step 3 — Turn on GitHub Pages
-1. In your repository, go to **Settings** → **Pages** (left sidebar).
-2. Under **Build and deployment**:
-   - **Source:** `Deploy from a branch`
-   - **Branch:** `main`  |  **Folder:** `/ (root)`
-   - Click **Save**.
-3. Wait **1–3 minutes**, then refresh the Pages screen — it will show:
-   `Your site is live at https://<your-username>.github.io/tata-hazard-map/`
+1. Push this repo to **your GitHub account** (any repo name).
+2. Go to [render.com](https://render.com) → **New +** → **Blueprint**.
+3. Connect the repo. Render auto-detects `render.yaml` and creates the service.
+4. Wait ~2 minutes. You get a live URL like
+   `https://hazard-map-dashboard.onrender.com`.
+5. Open that URL on **any device** — everyone now shares the same data.
 
-🎉 Done — the site is now yours, hosted under your own GitHub account.
+> Free Render services sleep after inactivity; the first open after sleep can
+> take ~30–60s to wake. Upgrade to a paid plan (or use Railway/Fly/Koyeb) to
+> keep it always-on.
 
----
+### A2. Railway / Fly.io / Koyeb / any Node host
 
-## 🅱️ Option B — Using Git from the command line
+- **Start command:** `node server.js` (or `npm start`)
+- **Port:** `8080` (or set `PORT`)
+- **Health check:** `GET /api/health`
+- Optional: set `SYNC_TOKEN` and enter the same token in the app's
+  **⚙️ Settings → Access Token** so only authorized devices can edit.
+
+### A3. Run it on your own server / PC (LAN or intranet)
 
 ```bash
-cd tata-hazard-map
+node server.js
+# → http://localhost:8080
+```
 
+Devices on the same network open `http://<this-pc-ip>:8080` and share data.
+To expose it to the whole internet you can use a tunnel (e.g. Cloudflare
+Tunnel, ngrok) or host on any of the platforms above.
+
+### A4. Hosting the app and the server separately
+
+If you host `index.html` somewhere (e.g. GitHub Pages) and the data server
+somewhere else, open the app → **⚙️ Settings → Shared Data Server URL** and
+paste the server URL (e.g. `https://your-service.onrender.com`). The server
+already sends CORS headers, so cross-origin sync works out of the box.
+
+---
+
+## 🔄 How the global sync works (what you can expect)
+
+- **Auto-save:** every entry/edit is written to the server ~1s after you stop
+  typing (plus an instant local copy). Data **never vanishes** on its own.
+- **Auto-refresh:** every device checks the server every 6 seconds; if another
+  device changed something, this device updates automatically. It never
+  overwrites while you are actively typing.
+- **Reset:** the password-protected **↺ Reset** clears the data on the shared
+  server too — so it resets for **everyone**.
+- **First run:** if the server has no data yet, the first device to open the
+  app seeds it with the built-in sample areas.
+
+---
+
+## Option B — GitHub Pages (static only, no cross-device sync)
+
+If you only need a hosted page (no shared data), the existing workflow still
+works. **This does NOT sync across devices** — data stays in each browser.
+
+```bash
+cd hazard-mapping
 git init
 git add .
-git commit -m "Hazard Map Dashboard – initial release"
+git commit -m "Initial release"
 git branch -M main
 git remote add origin https://github.com/<your-username>/tata-hazard-map.git
 git push -u origin main
 ```
 
-Then do **Step 3** above (Settings → Pages → Branch: `main` → folder `/ (root)` → Save).
+Then **Settings → Pages → Branch: `main` → folder `/ (root)` → Save**.
+
+> ⚠️ If you want cross-device sync on Pages, combine it with Option A4 above
+> (point the app's "Shared Data Server URL" at your server).
 
 ---
 
-## 🔄 How to update the site later
+## 🔐 Optional write protection (SYNC_TOKEN)
 
-**Browser:** open the repo → click the ✏️ (pencil) on `index.html` → edit → **Commit changes**.
-The site redeploys automatically in 1–2 minutes.
+1. Start the server with: `SYNC_TOKEN=my-secret node server.js`
+   (PowerShell: `$env:SYNC_TOKEN="my-secret"; node server.js`)
+2. In the app → **⚙️ Settings → Access Token** → enter `my-secret` → **Save Sync Settings**.
 
-**Git:**
-```bash
-git add .
-git commit -m "Describe your change"
-git push
-```
-
----
-
-## 🌐 Optional: your own domain (e.g. `hazardmap.yourcompany.com`)
-
-1. **Settings → Pages → Custom domain** → type your domain → Save.
-2. At your domain registrar, add a `CNAME` record pointing to
-   `<your-username>.github.io`.
-3. Tick **Enforce HTTPS** once the domain check passes.
-
-GitHub still hosts it free — the domain is just a name on top.
+Without a token anyone who can reach the URL can edit. With a token, only
+devices that know it can edit (viewing still works for everyone).
 
 ---
 
@@ -104,6 +112,8 @@ GitHub still hosts it free — the domain is just a name on top.
 
 | Problem | Fix |
 |---|---|
-| Site shows 404 | Wait 1–3 min after enabling Pages; check branch = `main`, folder = `/ (root)` |
-| Page loads but buttons "Excel/PPT" don't work | `libs/` folder or its `.js` files were not uploaded — re-upload them |
-| Old version still showing | Hard-refresh the browser: `Ctrl + Shift + R` (Windows) / `Cmd + Shift + R` (Mac) |
+| "No shared server found" in Settings | You're using the static page without the server. Run `node server.js` or deploy Option A, then paste its URL in Settings → Sync Now. |
+| Devices don't see each other's edits | They must all open the **same server URL**. Check Settings → Sync Now shows "✓ Connected". |
+| Free host sleeps | First open after idle may be slow to wake (Render). Use a paid plan for always-on. |
+| Page loads but Excel/PPT don't work | `xlsx.full.min.js` / `pptxgen.bundle.js` missing — keep them next to `index.html`. |
+| Old version still showing | Hard refresh: `Ctrl+Shift+R` (Win) / `Cmd+Shift+R` (Mac). |
