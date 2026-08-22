@@ -144,6 +144,19 @@
     outline: none; border-color: #1a3a6c; box-shadow: 0 0 0 2px rgba(26,58,108,0.15);
   }
   .form-row textarea { resize: vertical; min-height: 50px; }
+  .form-group { margin-top: 10px; }
+  .form-group label {
+    display: block; font-size: 11px; font-weight: 700; color: #555;
+    margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .form-group textarea {
+    width: 100%; padding: 7px 9px; border: 1px solid #cfd4dc;
+    border-radius: 4px; font-size: 13px; font-family: inherit;
+    background: #fff; resize: vertical; min-height: 60px;
+  }
+  .form-group textarea:focus {
+    outline: none; border-color: #1a3a6c; box-shadow: 0 0 0 2px rgba(26,58,108,0.15);
+  }
   .ppe-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
   .ppe-checks label {
     display: flex; align-items: center; gap: 6px;
@@ -240,6 +253,12 @@
     background: #fff; color: #1a3a6c; padding: 4px 12px;
     border-radius: 3px; font-weight: 800; font-size: 14px;
   }
+  .hm-note {
+    background: #fff8e1; color: #5d4037; padding: 8px 14px;
+    border-bottom: 2px solid #ffb74d; border-left: 4px solid #ff9800;
+    font-size: 12px; line-height: 1.45;
+  }
+  .hm-note b { color: #e65100; }
 
   .hm-table { width: 100%; border-collapse: collapse; }
   .hm-table th, .hm-table td {
@@ -573,6 +592,14 @@
           <input type="text" id="metaReviewed" data-i18n-placeholder="form.name" placeholder="Name" oninput="updatePreview()">
         </div>
       </div>
+      <div class="form-group">
+        <label for="metaNote" data-i18n="form.note">Note</label>
+        <textarea id="metaNote"
+                  rows="3"
+                  data-i18n-placeholder="form.notePlaceholder"
+                  placeholder="Enter document note..."
+                  oninput="updatePreview()"></textarea>
+      </div>
     </div>
 
     <div id="rowsContainer"></div>
@@ -823,7 +850,7 @@
   <div class="req-modal" role="dialog" aria-modal="true">
     <h2 id="reqTitle">Hazard Change Request</h2>
     <div class="req-body">
-      <div class="req-to" id="reqToNote">Request will be sent to emvssafetyteam@gmail.com</div>
+      <div class="req-to" id="reqToNote">Request will be sent to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c1a4acb7b2b2a0a7a4b5b8b5a4a0ac81a6aca0a8adefa2aeac">[email&#160;protected]</a></div>
       <label id="reqEmpLabel">Your name (Employee)</label>
       <input type="text" id="reqEmployee" autocomplete="name" placeholder="Enter your full name">
       <label class="req-anon" for="reqAnonymous">
@@ -862,7 +889,7 @@
 </div>
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ============== LANGUAGE SUPPORT ==============
 const TRANSLATIONS = {
   en: {
@@ -913,6 +940,8 @@ const TRANSLATIONS = {
     'form.date': 'Date',
     'form.preparedBy': 'Prepared By',
     'form.reviewedBy': 'Reviewed By',
+    'form.note': 'Note',
+    'form.notePlaceholder': 'Enter document note...',
     'form.name': 'Name',
     'filter.title': '🔍 Filter View by Location',
     'filter.selectHint': "Select a location to filter the table to show only that location's details",
@@ -1154,6 +1183,8 @@ const TRANSLATIONS = {
     'form.date': 'तारीख',
     'form.preparedBy': 'तैयार किया',
     'form.reviewedBy': 'समीक्षा की',
+    'form.note': 'नोट',
+    'form.notePlaceholder': 'दस्तावेज़ नोट दर्ज करें...',
     'form.name': 'नाम',
     'filter.title': '🔍 स्थान के अनुसार फ़िल्टर',
     'filter.selectHint': 'टेबल में केवल उस स्थान का विवरण दिखाने के लिए स्थान चुनें',
@@ -2567,6 +2598,7 @@ function collectData() {
     date: document.getElementById('metaDate').value,
     prepared: document.getElementById('metaPrepared').value,
     reviewed: document.getElementById('metaReviewed').value,
+    note: document.getElementById('metaNote') ? document.getElementById('metaNote').value : '',
     docNo: document.getElementById('metaDocNo') ? document.getElementById('metaDocNo').value : 'EIPL/SMP/HM/01',
     revNo: document.getElementById('metaRevNo') ? document.getElementById('metaRevNo').value : '00',
     rows: []
@@ -2654,6 +2686,12 @@ function buildMap(d) {
     </div>
   `;
 
+  const noteText = (d.note || '').trim();
+  let noteBand = '';
+  if (noteText) {
+    noteBand = `<div class="hm-note"><b>${t('form.note')}:</b> ${escape(translateDataText(noteText))}</div>`;
+  }
+
   let filterBanner = '';
   if (riskFilter) {
     const riskLabel = t('risk.' + riskFilter + '.label') + ' ' + t('risk.' + riskFilter + '.desc');
@@ -2688,6 +2726,7 @@ function buildMap(d) {
       </div>
       <div class="logo">${escape(translateDataText(d.company)) || 'Emvess Infraventures Pvt Ltd'}</div>
     </div>
+    ${noteBand}
     ${filterBanner}
     <table class="hm-table">
       <thead>
@@ -3251,6 +3290,8 @@ function setMetaFromData(d) {
   document.getElementById('metaDate').value = d.date || '';
   document.getElementById('metaPrepared').value = d.prepared || '';
   document.getElementById('metaReviewed').value = d.reviewed || '';
+  const noteEl = document.getElementById('metaNote');
+  if (noteEl) noteEl.value = d.note || '';
   const docEl = document.getElementById('metaDocNo');
   if (docEl) docEl.value = d.docNo || 'EIPL/SMP/HM/01';
   const revEl = document.getElementById('metaRevNo');
@@ -3516,6 +3557,8 @@ function resetAll() {
       document.getElementById('metaReviewed').value = '';
       document.getElementById('metaDocNo').value = 'EIPL/SMP/HM/01';
       document.getElementById('metaRevNo').value = '00';
+      const noteElReset = document.getElementById('metaNote');
+      if (noteElReset) noteElReset.value = '';
       addRow();
     } finally {
       _applyingRemote = false;
@@ -3559,7 +3602,7 @@ async function warmTranslationsForExport(d) {
     if (s.includes('\n')) s.split('\n').forEach(l => l.trim() && uniq.add(l.trim()));
     else uniq.add(s);
   };
-  [d.title, d.company, d.footer, d.prepared, d.reviewed].forEach(push);
+  [d.title, d.company, d.footer, d.note, d.prepared, d.reviewed].forEach(push);
   (d.rows || []).forEach(r => {
     [r.location, r.subLocation, r.sop, r.riskDescription, r.remarks].forEach(push);
     (r.activity || []).forEach(push);
@@ -3649,8 +3692,10 @@ async function downloadExcel() {
       ]);
     });
     aoa.push([]);
-    aoa.push([translateDataText(d.footer || 'All PPE must be Tata Steel Approved Make Only.')]);
-
+    const _footerNote = [];
+    _footerNote.push(translateDataText(d.footer || 'All PPE must be Tata Steel Approved Make Only.'));
+    if ((d.note || '').trim()) _footerNote.push(`${t('form.note')}: ${translateDataText(d.note)}`);
+    aoa.push([_footerNote.join('   |   ')]);
     const ws = XLSX.utils.aoa_to_sheet(aoa);
 
     // Column widths (chars)
@@ -3821,7 +3866,8 @@ async function downloadPPT() {
       { x:1, y:2.7, w:11.3, h:0.8, fontSize:32, bold:true, color:'1A3A6C', align:'center' });
     s.addText(t('ppt.plantLayout'),
       { x:1, y:3.5, w:11.3, h:0.5, fontSize:18, color:'C0392B', align:'center' });
-    s.addText(`${t('table.docNo')}: ${d.docNo || 'EIPL/SMP/HM/01'}   |   ${t('table.revNo')}: ${d.revNo || '00'}   |   ${t('table.date')} ${d.date || '-'}   |   ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}   |   ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`,
+    const _docMetaLine = `${t('table.docNo')}: ${d.docNo || 'EIPL/SMP/HM/01'}   |   ${t('table.revNo')}: ${d.revNo || '00'}   |   ${t('table.date')} ${d.date || '-'}   |   ${t('table.preparedBy')} ${translateDataText(d.prepared) || '-'}   |   ${t('table.reviewedBy')} ${translateDataText(d.reviewed) || '-'}`;
+    s.addText(_docMetaLine + ((d.note || '').trim() ? `   |   ${t('form.note')}: ${translateDataText(d.note)}` : ''),
       { x:1, y:4.1, w:11.3, h:0.4, fontSize:12, italic:true, color:'555555', align:'center' });
     s.addText(translateDataText(d.company) || 'Emvess Infraventures Pvt Ltd',
       { x:1, y:6.7, w:11.3, h:0.4, fontSize:16, bold:true, color:'FFFFFF', align:'center' });
@@ -3905,7 +3951,7 @@ async function downloadPPT() {
     s.addText(t('ppt.totalAreas', { count: (d.rows||[]).length }), { x:0.5, y:1.2, w:12.3, h:0.5, fontSize:18, bold:true, color:'1A3A6C' });
     s.addText(`🟢 ${t('risk.safe.label')}: ${safeN}    🟡 ${t('risk.moderate.label')}: ${modN}    🟠 ${t('risk.critical.label')}: ${crN}    🔴 ${t('risk.vhigh.label')}: ${vhN}`,
       { x:0.5, y:1.8, w:12.3, h:0.5, fontSize:16, color:'333333' });
-    s.addText(translateDataText(d.footer) || 'All PPE must be Tata Steel Approved Make Only.',
+    s.addText((translateDataText(d.footer) || 'All PPE must be Tata Steel Approved Make Only.') + ((d.note || '').trim() ? `   |   ${t('form.note')}: ${translateDataText(d.note)}` : ''),
       { x:0.5, y:2.6, w:12.3, h:0.4, fontSize:12, italic:true, color:'C0392B' });
     s.addShape(pres.ShapeType.rect, { x:0.5, y:4.5, w:6, h:2, fill:{color:'F5F7FB'}, line:{color:'CFD4DC', width:0.5} });
     s.addText(t('ppt.preparedBy'), { x:0.5, y:4.55, w:6, h:0.4, fontSize:10, bold:true, color:'555555', align:'center' });
