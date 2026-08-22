@@ -78,7 +78,9 @@ docker run -d -p 8080:8080 \
 
 We include `vercel.json`. In Vercel Marketplace, connect the Supabase resource to the project; the integration synchronizes `SUPABASE_URL` and `SUPABASE_SECRET_KEY` automatically. Add `SUPABASE_TABLE=hazard_data`, apply the variables to Production, and redeploy. The server also accepts the integration's `NEXT_PUBLIC_SUPABASE_URL` and publishable-key names as RLS-restricted fallbacks.
 
-`server.js` works on Vercel through the `@vercel/node` wrapper. Verify the deployment at `/api/health`; `backend` must be `supabase`.
+On Vercel the API runs as the serverless function `api/index.js`, which re-exports the request handler from `server.js`; the HTML/JS assets are served statically from the repo root. Routing is defined in `vercel.json`. Verify the deployment at `/api/health`; `backend` must be `supabase`.
+
+Full step-by-step instructions: **[VERCEL-DEPLOY.md](VERCEL-DEPLOY.md)** (project `prj_m6uVHU2P5kf5Ynz4e6nILfTpM5I0`).
 
 ---
 

@@ -1,0 +1,13 @@
+# Files not needed by the Vercel deployment
+.git
+node_modules
+data
+*.log
+Dockerfile
+.dockerignore
+Procfile
+render.yaml
+deploy.yml
+DEPLOY-GUIDE.md
+LIVE_URLS.md
+supabase/README.md
