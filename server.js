@@ -45,9 +45,18 @@ const TOKEN = (process.env.SYNC_TOKEN || '').trim();
 
 // Supabase env — support both the current Vercel Marketplace names and the
 // legacy names used by older Supabase projects.
+// NOTE: DEFAULT_SUPABASE_* below is a safe fallback using the public
+// "publishable" anon key (safe for browser exposure, protected by RLS on
+// the Supabase side — see supabase/schema.sql). This means the app works
+// out of the box even if the Vercel project's dashboard env vars are not
+// configured. Setting SUPABASE_URL / SUPABASE_SECRET_KEY in the Vercel
+// project still overrides this default.
+const DEFAULT_SUPABASE_URL = 'https://xsiyvrotkzpuqhmalryn.supabase.co';
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable__2e48XinZENKk2Z2DiUAXA_Jxs32M-h';
 const SUPABASE_URL = (
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  DEFAULT_SUPABASE_URL ||
   ''
 ).trim().replace(/\/+$/, '');
 const SUPABASE_KEY = (
@@ -58,6 +67,7 @@ const SUPABASE_KEY = (
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  DEFAULT_SUPABASE_PUBLISHABLE_KEY ||
   ''
 ).trim();
 const SUPABASE_TABLE = (process.env.SUPABASE_TABLE || 'hazard_data').trim() || 'hazard_data';
