@@ -104,10 +104,54 @@ vercel --prod                   # production deploy
 
 ---
 
-## 4. Verify after deploy
+## 4. What "the global URL" means
+
+Your global address is the **Production Domain** listed in
+Vercel → Project `hazardmap` → Settings → Domains. Usually
+`https://<project>-<team>.vercel.app` when the bare `<project>.vercel.app`
+name is already taken by someone else — as it is here:
+`hazardmap.vercel.app` currently serves an unrelated app, so do **not**
+hand that link out.
+
+That production URL is:
+
+- served from Vercel's worldwide edge CDN — fast from any country
+- HTTPS by default, no VPN or login needed
+- stable: it always points at the latest production deployment
+
+Preview URLs (`...-git-<branch>-<team>.vercel.app`) change per commit — use
+the production domain for anyone outside the team.
+
+### Do edits made in the app show up for everyone?
+
+Only with Supabase configured (section 2). Then:
+
+`Builder edits data → PUT /api/data → Supabase (one shared database) → every
+other device polls GET /api/data and sees the same data, anywhere in the
+world.`
+
+Without Supabase the API falls back to a per-instance `/tmp` file, so each
+visitor effectively sees only their own browser's copy. `/api/health` must
+report `"backend": "supabase"`.
+
+Separately, pushing code to `main` triggers an automatic redeploy, so app
+updates also reach all users globally within a minute or two.
+
+---
+
+## 5. Verify after deploy
+
+One command checks everything (site, API, backend, and a cross-device
+write/read round-trip):
 
 ```bash
-curl -s https://<your-deployment>.vercel.app/api/health | jq
+npm run check:live https://<your-production-domain>
+```
+
+Or manually:
+
+```bash
+curl -s https://<your-production-domain>/api/health | jq
 ```
 
 Expected:
@@ -132,7 +176,7 @@ Then open the site and check:
 
 ---
 
-## 5. Troubleshooting
+## 6. Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|

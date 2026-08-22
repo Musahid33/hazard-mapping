@@ -2,13 +2,14 @@
   "name": "hazard-map-dashboard",
   "version": "2.0.0",
   "private": true,
-  "description": "Hazard Map Dashboard – Emvess Infraventures Pvt Ltd (Supabase + shared-data server)",
+  "description": "Hazard Map Dashboard \u2013 Emvess Infraventures Pvt Ltd (Supabase + shared-data server)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "supabase:setup": "echo 'Run supabase/schema.sql in your Supabase SQL editor'",
-    "check": "node -c server.js && echo 'server.js syntax OK'"
+    "check": "node -c server.js && echo 'server.js syntax OK'",
+    "check:live": "node check-live.js"
   },
   "engines": {
     "node": ">=18"
