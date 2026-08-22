@@ -67,7 +67,7 @@ hazard-mapping/
 
 1. Create Supabase project at https://supabase.com
 2. Run `supabase/schema.sql` in SQL Editor
-3. Get `SUPABASE_URL` + `SERVICE_ROLE_KEY` from Project Settings → API
+3. Get `SUPABASE_URL` + current `SUPABASE_SECRET_KEY` from Project Settings → API Keys (legacy service-role keys also work)
 4. Create `.env` from `.env.example` and fill keys
 5. Install + run:
 
@@ -114,7 +114,7 @@ insert into public.hazard_data (id, data, updated_at) values (1, null, 0) on con
 4. In Environment, set:
    ```
    SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   SUPABASE_SECRET_KEY=sb_secret_your_secret_key
    LIVE_URL=https://your-service.onrender.com
    ```
 5. Deploy → you get live URL like `https://hazard-map-dashboard.onrender.com`
@@ -129,13 +129,13 @@ Already auto-deploys on push to `main` via `deploy.yml`:
 - Run `supabase/schema.sql` first so the public key is restricted by the intended RLS policies.
 - Reload the Pages site. It discovers Supabase automatically and syncs directly; no Render URL or Settings entry is needed.
 
-Never put `SUPABASE_SERVICE_ROLE_KEY` in `live-config.json` — that key belongs only in the server environment.
+Never put `SUPABASE_SECRET_KEY` or a legacy service-role key in `live-config.json` — server keys belong only in the server environment.
 
 ---
 
 ## 🔁 How Sync Works (Supabase)
 
-- **Backend detection**: server checks `SUPABASE_URL + SUPABASE_KEY` env. If present → Supabase, else file.
+- **Backend detection**: server recognizes Vercel Marketplace's `SUPABASE_URL + SUPABASE_SECRET_KEY` variables plus legacy/public aliases. If a URL and key are present → Supabase, else file.
 - **Direct Pages sync**: when `live-config.json` contains `supabase.url` + `supabase.anonKey`, the browser reads and writes `hazard_data` through Supabase REST (GET/POST) without a Render URL.
 - **Server fallback**: the Docker/Render deployment exposes `/api/data` (GET/PUT/DELETE), backed by Supabase when its environment variables are present.
 - **Auto-save**: every edit is saved to the configured backend ~700ms after typing + localStorage backup.
@@ -149,7 +149,7 @@ Never put `SUPABASE_SERVICE_ROLE_KEY` in `live-config.json` — that key belongs
 
 - Builder unlock: username `musahid12`, password `Aaru#123` (SHA-256 hashed in frontend)
 - Optional server write protection: set `SYNC_TOKEN` in the server environment. The static Pages client uses the Supabase anon key and must be protected with Supabase RLS.
-- Supabase: keep `SERVICE_ROLE_KEY` only on the server; never commit it to `live-config.json`. For stricter control, do not enable public write policies and use the server deployment instead.
+- Supabase: keep `SUPABASE_SECRET_KEY` (or a legacy service-role key) only on the server; never commit it to `live-config.json`. For stricter control, do not enable public write policies and use the server deployment instead.
 
 ---
 

@@ -31,12 +31,12 @@ GET  /live-config.json → static file with same info (for GitHub Pages)
 - **Table**: `public.hazard_data` (id=1 row)
 - **Schema**: `supabase/schema.sql`
 - **Setup Guide**: `supabase/README.md`
-- **Keys**: Project Settings → API → put only the `anon` public key in `live-config.json`; keep `service_role` on the server
+- **Keys**: Project Settings → API Keys → put only a publishable/legacy anon key in `live-config.json`; keep secret/service-role keys on the server
 
-Env vars to set on host:
+Env vars to set on the host (Vercel Marketplace synchronizes the first two):
 ```
 SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_SECRET_KEY=sb_secret_your_secret_key
 SUPABASE_TABLE=hazard_data
 ```
 
@@ -44,11 +44,11 @@ SUPABASE_TABLE=hazard_data
 
 | Host | How to Deploy | Env Vars |
 |---|---|---|
-| **Render** | Blueprint → connect repo → auto from `render.yaml` | Set SUPABASE_URL + SERVICE_ROLE_KEY in dashboard |
+| **Render** | Blueprint → connect repo → auto from `render.yaml` | Set `SUPABASE_URL` + `SUPABASE_SECRET_KEY` in dashboard |
 | **Railway** | New Service → GitHub repo → start `node server.js` | Same env vars |
 | **Fly.io** | `fly launch` → Dockerfile | Same |
 | **Docker (VPS)** | `docker build -t hazard-map . && docker run -p 8080:8080 --env-file .env hazard-map` | Use `.env` file |
-| **Vercel** | `vercel --prod` with `vercel.json` | Set env in Vercel dashboard |
+| **Vercel** | Connect Supabase in Marketplace, then redeploy with `vercel.json` | Integration syncs `SUPABASE_URL` + `SUPABASE_SECRET_KEY` |
 | **GitHub Pages** | Auto on push to `main` via `deploy.yml` | Set Supabase URL + anon public key in `live-config.json`; sync is direct |
 
 ## 🔄 How URLs Auto-Update

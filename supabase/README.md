@@ -24,12 +24,14 @@ Should return one row with `data = null`.
 
 ## 3) Get API Keys
 
-Go to **Project Settings → API**
+Go to **Project Settings → API Keys**.
 
 Copy:
 - `Project URL` → `https://YOUR_PROJECT.supabase.co`
-- `anon public` key
-- `service_role` key (secret — use on server only)
+- current `secret` key (`sb_secret_...`) for the server
+- current publishable key for RLS-restricted public clients
+
+Legacy `service_role` and `anon` keys remain supported.
 
 ## 4) Set Env Vars on Your Host
 
@@ -37,7 +39,7 @@ Copy:
 In Render Dashboard → Your Service → Environment:
 ```
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+SUPABASE_SECRET_KEY=sb_secret_your_secret_key_here
 SUPABASE_TABLE=hazard_data
 LIVE_URL=https://your-service.onrender.com
 GITHUB_REPO_URL=https://github.com/Musahid33/hazard-mapping
@@ -57,7 +59,7 @@ PORT=8080
 docker build -t hazard-map .
 docker run -p 8080:8080 \
   -e SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
-  -e SUPABASE_SERVICE_ROLE_KEY=xxx \
+  -e SUPABASE_SECRET_KEY=sb_secret_xxx \
   -e LIVE_URL=https://your-live-url \
   hazard-map
 ```
@@ -79,7 +81,7 @@ Use the `anon` **public** key here. The existing RLS policies in `schema.sql` al
 
 ## 6) How It Works
 
-- Server (`server.js`) auto-detects `SUPABASE_URL + SUPABASE_KEY`
+- Server (`server.js`) auto-detects Vercel's `SUPABASE_URL + SUPABASE_SECRET_KEY`, as well as legacy and public-key aliases
 - If present → uses Supabase as primary storage (persistent, global)
 - If missing → falls back to file `data/hazard-data.json` (local dev)
 - GitHub Pages loads `live-config.json` and uses Supabase REST directly; no manual server URL is required
@@ -106,6 +108,6 @@ After deploy, you will have:
 
 ## 9) Security
 
-- Server uses `SERVICE_ROLE_KEY` which bypasses RLS (full access)
-- If you want to protect writes, use the server deployment with `SYNC_TOKEN`; the static Pages client uses the public anon key and Supabase RLS
-- For stricter control, remove public write policy and only allow service_role
+- Server uses `SUPABASE_SECRET_KEY` (or a legacy service-role key), which bypasses RLS; keep it private
+- If you want to protect writes, use the server deployment with `SYNC_TOKEN`; the static Pages client uses a public key and Supabase RLS
+- For stricter control, remove the public write policy and only allow secret/service-role access

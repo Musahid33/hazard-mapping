@@ -19,7 +19,7 @@ ENV GITHUB_REPO_URL=https://github.com/Musahid33/hazard-mapping
 
 # Supabase env vars are expected to be set at runtime:
 # - SUPABASE_URL
-# - SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY
+# - SUPABASE_SECRET_KEY (preferred) or a supported legacy/public key
 # - SUPABASE_TABLE (default: hazard_data)
 # Optional:
 # - SYNC_TOKEN

@@ -6,7 +6,7 @@
 // data.
 //
 // Storage backends (auto-detected, in order):
-//   1) Supabase (if SUPABASE_URL + SUPABASE_KEY env vars are set) — PERSISTENT,
+//   1) Supabase (if a URL + API key env var are set) — PERSISTENT,
 //      survives restarts, scales globally, works on Render/Railway/Vercel.
 //   2) Local file data/hazard-data.json — for local dev without Supabase.
 //
@@ -17,7 +17,9 @@
 //   PORT                      — port to listen on (default 8080)
 //   SYNC_TOKEN                — if set, clients must send "Authorization: Bearer <token>"
 //   SUPABASE_URL              — e.g. https://xyzcompany.supabase.co
-//   SUPABASE_ANON_KEY / SUPABASE_KEY / SUPABASE_SERVICE_ROLE_KEY — Supabase key
+//   SUPABASE_SECRET_KEY       — preferred server key from Vercel Marketplace
+//   SUPABASE_SERVICE_ROLE_KEY — legacy server key (also supported)
+//   SUPABASE_PUBLISHABLE_KEY / SUPABASE_ANON_KEY / SUPABASE_KEY — fallbacks
 //   SUPABASE_TABLE            — table name (default: hazard_data)
 //   LIVE_URL                  — public live URL for docs (optional)
 //   GITHUB_REPO_URL           — GitHub repo URL for docs (optional)
@@ -37,14 +39,25 @@ const DATA_DIR = path.join(ROOT, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'hazard-data.json');
 const TOKEN = (process.env.SYNC_TOKEN || '').trim();
 
-// Supabase env — support multiple naming conventions
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
-const SUPABASE_KEY =
-  (process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_KEY ||
-    '').trim();
+// Supabase env — support both the current Vercel Marketplace names and the
+// legacy names used by older Supabase projects.
+const SUPABASE_URL = (
+  process.env.SUPABASE_URL ||
+  process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  ''
+).trim().replace(/\/+$/, '');
+const SUPABASE_KEY = (
+  process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_KEY ||
+  process.env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  ''
+).trim();
 const SUPABASE_TABLE = (process.env.SUPABASE_TABLE || 'hazard_data').trim() || 'hazard_data';
+const SUPABASE_KEY_IS_OPAQUE = /^sb_(?:secret|publishable)_/.test(SUPABASE_KEY);
 
 const LIVE_URL = (process.env.LIVE_URL || '').trim();
 const GITHUB_REPO_URL = (process.env.GITHUB_REPO_URL || 'https://github.com/Musahid33/hazard-mapping').trim();
@@ -111,9 +124,13 @@ function writeDataToFile(record) {
 // Table schema: hazard_data(id int PK, data jsonb, updated_at bigint)
 async function supabaseFetch(pathQuery, opts = {}) {
   const url = `${SUPABASE_URL}/rest/v1/${pathQuery}`;
-  const headers = Object.assign({
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${SUPABASE_KEY}`,
+  const authHeaders = { 'apikey': SUPABASE_KEY };
+  // Current sb_secret_/sb_publishable_ keys are opaque API keys, not JWTs.
+  // Sending them as Bearer tokens causes Supabase to reject the request.
+  if (!SUPABASE_KEY_IS_OPAQUE) {
+    authHeaders.Authorization = `Bearer ${SUPABASE_KEY}`;
+  }
+  const headers = Object.assign(authHeaders, {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Prefer': 'return=representation'
@@ -343,7 +360,7 @@ server.listen(PORT, HOST, () => {
     console.log('  Supabase Table:      ' + SUPABASE_TABLE);
   } else {
     console.log('  Backend:             File (' + DATA_FILE + ')');
-    console.log('  (Set SUPABASE_URL + SUPABASE_KEY to enable Supabase)');
+    console.log('  (Set SUPABASE_URL + SUPABASE_SECRET_KEY to enable Supabase)');
   }
   if (TOKEN) console.log('  Access token:        enabled');
   if (LIVE_URL) console.log('  Live URL:            ' + LIVE_URL);
