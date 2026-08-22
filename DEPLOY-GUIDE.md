@@ -23,10 +23,11 @@ Old file backend (`data/hazard-data.json`) disappears on free hosts after redepl
 1. **Create Project**: https://supabase.com → New Project → name `hazard-mapping` → region closest to you → wait 2 min
 2. **Run SQL**: Dashboard → SQL Editor → New Query → paste `supabase/schema.sql` → Run
    - This creates table `hazard_data (id=1, data=jsonb, updated_at=bigint)` + audit log + RLS policies
-3. **Get Keys**: Project Settings → API → copy:
+3. **Get Keys**: Project Settings → API Keys → copy:
    - `Project URL` → `SUPABASE_URL`
-   - `service_role` (secret) → `SUPABASE_SERVICE_ROLE_KEY`
-   - `anon` public → `SUPABASE_ANON_KEY` (optional)
+   - current `secret` key → `SUPABASE_SECRET_KEY` (recommended for servers)
+   - legacy `service_role` → `SUPABASE_SERVICE_ROLE_KEY` (also supported)
+   - publishable/legacy `anon` key for public RLS-restricted clients only
 4. **Verify**:
    ```sql
    select * from public.hazard_data where id=1;
@@ -44,7 +45,7 @@ Old file backend (`data/hazard-data.json`) disappears on free hosts after redepl
 4. In Render → Service → Environment → set:
    ```
    SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   SUPABASE_SECRET_KEY=sb_secret_your_secret_key
    SUPABASE_TABLE=hazard_data
    LIVE_URL=https://hazard-map-dashboard.onrender.com
    GITHUB_REPO_URL=https://github.com/Musahid33/hazard-mapping
@@ -68,14 +69,16 @@ Old file backend (`data/hazard-data.json`) disappears on free hosts after redepl
 docker build -t hazard-map .
 docker run -d -p 8080:8080 \
   -e SUPABASE_URL=https://YOUR_PROJECT.supabase.co \
-  -e SUPABASE_SERVICE_ROLE_KEY=xxx \
+  -e SUPABASE_SECRET_KEY=sb_secret_xxx \
   -e LIVE_URL=https://your-domain.com \
   --name hazard-map hazard-map
 ```
 
 ### D) Vercel / Netlify (Serverless)
 
-We include `vercel.json`. Set env vars in Vercel dashboard and deploy. Note: server.js is designed for long-running Node, but works on Vercel with `@vercel/node` wrapper — or deploy frontend to Vercel and API to Render.
+We include `vercel.json`. In Vercel Marketplace, connect the Supabase resource to the project; the integration synchronizes `SUPABASE_URL` and `SUPABASE_SECRET_KEY` automatically. Add `SUPABASE_TABLE=hazard_data`, apply the variables to Production, and redeploy. The server also accepts the integration's `NEXT_PUBLIC_SUPABASE_URL` and publishable-key names as RLS-restricted fallbacks.
+
+`server.js` works on Vercel through the `@vercel/node` wrapper. Verify the deployment at `/api/health`; `backend` must be `supabase`.
 
 ---
 
@@ -145,8 +148,8 @@ We updated URLs in all places:
 
 | Problem | Fix |
 |---|---|
-| Data resets after deploy | You used file backend. Set SUPABASE_URL + SERVICE_ROLE_KEY env vars |
-| Supabase 401 / read fails | Check table exists, RLS policies allow read/write, keys correct |
+| Data resets after deploy | You used file backend. Set `SUPABASE_URL` + `SUPABASE_SECRET_KEY` (or the legacy service-role key), then redeploy |
+| Supabase 401 / read fails | Check the table and key. Opaque `sb_secret_`/`sb_publishable_` keys belong in `apikey`, not a Bearer header |
 | "Supabase is not configured" in app | Replace the placeholders in live-config.json with the Supabase URL and anon public key |
 | Devices don't sync | Run supabase/schema.sql, verify RLS policies and the browser's Supabase key, then use Settings → Sync Now |
 | Render sleeps | Free tier sleeps. First request after idle slow. Use paid or Railway |
@@ -158,7 +161,7 @@ We updated URLs in all places:
 ## 7) Security Checklist
 
 - [ ] Supabase table has RLS enabled with policies (see schema.sql)
-- [ ] Server uses SERVICE_ROLE_KEY (bypasses RLS) — keep secret
+- [ ] Server uses `SUPABASE_SECRET_KEY` (or legacy service-role key), which bypasses RLS — keep it secret
 - [ ] Optional: set `SYNC_TOKEN` on the server to protect the server-backed API; Pages direct sync is protected by Supabase RLS
 - [ ] Builder auth: username `musahid12`, password `Aaru#123` (hashed in frontend)
 

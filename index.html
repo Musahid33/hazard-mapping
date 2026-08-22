@@ -3121,28 +3121,33 @@ function directSupabaseConfig() {
   const supabase = config.supabase || {};
   const url = configuredValue(supabase.url || config.supabaseUrl)
     .replace(/\/+$/, '');
-  // Only anon/public keys are accepted here. Never put a service_role key in a
-  // static site: every visitor can read it from the downloaded JSON.
-  const anonKey = configuredValue(
+  // Only publishable/anon keys are accepted here. Never put a secret or
+  // service-role key in a static site: every visitor can read downloaded JSON.
+  const publicKey = configuredValue(
+    supabase.publishableKey || supabase.publishable_key ||
     supabase.anonKey || supabase.anon_key || supabase.publicAnonKey ||
-    config.supabaseAnonKey
+    config.supabasePublishableKey || config.supabaseAnonKey
   );
-  if (!url || !anonKey) return null;
+  if (!url || !publicKey) return null;
   return {
     url,
-    key: anonKey,
+    key: publicKey,
     table: configuredValue(supabase.table || config.supabaseTable) || 'hazard_data'
   };
 }
 
 function supabaseHeaders(key) {
-  return {
+  const headers = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'apikey': key,
-    'Authorization': 'Bearer ' + key,
     'Cache-Control': 'no-store'
   };
+  // Current sb_publishable_ keys are opaque API keys, not JWTs.
+  if (!/^sb_(?:publishable|secret)_/.test(key)) {
+    headers.Authorization = 'Bearer ' + key;
+  }
+  return headers;
 }
 
 async function supabaseLoad(config) {
