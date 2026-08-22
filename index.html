@@ -529,6 +529,9 @@
         <div class="form-row">
           <label data-i18n="form.docNo">Document No.</label>
           <input type="text" id="metaDocNo" value="EIPL/SMP/HM/01" oninput="updatePreview()">
+          <div style="font-size:10px; color:#777; font-style:italic; margin-top:3px; line-height:1.35;">
+            Note: Agar Location nahi hai to Location field me SOP ka naam likhein. Sub Location me Operation/Equip. likhein.
+          </div>
         </div>
         <div class="form-row">
           <label data-i18n="form.revNo">Rev. No.</label>
@@ -2298,20 +2301,25 @@ function addRow(data) {
   refreshPickFilled();
 }
 
-// Refresh the "Pick from Filled" dropdown to show all currently filled areas
+// Refresh the "Pick from Filled" dropdown to show all unique locations
+// (one entry per Location, regardless of how many Sub Locations share it).
 function refreshPickFilled() {
   const sel = document.getElementById('pickFilled');
   if (!sel) return;
   const current = sel.value;
   const rows = collectData().rows;
-  let opts = `<option value="">${tEn('filter.chooseDuplicate')}</option>`;
-  rows.forEach((r, i) => {
-    if (!r.location && !r.subLocation) return;
-    const label = displayLocationEn(r) || tEn('filter.noAreas');
-    opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
+  const seen = [];
+  rows.forEach(r => {
+    const loc = (r.location || '').trim();
+    if (loc && !seen.includes(loc)) seen.push(loc);
   });
-  if (rows.length === 0) {
+  let opts = `<option value="">${tEn('filter.showAll')}</option>`;
+  if (seen.length === 0) {
     opts = `<option value="">${tEn('filter.noAreas')}</option>`;
+  } else {
+    seen.forEach(loc => {
+      opts += `<option value="${escapeHtml(loc)}">${escapeHtml(loc)}</option>`;
+    });
   }
   sel.innerHTML = opts;
   sel.value = current;
@@ -2322,10 +2330,11 @@ function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Called when user picks a filled area from the dropdown
-// Filters the table to show only that location's details
-function pickFilledArea(rowIdxStr) {
-  if (rowIdxStr === '') {
+// Called when user picks a location from the dropdown.
+// Filters the table to show ALL rows whose Location matches — every Sub
+// Location under that Location is included, not just one specific row.
+function pickFilledArea(locationValue) {
+  if (locationValue === '') {
     filterMode = null;
     filterInfo = null;
     refreshPickFilled();
@@ -2334,15 +2343,8 @@ function pickFilledArea(rowIdxStr) {
     updatePreview();
     return;
   }
-  const idx = parseInt(rowIdxStr, 10);
-  const data = collectData();
-  if (isNaN(idx) || !data.rows[idx]) {
-    refreshPickFilled();
-    return;
-  }
-  const src = data.rows[idx];
-  filterMode = idx;
-  filterInfo = displayLocation(src);
+  filterMode = locationValue;
+  filterInfo = translateDataText(locationValue);
   sopFilter = null;
   riskFilter = null;
   const sopSel = document.getElementById('pickSop');
@@ -2355,7 +2357,7 @@ function pickFilledArea(rowIdxStr) {
   if (qrk) qrk.value = '';
   // Sync the quick filter dropdown
   const qsel = document.getElementById('quickFilter');
-  if (qsel) qsel.value = rowIdxStr;
+  if (qsel) qsel.value = locationValue;
   updatePreview();
   toast(t('toast.filteredClearHint', { name: filterInfo }));
   // Scroll the preview to top so user sees the filtered result
@@ -2365,7 +2367,7 @@ function pickFilledArea(rowIdxStr) {
 }
 
 // Track filter state
-let filterMode = null;   // row index being filtered, or null = show all
+let filterMode = null;   // Location text being filtered, or null = show all
 let filterInfo = null;   // display name of the filter
 let sopFilter = null;    // SOP name being filtered, or null = show all
 let riskFilter = null;   // Risk level being filtered ('safe'|'moderate'|'critical'|'vhigh'), or null = show all
@@ -2607,9 +2609,9 @@ function buildMap(d) {
   const riskMap = Object.fromEntries(RISK_LEVELS.map(r => [r.value, r]));
 
   const allRows = d.rows;
-  if (filterMode !== null && allRows[filterMode]) filterInfo = displayLocation(allRows[filterMode]);
-  let displayRows = (filterMode !== null && allRows[filterMode])
-    ? [allRows[filterMode]]
+  if (filterMode !== null) filterInfo = translateDataText(filterMode);
+  let displayRows = (filterMode !== null)
+    ? allRows.filter(r => (r.location || '').trim() === filterMode)
     : allRows;
   if (sopFilter) {
     displayRows = displayRows.filter(r => (r.sop || '').trim() === sopFilter);
@@ -2706,12 +2708,12 @@ function buildMap(d) {
       </thead>
       <tbody>${rowsHTML || (riskFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noRiskData')}</td></tr>` : (sopFilter ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noSopData')}</td></tr>` : (filterMode !== null ? `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noFilteredData')}</td></tr>` : `<tr><td colspan="12" style="padding:30px;color:#999">${t('table.noAreas')}</td></tr>`)))}</tbody>
     </table>
-    ${sopFilter ? '' : `<div class="hm-legend">
+    <div class="hm-legend">
       <div>
         <h3>${t('table.riskLegend')}</h3>
         ${legend}
       </div>
-    </div>`}
+    </div>
     <div class="hm-footer">
       <div>${escape(translateDataText(d.footer)) || ''}</div>
       <div>${t('table.date')} <span>${escape(d.date) || ''}</span></div>
@@ -2888,33 +2890,30 @@ function refreshQuickFilter() {
   if (!sel) return;
   const data = collectData();
   const current = sel.value;
-  let opts = `<option value="">${t('filter.showAll')}</option>`;
-  data.rows.forEach((r, i) => {
-    if (!r.location && !r.subLocation) return;
-    const label = displayLocation(r) || t('filter.noAreas');
-    opts += `<option value="${i}">#${i+1}  ${escapeHtml(label)}</option>`;
+  const seen = [];
+  data.rows.forEach(r => {
+    const loc = (r.location || '').trim();
+    if (loc && !seen.includes(loc)) seen.push(loc);
   });
-  if (data.rows.length === 0) {
+  let opts = `<option value="">${t('filter.showAll')}</option>`;
+  if (seen.length === 0) {
     opts = `<option value="">${t('filter.noAreas')}</option>`;
+  } else {
+    seen.forEach(loc => {
+      opts += `<option value="${escapeHtml(loc)}">${escapeHtml(translateDataText(loc))}</option>`;
+    });
   }
   sel.innerHTML = opts;
   sel.value = current;
 }
 
-function quickFilterChange(idxStr) {
-  if (idxStr === '') {
+function quickFilterChange(locationValue) {
+  if (locationValue === '') {
     clearFilter();
     return;
   }
-  const idx = parseInt(idxStr, 10);
-  const data = collectData();
-  if (isNaN(idx) || !data.rows[idx]) {
-    refreshQuickFilter();
-    return;
-  }
-  filterMode = idx;
-  const src = data.rows[idx];
-  filterInfo = displayLocation(src);
+  filterMode = locationValue;
+  filterInfo = translateDataText(locationValue);
   sopFilter = null;
   const sopSel = document.getElementById('pickSop');
   if (sopSel) sopSel.value = '';
@@ -2922,7 +2921,7 @@ function quickFilterChange(idxStr) {
   if (qsop) qsop.value = '';
   // Also sync the form panel dropdown
   const formSel = document.getElementById('pickFilled');
-  if (formSel) formSel.value = idxStr;
+  if (formSel) formSel.value = locationValue;
   updatePreview();
   toast(t('toast.filtered', { name: filterInfo }));
   // Scroll preview to top
@@ -2979,10 +2978,7 @@ function buildColumnToggles() {
 
 function isColumnVisible(colId) {
   if (colId === 'col-action') return true;
-  // SOP print view: only Activity, Hazard Type, Hazard, Risk Description, Required PPE
-  if (sopFilter) {
-    return ['col-act','col-hzt','col-hz','col-rdesc','col-ppe'].includes(colId);
-  }
+  // SOP filter now shows all fields, same as the Location filter.
   const stored = localStorage.getItem('hazardMapColumnVisibility');
   if (!stored) return true;
   try {
