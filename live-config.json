@@ -6,8 +6,8 @@
   "supabase": {
     "enabled": true,
     "table": "hazard_data",
-    "url": "https://YOUR_PROJECT_ID.supabase.co",
-    "anonKey": "YOUR_SUPABASE_ANON_KEY"
+    "url": "https://xsiyvrotkzpuqhmalryn.supabase.co",
+    "anonKey": "sb_publishable__2e48XinZENKk2Z2DiUAXA_Jxs32M-h"
   },
   "apiEndpoints": {
     "data": "/api/data",
@@ -30,5 +30,5 @@
     "Risk filter, SOP filter, column toggles",
     "Listen (TTS) + Fullscreen + Excel/PPT export"
   ],
-  "updatedAt": "2026-08-21"
+  "updatedAt": "2026-08-22"
 }
