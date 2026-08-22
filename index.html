@@ -278,7 +278,7 @@
   .hm-table .col-hz  { width: 110px; }
   .hm-table .col-rdesc { width: 155px; }
   .hm-table .col-rsk { width: 70px; }
-  .hm-table .col-ppe { width: auto; }
+  .hm-table .col-ppe { width: 150px; }
   .hm-table .col-rem { width: 110px; }
   .hm-table .col-action { width: 88px; }
 
@@ -300,12 +300,11 @@
   .risk-critical { background: #ff5722; }
   .risk-vhigh    { background: #f44336; }
 
-  .ppe-cell { display: flex; flex-wrap: wrap; justify-content: center; gap: 0; }
+  .ppe-cell { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; justify-items: center; align-items: center; }
   .ppe-cell .ppe-item {
     width: 62px; padding: 4px 2px; text-align: center;
-    border-right: 1px solid #e0e0e0;
+    border: 1px solid #e0e0e0; border-radius: 3px; background: #fafbfd;
   }
-  .ppe-cell .ppe-item:last-child { border-right: none; }
   .ppe-cell .ppe-item .icon { font-size: 22px; line-height: 1; }
   .ppe-cell .ppe-item .lbl { font-size: 9px; margin-top: 2px; font-weight: 600; }
 
@@ -2668,10 +2667,10 @@ function buildMap(d) {
       <td ${isColumnVisible('col-act')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.activity).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hzt')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.hazardType).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
       <td ${isColumnVisible('col-hz')?'':'style="display:none"'}><div class="list-cell"><ul>${translateDataList(r.hazard).map(a => `<li>${escape(a)}</li>`).join('')}</ul></div></td>
-      <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}>${escape(translateDataText(r.riskDescription || (sopFilter ? r.remarks : '') )) || '—'}</td>
+      <td class="risk-description-cell" ${isColumnVisible('col-rdesc')?'':'style="display:none"'}><div class="list-cell"><ul>${bulletList(r.riskDescription || (sopFilter ? r.remarks : '')) || '<li>—</li>'}</ul></div></td>
       <td ${isColumnVisible('col-rsk')?'':'style="display:none"'}><div class="risk-badge ${risk.cls}">${t('risk.' + risk.value + '.label')}</div></td>
       <td ${isColumnVisible('col-ppe')?'':'style="display:none"'}><div class="ppe-cell">${ppeHTML || '<span style="color:#999">—</span>'}</div></td>
-      <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}>${escape(translateDataText(r.remarks)) || ''}</td>
+      <td class="remarks-cell" ${isColumnVisible('col-rem')?'':'style="display:none"'}><div class="list-cell"><ul>${bulletList(r.remarks)}</ul></div></td>
       <td class="action-cell col-action"><div style="display:flex; flex-direction:column; gap:4px;"><button type="button" class="action-req-btn" onclick="openHazardRequest(${origIdx})">${t('request.btn')}</button><button type="button" class="listen-row-btn" onclick="listenRow(${origIdx})" title="${t('toolbar.listen')}">🔊 ${t('listen.listen')}</button></div></td>
     </tr>`;
   }).join('');
@@ -2767,6 +2766,15 @@ function escape(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// Render a multi-line text value as bullet points (one bullet per line).
+function bulletList(value) {
+  if (!value) return '';
+  return String(value).split('\n').map(l => {
+    const t = translateDataText(l).trim();
+    return t ? `<li>${escape(t)}</li>` : '';
+  }).join('');
 }
 
 // ============== AUTHENTICATION & SECURITY ==============
