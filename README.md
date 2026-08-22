@@ -49,7 +49,9 @@ hazard-mapping/
 ├── Dockerfile            # Updated for Supabase
 ├── render.yaml           # Render blueprint with Supabase env vars
 ├── Procfile              # For Heroku/Railway: web: node server.js
-├── vercel.json           # Optional Vercel deployment
+├── vercel.json           # Vercel routing + function config
+├── api/index.js          # Vercel serverless entrypoint (re-exports server.js handler)
+├── VERCEL-DEPLOY.md      # Vercel deployment guide
 ├── deploy.yml            # GitHub Pages deploy + live-config injection
 ├── xlsx.full.min.js      # Excel library
 ├── pptxgen.bundle.js     # PPT library

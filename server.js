@@ -35,7 +35,11 @@ const path = require('path');
 const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0';
 const ROOT = __dirname;
-const DATA_DIR = path.join(ROOT, 'data');
+// On serverless platforms (Vercel) the bundle filesystem is read-only; only
+// /tmp is writable. Supabase should be configured there, but keep the file
+// fallback functional so nothing crashes.
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const DATA_DIR = IS_SERVERLESS ? path.join('/tmp', 'hazard-data') : path.join(ROOT, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'hazard-data.json');
 const TOKEN = (process.env.SYNC_TOKEN || '').trim();
 
@@ -247,7 +251,8 @@ function serveStatic(req, res, pathname) {
   fs.createReadStream(filePath).pipe(res);
 }
 
-const server = http.createServer(async (req, res) => {
+// ---- Request handler (used by both node server and Vercel serverless) -------
+async function handler(req, res) {
   const pathname = (req.url || '/').split('?')[0];
 
   // ---- Shared data API -----------------------------------------------------
@@ -345,9 +350,17 @@ const server = http.createServer(async (req, res) => {
 
   res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
   res.end('Method Not Allowed');
-});
+}
 
-server.listen(PORT, HOST, () => {
+// Export for serverless platforms (Vercel: api/index.js re-exports this).
+module.exports = handler;
+module.exports.handler = handler;
+module.exports.createServer = () => http.createServer(handler);
+
+// ---- Standalone server (node server.js / Docker / Render) -------------------
+function startServer() {
+  const server = http.createServer(handler);
+  server.listen(PORT, HOST, () => {
   console.log('----------------------------------------------');
   console.log('  Hazard Map Dashboard server v2.0-supabase');
   console.log('  Site + shared data:  http://localhost:' + PORT);
@@ -364,6 +377,15 @@ server.listen(PORT, HOST, () => {
   }
   if (TOKEN) console.log('  Access token:        enabled');
   if (LIVE_URL) console.log('  Live URL:            ' + LIVE_URL);
-  console.log('  GitHub:              ' + GITHUB_REPO_URL);
-  console.log('----------------------------------------------');
-});
+    console.log('  GitHub:              ' + GITHUB_REPO_URL);
+    console.log('----------------------------------------------');
+  });
+  return server;
+}
+
+module.exports.startServer = startServer;
+
+// Only listen when run directly — on Vercel the file is imported, not run.
+if (require.main === module) {
+  startServer();
+}

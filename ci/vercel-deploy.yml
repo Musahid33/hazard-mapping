@@ -1,0 +1,106 @@
+# ============================================================================
+# Deploy Hazard Map Dashboard to Vercel  —  WORKFLOW TEMPLATE
+# ----------------------------------------------------------------------------
+# This repo's automation cannot write to .github/workflows, so the workflow is
+# stored here. To activate it:
+#     mkdir -p .github/workflows
+#     cp ci/vercel-deploy.yml .github/workflows/vercel-deploy.yml
+#     git add .github/workflows/vercel-deploy.yml && git commit && git push
+# ----------------------------------------------------------------------------
+# Only needed if you deploy from CI instead of Vercel's own Git integration.
+# Repo secrets required (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN       – https://vercel.com/account/tokens
+#   VERCEL_ORG_ID      – Vercel → Team Settings → Team ID (team_...)
+#   VERCEL_PROJECT_ID  – prj_6f4pS2WjviNQRPfDmX12mkSLB20Q
+# ============================================================================
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: ['main', 'arena/**']
+  workflow_dispatch:
+    inputs:
+      production:
+        description: 'Deploy to production'
+        type: boolean
+        default: false
+
+concurrency:
+  group: vercel-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.repository == 'Musahid33/hazard-mapping' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Sanity check (server + config)
+        run: |
+          node -c server.js
+          node -c api/index.js
+          node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8'))"
+
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Resolve target environment
+        id: target
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ inputs.production }}" = "true" ]; then
+            echo "env=production" >> "$GITHUB_OUTPUT"
+            echo "flag=--prod" >> "$GITHUB_OUTPUT"
+          else
+            echo "env=preview" >> "$GITHUB_OUTPUT"
+            echo "flag=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=${{ steps.target.outputs.env }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build
+        run: vercel build ${{ steps.target.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt ${{ steps.target.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Deployed: $url"
+
+      - name: Health check
+        run: |
+          url="${{ steps.deploy.outputs.url }}"
+          for i in 1 2 3 4 5; do
+            body=$(curl -sS --max-time 20 "$url/api/health" || true)
+            echo "$body"
+            if echo "$body" | grep -q '"ok":true'; then
+              echo "$body" | grep -q '"backend":"supabase"' \
+                && echo "::notice::Supabase backend active" \
+                || echo "::warning::backend is not supabase — set SUPABASE_URL and SUPABASE_SECRET_KEY in Vercel"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::/api/health did not respond OK at $url"
+          exit 1
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Vercel deployment"
+            echo ""
+            echo "- Environment: \`${{ steps.target.outputs.env }}\`"
+            echo "- URL: ${{ steps.deploy.outputs.url }}"
+            echo "- Health: ${{ steps.deploy.outputs.url }}/api/health"
+          } >> "$GITHUB_STEP_SUMMARY"
