@@ -269,18 +269,18 @@
     background: #1a3a6c; color: #fff; font-weight: 700; padding: 8px 4px;
     text-transform: uppercase; font-size: 11px;
   }
-  .hm-table .col-sr { width: 32px; }
-  .hm-table .col-loc { width: 80px; }
-  .hm-table .col-subloc { width: 80px; }
-  .hm-table .col-sop { width: 120px; }
-  .hm-table .col-act { width: 100px; }
-  .hm-table .col-hzt { width: 85px; }
-  .hm-table .col-hz  { width: 110px; }
-  .hm-table .col-rdesc { width: 155px; }
-  .hm-table .col-rsk { width: 70px; }
+  .hm-table .col-sr { width: 28px; }
+  .hm-table .col-loc { width: 62px; }
+  .hm-table .col-subloc { width: 68px; }
+  .hm-table .col-sop { width: 110px; }
+  .hm-table .col-act { width: 82px; }
+  .hm-table .col-hzt { width: 66px; }
+  .hm-table .col-hz  { width: 100px; }
+  .hm-table .col-rdesc { width: 118px; }
+  .hm-table .col-rsk { width: 52px; }
   .hm-table .col-ppe { width: 150px; }
-  .hm-table .col-rem { width: 110px; }
-  .hm-table .col-action { width: 88px; }
+  .hm-table .col-rem { width: auto; }
+  .hm-table .col-action { width: 84px; }
 
   .loc-cell { font-weight: 800; font-size: 11px; color: #1a3a6c; }
   .subloc-cell { font-weight: 600; font-size: 10px; color: #555; font-style: italic; }
@@ -292,8 +292,9 @@
   .list-cell li::before { content: "•"; position: absolute; left: 0; }
 
   .risk-badge {
-    color: #fff; font-weight: 900; padding: 12px 4px;
-    text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px;
+    color: #fff; font-weight: 800; padding: 6px 2px;
+    text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px;
+    white-space: nowrap;
   }
   .risk-safe     { background: #4caf50; }
   .risk-moderate { background: #ffc107; color: #1a1a1a; }
@@ -312,7 +313,10 @@
     text-align: left; padding: 6px 8px; font-size: 10.5px;
     white-space: pre-wrap; line-height: 1.35;
   }
-  .remarks-cell { text-align: left; padding-left: 8px; font-size: 10.5px; }
+  .remarks-cell { text-align: left; padding: 5px 6px; font-size: 10.5px; width: 100%; }
+  .remarks-cell .list-cell { padding-left: 4px; }
+  .remarks-cell ul { margin: 0; }
+  .remarks-cell li { padding-left: 10px; }
   .action-cell { padding: 6px 4px; }
   .action-req-btn {
     background: #1565c0; color: #fff; border: none;
