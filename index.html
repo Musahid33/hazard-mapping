@@ -276,7 +276,7 @@
   .hm-table .col-act { width: 82px; }
   .hm-table .col-hzt { width: 66px; }
   .hm-table .col-hz  { width: 100px; }
-  .hm-table .col-rdesc { width: 118px; }
+  .hm-table .col-rdesc { width: auto; }
   .hm-table .col-rsk { width: 52px; }
   .hm-table .col-ppe { width: 150px; }
   .hm-table .col-rem { width: auto; }
@@ -310,9 +310,12 @@
   .ppe-cell .ppe-item .lbl { font-size: 9px; margin-top: 2px; font-weight: 600; }
 
   .risk-description-cell {
-    text-align: left; padding: 6px 8px; font-size: 10.5px;
-    white-space: pre-wrap; line-height: 1.35;
+    text-align: left; padding: 5px 6px; font-size: 10.5px;
+    line-height: 1.35; width: 100%;
   }
+  .risk-description-cell .list-cell { padding-left: 4px; }
+  .risk-description-cell ul { margin: 0; }
+  .risk-description-cell li { padding-left: 10px; }
   .remarks-cell { text-align: left; padding: 5px 6px; font-size: 10.5px; width: 100%; }
   .remarks-cell .list-cell { padding-left: 4px; }
   .remarks-cell ul { margin: 0; }
@@ -4466,5 +4469,5 @@ window.addEventListener('DOMContentLoaded', async () => {
   try { await checkLiveHealth(); } catch (e) {}
 });
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2f19077cf2a7a00',t:'MTc4NzM5ODQyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
