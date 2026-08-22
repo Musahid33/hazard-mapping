@@ -1,7 +1,15 @@
 # Vercel Deployment — Hazard Map Dashboard
 
-Vercel project ID: `prj_m6uVHU2P5kf5Ynz4e6nILfTpM5I0`
-Repo: https://github.com/Musahid33/hazard-mapping
+| | |
+|---|---|
+| Vercel team | `safexos` |
+| Vercel project | `hazardmap` — `prj_6f4pS2WjviNQRPfDmX12mkSLB20Q` |
+| Dashboard | https://vercel.com/safexos/hazardmap |
+| Repo | https://github.com/Musahid33/hazard-mapping |
+
+> An earlier project ID, `prj_m6uVHU2P5kf5Ynz4e6nILfTpM5I0`, was also used for
+> this app. Make sure env vars and the production domain are attached to the
+> project you actually deploy — `hazardmap` above.
 
 ---
 
@@ -65,12 +73,30 @@ create table if not exists hazard_data (
    the URL on the PR.
 2. Merge into `main` → Vercel promotes it to **Production**.
 
-### Option B — Vercel CLI
+### Option B — GitHub Actions (template: `ci/vercel-deploy.yml`)
+
+Copy the template into place first (it can't be committed automatically):
+
+```bash
+mkdir -p .github/workflows
+cp ci/vercel-deploy.yml .github/workflows/vercel-deploy.yml
+```
+
+Then add three repo secrets and every push deploys (preview for branches,
+production for `main`) and the workflow health-checks the result:
+
+| Secret | Value |
+|--------|-------|
+| `VERCEL_TOKEN` | https://vercel.com/account/tokens |
+| `VERCEL_ORG_ID` | `safexos` team ID (Team Settings → General) |
+| `VERCEL_PROJECT_ID` | `prj_6f4pS2WjviNQRPfDmX12mkSLB20Q` |
+
+### Option C — Vercel CLI
 
 ```bash
 npm i -g vercel
 vercel login
-vercel link --project prj_m6uVHU2P5kf5Ynz4e6nILfTpM5I0
+vercel link --scope safexos --project hazardmap
 vercel env pull .env            # optional: mirror env vars locally
 vercel                          # preview deploy
 vercel --prod                   # production deploy
@@ -115,4 +141,5 @@ Then open the site and check:
 | Data resets on refresh | `backend` is `file` → set Supabase env vars |
 | 401 from the API | `SYNC_TOKEN` is set; client must send `Authorization: Bearer <token>` |
 | Supabase 401/403 | Use the **secret/service** key, not the anon key, or relax RLS on `hazard_data` |
+| Wrong app at your domain | The domain is aliased to a different project — reassign it in Project → Settings → Domains |
 | Deploy times out | Function `maxDuration` is 30 s in `vercel.json`; raise the plan limit if needed |

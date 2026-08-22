@@ -80,7 +80,7 @@ We include `vercel.json`. In Vercel Marketplace, connect the Supabase resource t
 
 On Vercel the API runs as the serverless function `api/index.js`, which re-exports the request handler from `server.js`; the HTML/JS assets are served statically from the repo root. Routing is defined in `vercel.json`. Verify the deployment at `/api/health`; `backend` must be `supabase`.
 
-Full step-by-step instructions: **[VERCEL-DEPLOY.md](VERCEL-DEPLOY.md)** (project `prj_m6uVHU2P5kf5Ynz4e6nILfTpM5I0`).
+Full step-by-step instructions: **[VERCEL-DEPLOY.md](VERCEL-DEPLOY.md)** (project `safexos/hazardmap`, `prj_6f4pS2WjviNQRPfDmX12mkSLB20Q`).
 
 ---
 

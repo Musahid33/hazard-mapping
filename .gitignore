@@ -35,4 +35,6 @@ out/
 
 # Supabase local
 .supabase/
-.github/
+
+# Vercel CLI local link
+.vercel/
